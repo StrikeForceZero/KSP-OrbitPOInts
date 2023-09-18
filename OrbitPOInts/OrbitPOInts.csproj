@@ -42,15 +42,18 @@
     <ItemGroup>
         <Reference Include="Assembly-CSharp">
           <HintPath>$(KSP_DATA_MANAGED)/Assembly-CSharp.dll</HintPath>
+          <Private>false</Private>
         </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Xml"/>
         <Reference Include="UnityEngine">
             <HintPath>$(KSP_DATA_MANAGED)/UnityEngine.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="UnityEngine.CoreModule">
           <HintPath>$(KSP_DATA_MANAGED)/UnityEngine.CoreModule.dll</HintPath>
+          <Private>false</Private>
         </Reference>
     </ItemGroup>
     <ItemGroup>
