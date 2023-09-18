@@ -39,6 +39,10 @@
     <PropertyGroup>
         <KSP_DATA_MANAGED>$(HOME_DIR)/.local/share/Steam/steamapps/common/Kerbal Space Program/KSP_Data/Managed</KSP_DATA_MANAGED>
     </PropertyGroup>
+    <PropertyGroup>
+        <PostBuildEvent>cp "$(SolutionDir)OrbitPOInts/bin/$(Configuration)/OrbitPOInts.dll" "$(SolutionDir)/GameData/OrbitPOInts/Plugins/"
+</PostBuildEvent>
+    </PropertyGroup>
     <ItemGroup>
         <Reference Include="Assembly-CSharp">
             <HintPath>$(KSP_DATA_MANAGED)/Assembly-CSharp.dll</HintPath>
