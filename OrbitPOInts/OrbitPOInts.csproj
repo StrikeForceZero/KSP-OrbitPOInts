@@ -3,12 +3,6 @@
     <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
             Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
     <PropertyGroup>
-            <HOME_DIR>../../..</HOME_DIR>
-    </PropertyGroup>
-    <PropertyGroup>
-        <KSP_DATA_MANAGED>$(HOME_DIR)/.local/share/Steam/steamapps/common/Kerbal Space Program/KSP_Data/Managed</KSP_DATA_MANAGED>
-    </PropertyGroup>
-    <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
         <ProjectGuid>{9D1CC832-41A1-4FC7-BE0E-185BD71DC8FB}</ProjectGuid>
@@ -37,6 +31,12 @@
         <DefineConstants>TRACE</DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup>
+        <HOME_DIR>../../..</HOME_DIR>
+    </PropertyGroup>
+    <PropertyGroup>
+        <KSP_DATA_MANAGED>$(HOME_DIR)/.local/share/Steam/steamapps/common/Kerbal Space Program/KSP_Data/Managed</KSP_DATA_MANAGED>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="Assembly-CSharp">
