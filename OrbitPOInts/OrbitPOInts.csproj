@@ -54,8 +54,13 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="OrbitPOInts.cs" />
+        <Compile Include="CircleRenderer.cs" />
+        <Compile Include="Lib.cs" />
+        <Compile Include="MapObjectHelper.cs" />
+        <Compile Include="OrbitPoiVisualizer.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="Logger.cs" />
+        <Compile Include="WireSphereRenderer.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
