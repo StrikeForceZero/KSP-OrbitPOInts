@@ -57,7 +57,16 @@ namespace OrbitPOInts
         private void DrawUI(int windowID)
         {
             GUILayout.BeginVertical();
-            GUILayout.Toggle(false, "Enable");
+            Settings.GlobalEnable = GUILayout.Toggle(Settings.GlobalEnable, "Enabled");
+            Settings.EnableSpheres = GUILayout.Toggle(Settings.EnableSpheres, "Draw Spheres");
+            Settings.AlignSpheres = GUILayout.Toggle(Settings.AlignSpheres, "Align Spheres");
+            Settings.EnableCircles = GUILayout.Toggle(Settings.EnableCircles, "Draw Circles");
+            Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere");
+            Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI");
+            Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere");
+            Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit");
+            Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt");
+            Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies, "Show POI Max Altitude On Atmosphere Bodies");
             GUILayout.EndVertical();
 
             // Make the window draggable

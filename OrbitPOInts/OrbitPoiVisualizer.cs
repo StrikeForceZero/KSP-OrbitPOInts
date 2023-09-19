@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace OrbitPOInts
 {
@@ -14,9 +15,9 @@ namespace OrbitPOInts
         private readonly List<WireSphereRenderer> _drawnSpheres = new();
         private readonly List<CircleRenderer> _drawnCircles = new();
 
-        private bool _drawSpheres = true;
-        private bool _drawCircles = true;
-        private bool _rotateSpheres = false;
+        public bool DrawSpheres = true;
+        public bool DrawCircles = true;
+        public bool AlignSpheres = false;
 
         private Vessel _lastVessel;
         private CelestialBody _lastOrbitingBody;
@@ -87,8 +88,7 @@ namespace OrbitPOInts
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
             Logger.Log($"[MapOverlay] Load Requested");
-            RemoveBodySpheres();
-            RemoveBodyCircles();
+            RemoveAll();
         }
 
         private void OnMapEntered()
@@ -102,9 +102,7 @@ namespace OrbitPOInts
         private void OnMapExited()
         {
             Logger.Log($"[MapOverlay] Exiting map view");
-
-            RemoveBodySpheres();
-            RemoveBodyCircles();
+            RemoveAll();
         }
 
         private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
@@ -166,6 +164,12 @@ namespace OrbitPOInts
             // TODO: better hook?
             StartCoroutine(DelayedRefresh(focusTarget));
         }
+
+        internal void RemoveAll()
+        {
+            RemoveBodySpheres();
+            RemoveBodyCircles();
+        }
         #endregion
 
         private void UpdateNormals(Vector3 normal)
@@ -175,7 +179,7 @@ namespace OrbitPOInts
                 Lib.AlignTransformToNormal(circle.transform, normal);
             }
 
-            if (_rotateSpheres)
+            if (AlignSpheres)
             {
                 foreach (var sphere in _drawnSpheres)
                 {
@@ -217,30 +221,31 @@ namespace OrbitPOInts
 
         private void CreateBodySphere(CelestialBody body)
         {
-            if (!_drawSpheres)
+            if (!DrawSpheres)
             {
                 return;
             }
 
             Logger.Log($"[MapOverlay]: Generating spheres around {body.name}");
-            {
+            if (Settings.EnablePOI_HillSphere) {
                 CreateWireSphere(body, Color.white, (float)body.hillSphere, .1f, 50);
             }
-            {
+            var shouldShowMaxAlt = Settings.EnablePOI_MaxAlt && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
+            if (shouldShowMaxAlt) {
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
                 CreateWireSphere(body, Color.red, (float)maxAlt, .01f, 55);
                 // Utils.Log($"[MapOverlay]: Generated sphere maxAlt: {maxAlt} for {body.name}");
             }
-            {
+            if (Settings.EnablePOI_SOI) {
                 CreateWireSphere(body, Color.magenta, (float)body.sphereOfInfluence, .05f, 50);
                 // Utils.Log($"[MapOverlay]: Generated sphere sphereOfInfluence: {body.sphereOfInfluence} for {body.name}");
             }
-            {
+            if (Settings.EnablePOI_MinOrbit) {
                 CreateWireSphere(body, Color.green, (float)body.minOrbitalDistance, 0.01f, 50);
                 // Utils.Log($"[MapOverlay]: Generated sphere minOrbitalDistance: {body.minOrbitalDistance} for {body.name}");
             }
-            if (body.atmosphere)
+            if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
                 CreateWireSphere(body, Color.cyan, (float)atmoDist, 0.01f, 40);
@@ -296,31 +301,33 @@ namespace OrbitPOInts
 
         private void CreateBodyCircle(CelestialBody body)
         {
-            if (!_drawCircles)
+            if (!DrawCircles)
             {
                 return;
             }
 
             Logger.Log($"[MapOverlay]: Generating circles around {body.name}");
-            {
+            if (Settings.EnablePOI_HillSphere) {
                 CreateCircle(body, Color.white, (float)body.hillSphere, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle hillSphere: {body.hillSphere} for {body.name}");
             }
-            {
+
+            var shouldShowMaxAlt = Settings.EnablePOI_MaxAlt && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
+            if (shouldShowMaxAlt) {
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
                 CreateCircle(body, Color.red, (float)maxAlt, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle maxAlt: {maxAlt} for {body.name}");
             }
-            {
+            if (Settings.EnablePOI_SOI) {
                 CreateCircle(body, Color.magenta, (float)body.sphereOfInfluence, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle sphereOfInfluence: {body.sphereOfInfluence} for {body.name}");
             }
-            {
+            if (Settings.EnablePOI_MinOrbit) {
                 CreateCircle(body, Color.green, (float)body.minOrbitalDistance, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle minOrbitalDistance: {body.minOrbitalDistance} for {body.name}");
             }
-            if (body.atmosphere)
+            if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
                 CreateCircle(body, Color.cyan, (float)atmoDist, 1f);
