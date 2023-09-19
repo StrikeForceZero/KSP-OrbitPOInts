@@ -75,6 +75,7 @@
         <Compile Include="OrbitPoiVisualizer.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="Logger.cs" />
+        <Compile Include="ToolbarUI.cs" />
         <Compile Include="WireSphereRenderer.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
