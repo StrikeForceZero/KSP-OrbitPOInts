@@ -8,6 +8,7 @@ namespace OrbitPOInts
     {
         private ApplicationLauncherButton toolbarButton;
         private bool showUI = false;
+        private Rect windowRect = new Rect(0, 0, 250, 100); // Initial size for the window
 
         private void Start()
         {
@@ -26,16 +27,48 @@ namespace OrbitPOInts
         private void OnToolbarButtonClick()
         {
             showUI = !showUI;
+            CenterWindowPos();
         }
+
+        private void CenterWindowPos()
+        {
+            if (showUI)
+            {
+                // Calculate the screen's center
+                float centerX = Screen.width / 2;
+                float centerY = Screen.height / 2;
+
+                // Adjust for the window's size to get the top-left position
+                windowRect.x = centerX - (windowRect.width / 2);
+                windowRect.y = centerY - (windowRect.height / 2);
+            }
+        }
+
 
         private void OnGUI()
         {
             if (showUI)
             {
                 GUI.skin = HighLogic.Skin;
-                GUILayout.BeginVertical();
-                GUILayout.Label("Hello, KSP!");
-                GUILayout.EndVertical();
+                windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts");
+            }
+        }
+
+        private void DrawUI(int windowID)
+        {
+            GUILayout.BeginVertical();
+            GUILayout.Toggle(false, "Enable");
+            GUILayout.EndVertical();
+
+            // Make the window draggable
+            GUI.DragWindow();
+        }
+        
+        void Update()
+        {
+            if (HighLogic.LoadedSceneHasPlanetarium || MapView.MapIsEnabled)
+            {
+                // UpdateWindowPos();
             }
         }
         
