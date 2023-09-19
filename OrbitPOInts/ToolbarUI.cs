@@ -66,13 +66,14 @@ namespace OrbitPOInts
             Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere");
             Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit");
             Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt");
-            Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies, "Show POI Max Altitude On Atmosphere Bodies");
+            Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies,
+                "Show POI Max Altitude On Atmosphere Bodies");
             GUILayout.EndVertical();
 
             // Make the window draggable
             GUI.DragWindow();
         }
-        
+
         void Update()
         {
             if (HighLogic.LoadedSceneHasPlanetarium || MapView.MapIsEnabled)
@@ -80,7 +81,7 @@ namespace OrbitPOInts
                 // UpdateWindowPos();
             }
         }
-        
+
         private void OnDestroy()
         {
             if (toolbarButton != null)

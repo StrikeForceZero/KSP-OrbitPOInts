@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace OrbitPOInts
@@ -11,7 +10,7 @@ namespace OrbitPOInts
         public float lineWidth = 0.1f;
         public int segments = 50;
         private GameObject lineObject;
-        
+
         private void Awake()
         {
             enabled = false;
@@ -40,7 +39,7 @@ namespace OrbitPOInts
             line.endWidth = lineWidth;
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
-            
+
             for (int i = 0; i <= segments; i++)
             {
                 float angle = Mathf.Deg2Rad * (i * 360f / segments);
@@ -49,7 +48,7 @@ namespace OrbitPOInts
 
                 line.SetPosition(i, new Vector3(x, 0, z));
             }
-            
+
             if (HighLogic.LoadedScene == GameScenes.TRACKSTATION)
             {
                 gameObject.layer = 10;
@@ -71,6 +70,5 @@ namespace OrbitPOInts
         {
             enabled = state;
         }
-
     }
 }

@@ -4,6 +4,7 @@ namespace OrbitPOInts
     public static class Settings
     {
         private static bool _globalEnable = true;
+
         public static bool GlobalEnable
         {
             get => _globalEnable;
@@ -28,6 +29,7 @@ namespace OrbitPOInts
         }
 
         private static bool _enableSpheres = true;
+
         public static bool EnableSpheres
         {
             get => _enableSpheres;
@@ -43,6 +45,7 @@ namespace OrbitPOInts
         }
 
         private static bool _alignSpheres = false;
+
         public static bool AlignSpheres
         {
             get => _alignSpheres;
@@ -58,6 +61,7 @@ namespace OrbitPOInts
         }
 
         private static bool _enableCircles = true;
+
         public static bool EnableCircles
         {
             get => _enableCircles;
@@ -73,6 +77,7 @@ namespace OrbitPOInts
         }
 
         private static bool _enablePOI_HillSphere = false;
+
         public static bool EnablePOI_HillSphere
         {
             get => _enablePOI_HillSphere;
@@ -87,6 +92,7 @@ namespace OrbitPOInts
         }
 
         private static bool _enablePOI_SOI = true;
+
         public static bool EnablePOI_SOI
         {
             get => _enablePOI_SOI;
@@ -101,6 +107,7 @@ namespace OrbitPOInts
         }
 
         private static bool _enablePOI_Atmo = true;
+
         public static bool EnablePOI_Atmo
         {
             get => _enablePOI_Atmo;
@@ -115,6 +122,7 @@ namespace OrbitPOInts
         }
 
         private static bool _enablePOI_MinOrbit = true;
+
         public static bool EnablePOI_MinOrbit
         {
             get => _enablePOI_MinOrbit;
@@ -129,6 +137,7 @@ namespace OrbitPOInts
         }
 
         private static bool _enablePOI_MaxAlt = true;
+
         public static bool EnablePOI_MaxAlt
         {
             get => _enablePOI_MaxAlt;
@@ -143,6 +152,7 @@ namespace OrbitPOInts
         }
 
         private static bool _showPoiMaxAltOnAtmoBodies = false;
+
         public static bool ShowPOI_MaxAlt_OnAtmoBodies
         {
             get => _showPoiMaxAltOnAtmoBodies;

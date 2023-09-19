@@ -1,9 +1,7 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace OrbitPOInts
 {
@@ -34,6 +32,7 @@ namespace OrbitPOInts
         }
 
         #region EventFunctions
+
         private void Awake()
         {
             LoadStandardLineWidthDistance();
@@ -55,7 +54,7 @@ namespace OrbitPOInts
             GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChange);
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
         }
-        
+
         private void Update()
         {
             if (!MapView.MapIsEnabled && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
@@ -73,7 +72,8 @@ namespace OrbitPOInts
 
             if (_lastVessel != vessel || _lastOrbitingBody != body)
             {
-                Logger.Log($"[UPDATE] lastVessel: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}, lastOrbitingBody: {MapObjectHelper.GetBodyName(_lastOrbitingBody)} -> {MapObjectHelper.GetBodyName(body)}");
+                Logger.Log(
+                    $"[UPDATE] lastVessel: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}, lastOrbitingBody: {MapObjectHelper.GetBodyName(_lastOrbitingBody)} -> {MapObjectHelper.GetBodyName(body)}");
                 Refresh(target);
 
                 _lastVessel = vessel;
@@ -82,9 +82,11 @@ namespace OrbitPOInts
 
             UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
         }
+
         #endregion
 
         #region EventHandlers
+
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
             Logger.Log($"[MapOverlay] Load Requested");
@@ -113,7 +115,8 @@ namespace OrbitPOInts
 
         private void OnVesselChange(Vessel vessel)
         {
-            Logger.Log($"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
+            Logger.Log(
+                $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
             if (vessel == null)
             {
                 return;
@@ -127,17 +130,19 @@ namespace OrbitPOInts
         {
             Logger.Log($"[MapOverlay] Changed focus to {focusTarget.name}");
             Refresh(focusTarget);
-        }        
+        }
+
         #endregion
 
         #region Refresh
+
         public void UpdateBody(CelestialBody body)
         {
             Logger.Log($"[UpdateBody] body: {body.name}");
             DestroyAndRecreateBodySpheres(body);
             DestroyAndRecreateBodyCircles(body);
         }
-        
+
         private IEnumerator DelayedRefresh(MapObject target)
         {
             yield return new WaitForSeconds(0f);
@@ -170,6 +175,7 @@ namespace OrbitPOInts
             RemoveBodySpheres();
             RemoveBodyCircles();
         }
+
         #endregion
 
         private void UpdateNormals(Vector3 normal)
@@ -202,6 +208,7 @@ namespace OrbitPOInts
         }
 
         #region Spheres
+
         private void DestroyAndRecreateBodySpheres(CelestialBody targetObject)
         {
             RemoveBodySpheres();
@@ -227,24 +234,33 @@ namespace OrbitPOInts
             }
 
             Logger.Log($"[MapOverlay]: Generating spheres around {body.name}");
-            if (Settings.EnablePOI_HillSphere) {
+            if (Settings.EnablePOI_HillSphere)
+            {
                 CreateWireSphere(body, Color.white, (float)body.hillSphere, .1f, 50);
             }
-            var shouldShowMaxAlt = Settings.EnablePOI_MaxAlt && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
-            if (shouldShowMaxAlt) {
+
+            var shouldShowMaxAlt =
+                Settings.EnablePOI_MaxAlt && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
+            if (shouldShowMaxAlt)
+            {
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
                 CreateWireSphere(body, Color.red, (float)maxAlt, .01f, 55);
                 // Utils.Log($"[MapOverlay]: Generated sphere maxAlt: {maxAlt} for {body.name}");
             }
-            if (Settings.EnablePOI_SOI) {
+
+            if (Settings.EnablePOI_SOI)
+            {
                 CreateWireSphere(body, Color.magenta, (float)body.sphereOfInfluence, .05f, 50);
                 // Utils.Log($"[MapOverlay]: Generated sphere sphereOfInfluence: {body.sphereOfInfluence} for {body.name}");
             }
-            if (Settings.EnablePOI_MinOrbit) {
+
+            if (Settings.EnablePOI_MinOrbit)
+            {
                 CreateWireSphere(body, Color.green, (float)body.minOrbitalDistance, 0.01f, 50);
                 // Utils.Log($"[MapOverlay]: Generated sphere minOrbitalDistance: {body.minOrbitalDistance} for {body.name}");
             }
+
             if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
@@ -263,6 +279,7 @@ namespace OrbitPOInts
         {
             var sphereObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             var sphere = sphereObj.AddComponent<WireSphereRenderer>();
+
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
             sphere.lineWidth = width;
@@ -279,9 +296,11 @@ namespace OrbitPOInts
 
             return sphere;
         }
+
         #endregion
 
         #region Circles
+
         private void DestroyAndRecreateBodyCircles(CelestialBody targetObject)
         {
             RemoveBodyCircles();
@@ -307,26 +326,34 @@ namespace OrbitPOInts
             }
 
             Logger.Log($"[MapOverlay]: Generating circles around {body.name}");
-            if (Settings.EnablePOI_HillSphere) {
+            if (Settings.EnablePOI_HillSphere)
+            {
                 CreateCircle(body, Color.white, (float)body.hillSphere, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle hillSphere: {body.hillSphere} for {body.name}");
             }
 
-            var shouldShowMaxAlt = Settings.EnablePOI_MaxAlt && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
-            if (shouldShowMaxAlt) {
+            var shouldShowMaxAlt =
+                Settings.EnablePOI_MaxAlt && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
+            if (shouldShowMaxAlt)
+            {
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
                 CreateCircle(body, Color.red, (float)maxAlt, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle maxAlt: {maxAlt} for {body.name}");
             }
-            if (Settings.EnablePOI_SOI) {
+
+            if (Settings.EnablePOI_SOI)
+            {
                 CreateCircle(body, Color.magenta, (float)body.sphereOfInfluence, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle sphereOfInfluence: {body.sphereOfInfluence} for {body.name}");
             }
-            if (Settings.EnablePOI_MinOrbit) {
+
+            if (Settings.EnablePOI_MinOrbit)
+            {
                 CreateCircle(body, Color.green, (float)body.minOrbitalDistance, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle minOrbitalDistance: {body.minOrbitalDistance} for {body.name}");
             }
+
             if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
@@ -342,7 +369,7 @@ namespace OrbitPOInts
             var circle = circleObj.AddComponent<CircleRenderer>();
 
             circle.wireframeColor = color;
-            circle.radius = radius * ScaledSpace.InverseScaleFactor; // (float)body.atmosphereDepth + radius?;
+            circle.radius = radius * ScaledSpace.InverseScaleFactor;
             circle.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
             circle.segments = segments;
 
@@ -356,6 +383,7 @@ namespace OrbitPOInts
 
             return circle;
         }
+
         #endregion
     }
 }

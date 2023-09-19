@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace OrbitPOInts
@@ -9,7 +8,7 @@ namespace OrbitPOInts
         public float radius = 1.0f;
         public int latitudeLines = 10;
         public int longitudeLines = 10;
-        private GameObject[] lineObjects = new GameObject[] {};
+        private GameObject[] lineObjects = { };
         public Color wireframeColor = Color.green;
         public float lineWidth = 0.1f;
 
@@ -46,7 +45,7 @@ namespace OrbitPOInts
             {
                 float fraction = (float)i / longitudeLines;
                 float angle = Mathf.Lerp(0, 2 * Mathf.PI, fraction);
-    
+
                 DrawLongitudeLine(i, angle);
             }
 
@@ -64,7 +63,7 @@ namespace OrbitPOInts
                 }
             }
         }
-        
+
         void DrawLatitudeLine(int index, float height, float circleRadius)
         {
             GameObject lineObject = new GameObject($"LatitudeLine_{index}");
@@ -96,7 +95,7 @@ namespace OrbitPOInts
 
             lineObjects[index] = lineObject;
         }
-        
+
         void DrawLongitudeLine(int index, float angle)
         {
             GameObject lineObject = new GameObject($"LongitudeLine_{index}");
@@ -113,7 +112,7 @@ namespace OrbitPOInts
             line.endWidth = lineWidth;
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
-            
+
             for (int j = 0; j < latitudeLines; j++)
             {
                 float latFraction = (float)j / (latitudeLines - 1);
