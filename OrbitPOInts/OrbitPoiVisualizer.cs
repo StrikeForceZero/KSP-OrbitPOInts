@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Enumerable = UniLinq.Enumerable;
 
 namespace OrbitPOInts
 {
@@ -274,7 +275,7 @@ namespace OrbitPOInts
                 // Utils.Log($"[MapOverlay]: Generated sphere atmoDist: {atmoDist} for {body.name}");
             }
             
-            foreach (var customPoi in _customPois)
+            foreach (var customPoi in Enumerable.Where(_customPois, d => d > 0))
             {
                 // TODO: custom color and specific body
                 CreateWireSphere(body, Color.white, (float)customPoi/2, .01f);
@@ -373,7 +374,7 @@ namespace OrbitPOInts
                 // Utils.Log($"[MapOverlay]: Generated circle atmoDist: {atmoDist} for {body.name}");
             }
 
-            foreach (var customPoi in _customPois)
+            foreach (var customPoi in Enumerable.Where(_customPois, d => d > 0))
             {
                 // TODO: custom color and specific body
                 CreateCircle(body, Color.white, (float)customPoi/2, 1f);
