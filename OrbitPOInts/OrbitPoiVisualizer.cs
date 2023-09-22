@@ -21,6 +21,12 @@ namespace OrbitPOInts
         private CelestialBody _lastOrbitingBody;
 
         private static double _standardLineWidthDistance;
+        
+        private static double[] _customPois = {
+            Settings.CustomPOI1,
+            Settings.CustomPOI2,
+            Settings.CustomPOI3,
+        };
 
         private static void LoadStandardLineWidthDistance()
         {
@@ -267,6 +273,12 @@ namespace OrbitPOInts
                 CreateWireSphere(body, Color.cyan, (float)atmoDist, 0.01f, 40);
                 // Utils.Log($"[MapOverlay]: Generated sphere atmoDist: {atmoDist} for {body.name}");
             }
+            
+            foreach (var customPoi in _customPois)
+            {
+                // TODO: custom color and specific body
+                CreateWireSphere(body, Color.white, (float)customPoi/2, .01f);
+            }
         }
 
         private WireSphereRenderer CreateWireSphere(
@@ -359,6 +371,12 @@ namespace OrbitPOInts
                 var atmoDist = body.atmosphereDepth + body.Radius;
                 CreateCircle(body, Color.cyan, (float)atmoDist, 1f);
                 // Utils.Log($"[MapOverlay]: Generated circle atmoDist: {atmoDist} for {body.name}");
+            }
+
+            foreach (var customPoi in _customPois)
+            {
+                // TODO: custom color and specific body
+                CreateCircle(body, Color.white, (float)customPoi/2, 1f);
             }
         }
 

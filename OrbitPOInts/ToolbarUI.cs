@@ -1,3 +1,5 @@
+using System;
+using System.Globalization;
 using KSP.UI.Screens;
 using UnityEngine;
 
@@ -54,6 +56,24 @@ namespace OrbitPOInts
             }
         }
 
+        private void CustomPoiGUI()
+        {
+            var customPoi1Input = GUILayout.TextField("Custom POI 1");
+            var customPoi2Input = GUILayout.TextField("Custom POI 2");
+            var customPoi3Input = GUILayout.TextField("Custom POI 3");
+            var result1 = double.TryParse(customPoi1Input, out var customPoi1);
+            var result2 = double.TryParse(customPoi2Input, out var customPoi2);
+            var result3 = double.TryParse(customPoi3Input, out var customPoi3);
+            if (result1) Settings.CustomPOI1 = Math.Max(0, customPoi1);
+            if (result2) Settings.CustomPOI2 = Math.Max(0, customPoi2);
+            if (result3) Settings.CustomPOI3 = Math.Max(0, customPoi3);
+            // ReSharper disable RedundantAssignment
+            customPoi1Input = Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture);
+            customPoi2Input = Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture);
+            customPoi3Input = Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture);
+            // ReSharper restore RedundantAssignment
+        }
+
         private void DrawUI(int windowID)
         {
             GUILayout.BeginVertical();
@@ -79,6 +99,8 @@ namespace OrbitPOInts
                         Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies,
                             "Show POI Max Altitude On Atmosphere Bodies");
                     GUILayout.EndHorizontal();
+
+                CustomPoiGUI();
             
             GUILayout.EndVertical();
 
