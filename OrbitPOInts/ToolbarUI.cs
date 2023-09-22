@@ -106,6 +106,8 @@ namespace OrbitPOInts
             var result = ToggleTextFieldResult.Default;
             GUILayout.BeginHorizontal();
             result.Enabled = GUILayout.Toggle(toggled, label);
+            // TODO: why is the toggle label getting cut off?
+            GUILayout.Space(100);
             result.Text = GUILayout.TextField(text, GUILayout.ExpandWidth(false), GUILayout.Width(100));
             GUILayout.EndHorizontal();
             return result;
