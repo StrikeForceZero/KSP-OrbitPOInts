@@ -64,9 +64,9 @@ namespace OrbitPOInts
             var oldPoi2 = Settings.CustomPOI2;
             var oldPoi3 = Settings.CustomPOI3;
 
-            var customPoi1Input = TextFieldWithToggle(Settings.CustomPOI1Enabled, "Custom POI 1: ", Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture));
-            var customPoi2Input = TextFieldWithToggle(Settings.CustomPOI2Enabled, "Custom POI 2: ", Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture));
-            var customPoi3Input = TextFieldWithToggle(Settings.CustomPOI3Enabled, "Custom POI 3: ", Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture));
+            var customPoi1Input = TextFieldWithToggle(Settings.CustomPOI1Enabled, "Custom POI 1: ", Settings.CustomPOI1.ToString("N", CultureInfo.CurrentCulture));
+            var customPoi2Input = TextFieldWithToggle(Settings.CustomPOI2Enabled, "Custom POI 2: ", Settings.CustomPOI2.ToString("N", CultureInfo.CurrentCulture));
+            var customPoi3Input = TextFieldWithToggle(Settings.CustomPOI3Enabled, "Custom POI 3: ", Settings.CustomPOI3.ToString("N", CultureInfo.CurrentCulture));
             var result1 = double.TryParse(customPoi1Input.Text, out var customPoi1);
             var result2 = double.TryParse(customPoi2Input.Text, out var customPoi2);
             var result3 = double.TryParse(customPoi3Input.Text, out var customPoi3);
@@ -86,9 +86,9 @@ namespace OrbitPOInts
             Settings.CustomPOI3Enabled = Settings.CustomPOI3 > 0 && (poi3Changed || customPoi3Input.Enabled);
 
             // ReSharper disable RedundantAssignment
-            customPoi1Input.Text = Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture);
-            customPoi2Input.Text = Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture);
-            customPoi3Input.Text = Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture);
+            customPoi1Input.Text = Settings.CustomPOI1.ToString("N", CultureInfo.CurrentCulture);
+            customPoi2Input.Text = Settings.CustomPOI2.ToString("N", CultureInfo.CurrentCulture);
+            customPoi3Input.Text = Settings.CustomPOI3.ToString("N", CultureInfo.CurrentCulture);
             // ReSharper restore RedundantAssignment
         }
 
