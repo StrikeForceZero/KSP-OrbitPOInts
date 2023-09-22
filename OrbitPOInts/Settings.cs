@@ -10,21 +10,19 @@ namespace OrbitPOInts
             get => _globalEnable;
             set
             {
-                if (_globalEnable != value)
+                if (_globalEnable == value) return;
+                _globalEnable = value;
+                OrbitPoiVisualizer.Instance.SetEnabled(value);
+                OrbitPoiVisualizer.Instance.enabled = value;
+                if (OrbitPoiVisualizer.Instance.enabled)
                 {
-                    _globalEnable = value;
-                    OrbitPoiVisualizer.Instance.SetEnabled(value);
-                    OrbitPoiVisualizer.Instance.enabled = value;
-                    if (OrbitPoiVisualizer.Instance.enabled)
-                    {
-                        OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                    }
-                    else
-                    {
-                        OrbitPoiVisualizer.Instance.RemoveAll();
-                    }
-                    // TODO: maybe we should clean up and remove events too
+                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
                 }
+                else
+                {
+                    OrbitPoiVisualizer.Instance.RemoveAll();
+                }
+                // TODO: maybe we should clean up and remove events too
             }
         }
 
@@ -35,12 +33,10 @@ namespace OrbitPOInts
             get => _enableSpheres;
             set
             {
-                if (_enableSpheres != value)
-                {
-                    _enableSpheres = value;
-                    OrbitPoiVisualizer.Instance.DrawSpheres = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_enableSpheres == value) return;
+                _enableSpheres = value;
+                OrbitPoiVisualizer.Instance.DrawSpheres = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
 
@@ -51,12 +47,10 @@ namespace OrbitPOInts
             get => _alignSpheres;
             set
             {
-                if (_alignSpheres != value)
-                {
-                    _alignSpheres = value;
-                    OrbitPoiVisualizer.Instance.AlignSpheres = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_alignSpheres == value) return;
+                _alignSpheres = value;
+                OrbitPoiVisualizer.Instance.AlignSpheres = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
 
@@ -67,12 +61,10 @@ namespace OrbitPOInts
             get => _enableCircles;
             set
             {
-                if (_enableCircles != value)
-                {
-                    _enableCircles = value;
-                    OrbitPoiVisualizer.Instance.DrawCircles = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_enableCircles == value) return;
+                _enableCircles = value;
+                OrbitPoiVisualizer.Instance.DrawCircles = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
 
@@ -83,11 +75,9 @@ namespace OrbitPOInts
             get => _enablePOI_HillSphere;
             set
             {
-                if (_enablePOI_HillSphere != value)
-                {
-                    _enablePOI_HillSphere = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_enablePOI_HillSphere == value) return;
+                _enablePOI_HillSphere = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
 
@@ -98,11 +88,9 @@ namespace OrbitPOInts
             get => _enablePOI_SOI;
             set
             {
-                if (_enablePOI_SOI != value)
-                {
-                    _enablePOI_SOI = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_enablePOI_SOI == value) return;
+                _enablePOI_SOI = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
 
@@ -113,11 +101,9 @@ namespace OrbitPOInts
             get => _enablePOI_Atmo;
             set
             {
-                if (_enablePOI_Atmo != value)
-                {
-                    _enablePOI_Atmo = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_enablePOI_Atmo == value) return;
+                _enablePOI_Atmo = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
 
@@ -128,11 +114,9 @@ namespace OrbitPOInts
             get => _enablePOI_MinOrbit;
             set
             {
-                if (_enablePOI_MinOrbit != value)
-                {
-                    _enablePOI_MinOrbit = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_enablePOI_MinOrbit == value) return;
+                _enablePOI_MinOrbit = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
 
@@ -143,11 +127,9 @@ namespace OrbitPOInts
             get => _enablePOI_MaxAlt;
             set
             {
-                if (_enablePOI_MaxAlt != value)
-                {
-                    _enablePOI_MaxAlt = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_enablePOI_MaxAlt == value) return;
+                _enablePOI_MaxAlt = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
 
@@ -158,11 +140,9 @@ namespace OrbitPOInts
             get => _showPoiMaxAltOnAtmoBodies;
             set
             {
-                if (_showPoiMaxAltOnAtmoBodies != value)
-                {
-                    _showPoiMaxAltOnAtmoBodies = value;
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
-                }
+                if (_showPoiMaxAltOnAtmoBodies == value) return;
+                _showPoiMaxAltOnAtmoBodies = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
             }
         }
     }
