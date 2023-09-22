@@ -59,16 +59,13 @@ namespace OrbitPOInts
         {
             if (!MapView.MapIsEnabled && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
             {
-                // Utils.Log("[STATUS] not in map");
                 return;
             }
 
             var target = PlanetariumCamera.fetch.target;
-            // Utils.Log($"[UPDATE] vessel: {GetVesselName(target.vessel)}, body:{GetBodyName(target.celestialBody)}");
             var vessel = target.vessel;
             var hasVessel = vessel != null;
             var body = hasVessel ? vessel.mainBody : target.celestialBody;
-            // Utils.Log($"[UPDATE] currentTarget: {(vessel ? vessel.name : body ? body.name : "no target")}");
 
             if (_lastVessel != vessel || _lastOrbitingBody != body)
             {
@@ -246,26 +243,22 @@ namespace OrbitPOInts
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
                 CreateWireSphere(body, Color.red, (float)maxAlt, .01f, 55);
-                // Utils.Log($"[MapOverlay]: Generated sphere maxAlt: {maxAlt} for {body.name}");
             }
 
             if (Settings.EnablePOI_SOI)
             {
                 CreateWireSphere(body, Color.magenta, (float)body.sphereOfInfluence, .05f, 50);
-                // Utils.Log($"[MapOverlay]: Generated sphere sphereOfInfluence: {body.sphereOfInfluence} for {body.name}");
             }
 
             if (Settings.EnablePOI_MinOrbit)
             {
                 CreateWireSphere(body, Color.green, (float)body.minOrbitalDistance, 0.01f, 50);
-                // Utils.Log($"[MapOverlay]: Generated sphere minOrbitalDistance: {body.minOrbitalDistance} for {body.name}");
             }
 
             if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
                 CreateWireSphere(body, Color.cyan, (float)atmoDist, 0.01f, 40);
-                // Utils.Log($"[MapOverlay]: Generated sphere atmoDist: {atmoDist} for {body.name}");
             }
         }
 
@@ -309,7 +302,6 @@ namespace OrbitPOInts
 
         private void RemoveBodyCircles()
         {
-            Logger.Log($"[MapOverlay]: Removing body circle");
             foreach (var circle in _drawnCircles)
             {
                 Destroy(circle);
@@ -329,7 +321,6 @@ namespace OrbitPOInts
             if (Settings.EnablePOI_HillSphere)
             {
                 CreateCircle(body, Color.white, (float)body.hillSphere, 1f);
-                // Utils.Log($"[MapOverlay]: Generated circle hillSphere: {body.hillSphere} for {body.name}");
             }
 
             var shouldShowMaxAlt =
@@ -339,26 +330,22 @@ namespace OrbitPOInts
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
                 CreateCircle(body, Color.red, (float)maxAlt, 1f);
-                // Utils.Log($"[MapOverlay]: Generated circle maxAlt: {maxAlt} for {body.name}");
             }
 
             if (Settings.EnablePOI_SOI)
             {
                 CreateCircle(body, Color.magenta, (float)body.sphereOfInfluence, 1f);
-                // Utils.Log($"[MapOverlay]: Generated circle sphereOfInfluence: {body.sphereOfInfluence} for {body.name}");
             }
 
             if (Settings.EnablePOI_MinOrbit)
             {
                 CreateCircle(body, Color.green, (float)body.minOrbitalDistance, 1f);
-                // Utils.Log($"[MapOverlay]: Generated circle minOrbitalDistance: {body.minOrbitalDistance} for {body.name}");
             }
 
             if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
                 CreateCircle(body, Color.cyan, (float)atmoDist, 1f);
-                // Utils.Log($"[MapOverlay]: Generated circle atmoDist: {atmoDist} for {body.name}");
             }
         }
 
