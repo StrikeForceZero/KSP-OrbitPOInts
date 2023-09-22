@@ -1,3 +1,6 @@
+using System;
+using OrbitPOInts.Extensions;
+
 namespace OrbitPOInts
 {
     // TODO: this is lazy, come up with a better way later
@@ -145,5 +148,82 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
+
+        #region CustomPOI
+        private static double _customPoi1;
+
+        public static double CustomPOI1
+        {
+            get => _customPoi1;
+            set
+            {
+                if (_customPoi1.AreRelativelyEqual(value)) return;
+                _customPoi1 = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+            }
+        }
+
+        private static bool _customPoi1Enabled;
+        public static bool CustomPOI1Enabled
+        {
+            get => _customPoi1Enabled;
+            set
+            {
+                if (_customPoi1Enabled == value) return;
+                _customPoi1Enabled = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+            }
+        }
+        
+        private static double _customPoi2;
+
+        public static double CustomPOI2
+        {
+            get => _customPoi2;
+            set
+            {
+                if (_customPoi2.AreRelativelyEqual(value)) return;
+                _customPoi2 = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+            }
+        }
+
+        private static bool _customPoi2Enabled;
+        public static bool CustomPOI2Enabled
+        {
+            get => _customPoi2Enabled;
+            set
+            {
+                if (_customPoi2Enabled == value) return;
+                _customPoi2Enabled = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+            }
+        }
+        
+        private static double _customPoi3;
+
+        public static double CustomPOI3
+        {
+            get => _customPoi3;
+            set
+            {
+                if (_customPoi3.AreRelativelyEqual(value)) return;
+                _customPoi3 = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+            }
+        }
+
+        private static bool _customPoi3Enabled;
+        public static bool CustomPOI3Enabled
+        {
+            get => _customPoi3Enabled;
+            set
+            {
+                if (_customPoi3Enabled == value) return;
+                _customPoi3Enabled = value;
+                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+            }
+        }
+        #endregion
     }
 }

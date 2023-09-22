@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Enumerable = UniLinq.Enumerable;
 
 namespace OrbitPOInts
 {
@@ -21,6 +23,12 @@ namespace OrbitPOInts
         private CelestialBody _lastOrbitingBody;
 
         private static double _standardLineWidthDistance;
+        
+        private static CustomPOI[] _customPois = {
+            new() { Enabled = () => Settings.CustomPOI1Enabled, Diameter = () => Settings.CustomPOI1 },
+            new() { Enabled = () => Settings.CustomPOI2Enabled, Diameter = () => Settings.CustomPOI2 },
+            new() { Enabled = () => Settings.CustomPOI3Enabled, Diameter = () => Settings.CustomPOI3 },
+        };
 
         private static void LoadStandardLineWidthDistance()
         {
@@ -270,6 +278,12 @@ namespace OrbitPOInts
                 var atmoDist = body.atmosphereDepth + body.Radius;
                 CreateWireSphere(body, Color.cyan, (float)atmoDist, 0.01f, 40);
             }
+            
+            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
+            {
+                // TODO: custom color and specific body
+                CreateWireSphere(body, Color.white, (float)customPoi.Diameter(), .01f);
+            }
         }
 
         private WireSphereRenderer CreateWireSphere(
@@ -357,6 +371,12 @@ namespace OrbitPOInts
                 var atmoDist = body.atmosphereDepth + body.Radius;
                 CreateCircle(body, Color.cyan, (float)atmoDist, 1f);
             }
+
+            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
+            {
+                // TODO: custom color and specific body
+                CreateCircle(body, Color.white, (float)customPoi.Diameter(), 1f);
+            }
         }
 
         private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
@@ -382,5 +402,11 @@ namespace OrbitPOInts
         }
 
         #endregion
+    }
+
+    sealed class CustomPOI
+    {
+        public Func<bool> Enabled { get; set; }
+        public Func<double> Diameter { get; set; }
     }
 }

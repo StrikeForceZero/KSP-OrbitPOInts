@@ -1,4 +1,7 @@
+using System;
+using System.Globalization;
 using KSP.UI.Screens;
+using OrbitPOInts.Extensions;
 using UnityEngine;
 
 namespace OrbitPOInts
@@ -54,6 +57,62 @@ namespace OrbitPOInts
             }
         }
 
+        private void CustomPoiGUI()
+        {
+            // save the old values for checking later
+            var oldPoi1 = Settings.CustomPOI1;
+            var oldPoi2 = Settings.CustomPOI2;
+            var oldPoi3 = Settings.CustomPOI3;
+
+            var customPoi1Input = TextFieldWithToggle(Settings.CustomPOI1Enabled, "Custom POI 1: ", Settings.CustomPOI1.ToString("N", CultureInfo.CurrentCulture));
+            var customPoi2Input = TextFieldWithToggle(Settings.CustomPOI2Enabled, "Custom POI 2: ", Settings.CustomPOI2.ToString("N", CultureInfo.CurrentCulture));
+            var customPoi3Input = TextFieldWithToggle(Settings.CustomPOI3Enabled, "Custom POI 3: ", Settings.CustomPOI3.ToString("N", CultureInfo.CurrentCulture));
+            var result1 = double.TryParse(customPoi1Input.Text, out var customPoi1);
+            var result2 = double.TryParse(customPoi2Input.Text, out var customPoi2);
+            var result3 = double.TryParse(customPoi3Input.Text, out var customPoi3);
+            // ensure value is always positive
+            if (result1) Settings.CustomPOI1 = Math.Abs(customPoi1);
+            if (result2) Settings.CustomPOI2 = Math.Abs(customPoi2);
+            if (result3) Settings.CustomPOI3 = Math.Abs(customPoi3);
+
+            // check if the values were changed
+            var poi1Changed = !Settings.CustomPOI1.AreRelativelyEqual(oldPoi1);
+            var poi2Changed = !Settings.CustomPOI2.AreRelativelyEqual(oldPoi2);
+            var poi3Changed = !Settings.CustomPOI3.AreRelativelyEqual(oldPoi3);
+
+            // if the value was updated and >0 enable it, otherwise disable it
+            Settings.CustomPOI1Enabled = Settings.CustomPOI1 > 0 && (poi1Changed || customPoi1Input.Enabled);
+            Settings.CustomPOI2Enabled = Settings.CustomPOI2 > 0 && (poi2Changed || customPoi2Input.Enabled);
+            Settings.CustomPOI3Enabled = Settings.CustomPOI3 > 0 && (poi3Changed || customPoi3Input.Enabled);
+
+            // ReSharper disable RedundantAssignment
+            customPoi1Input.Text = Settings.CustomPOI1.ToString("N", CultureInfo.CurrentCulture);
+            customPoi2Input.Text = Settings.CustomPOI2.ToString("N", CultureInfo.CurrentCulture);
+            customPoi3Input.Text = Settings.CustomPOI3.ToString("N", CultureInfo.CurrentCulture);
+            // ReSharper restore RedundantAssignment
+        }
+
+        private string TextFieldWithLabel(string label, string text = "")
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            var result = GUILayout.TextField(text);
+            GUILayout.EndHorizontal();
+            return result;
+        }
+
+        private ToggleTextFieldResult TextFieldWithToggle(bool toggled, string label, string text = "")
+        {
+            var result = ToggleTextFieldResult.Default;
+            GUILayout.BeginHorizontal();
+            result.Enabled = GUILayout.Toggle(toggled, label);
+            // TODO: why is the toggle label getting cut off?
+            GUILayout.Space(100);
+            result.Text = GUILayout.TextField(text, GUILayout.ExpandWidth(false), GUILayout.Width(100));
+            GUILayout.EndHorizontal();
+            return result;
+        }
+
         private void DrawUI(int windowID)
         {
             GUILayout.BeginVertical();
@@ -79,6 +138,8 @@ namespace OrbitPOInts
                         Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies,
                             "Show POI Max Altitude On Atmosphere Bodies");
                     GUILayout.EndHorizontal();
+
+                CustomPoiGUI();
             
             GUILayout.EndVertical();
 
@@ -101,5 +162,13 @@ namespace OrbitPOInts
                 ApplicationLauncher.Instance.RemoveModApplication(toolbarButton);
             }
         }
+    }
+
+    sealed class ToggleTextFieldResult
+    {
+        public bool Enabled;
+        public string Text;
+
+        public static ToggleTextFieldResult Default => new ToggleTextFieldResult();
     }
 }
