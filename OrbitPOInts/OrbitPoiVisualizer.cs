@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,9 +25,9 @@ namespace OrbitPOInts
         private static double _standardLineWidthDistance;
         
         private static CustomPOI[] _customPois = {
-            new() { Enabled = Settings.CustomPOI1Enabled, Diameter = Settings.CustomPOI1 },
-            new() { Enabled = Settings.CustomPOI2Enabled, Diameter = Settings.CustomPOI2 },
-            new() { Enabled = Settings.CustomPOI3Enabled, Diameter = Settings.CustomPOI3 },
+            new() { Enabled = () => Settings.CustomPOI1Enabled, Diameter = () => Settings.CustomPOI1 },
+            new() { Enabled = () => Settings.CustomPOI2Enabled, Diameter = () => Settings.CustomPOI2 },
+            new() { Enabled = () => Settings.CustomPOI3Enabled, Diameter = () => Settings.CustomPOI3 },
         };
 
         private static void LoadStandardLineWidthDistance()
@@ -275,10 +276,10 @@ namespace OrbitPOInts
                 // Utils.Log($"[MapOverlay]: Generated sphere atmoDist: {atmoDist} for {body.name}");
             }
             
-            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled && poi.Diameter > 0))
+            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
             {
                 // TODO: custom color and specific body
-                CreateWireSphere(body, Color.white, (float)customPoi.Diameter/2, .01f);
+                CreateWireSphere(body, Color.white, (float)customPoi.Diameter(), .01f);
             }
         }
 
@@ -374,10 +375,10 @@ namespace OrbitPOInts
                 // Utils.Log($"[MapOverlay]: Generated circle atmoDist: {atmoDist} for {body.name}");
             }
 
-            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled && poi.Diameter > 0))
+            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
             {
                 // TODO: custom color and specific body
-                CreateCircle(body, Color.white, (float)customPoi.Diameter/2, 1f);
+                CreateCircle(body, Color.white, (float)customPoi.Diameter(), 1f);
             }
         }
 
@@ -408,7 +409,7 @@ namespace OrbitPOInts
 
     sealed class CustomPOI
     {
-        public bool Enabled;
-        public double Diameter;
+        public Func<bool> Enabled { get; set; }
+        public Func<double> Diameter { get; set; }
     }
 }
