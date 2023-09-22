@@ -111,7 +111,7 @@ namespace OrbitPOInts
 
         private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
         {
-            Log($"[OnVesselSOIChainge] soi changed: {data.from.name} -> {data.to.name}");
+            Log($"[OnVesselSOIChange] soi changed: {data.from.name} -> {data.to.name}");
             UpdateBody(data.to);
         }
 
