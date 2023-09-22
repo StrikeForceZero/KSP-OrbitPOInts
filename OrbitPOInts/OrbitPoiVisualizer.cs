@@ -172,6 +172,11 @@ namespace OrbitPOInts
             StartCoroutine(DelayedRefresh(focusTarget));
         }
 
+        public void CurrentTargetRefresh()
+        {
+            Refresh(PlanetariumCamera.fetch.target);
+        }
+
         internal void RemoveAll()
         {
             RemoveBodySpheres();

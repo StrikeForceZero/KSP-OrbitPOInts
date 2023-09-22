@@ -16,7 +16,7 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.enabled = value;
                 if (OrbitPoiVisualizer.Instance.enabled)
                 {
-                    OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                    OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
                 }
                 else
                 {
@@ -36,7 +36,7 @@ namespace OrbitPOInts
                 if (_enableSpheres == value) return;
                 _enableSpheres = value;
                 OrbitPoiVisualizer.Instance.DrawSpheres = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -50,7 +50,7 @@ namespace OrbitPOInts
                 if (_alignSpheres == value) return;
                 _alignSpheres = value;
                 OrbitPoiVisualizer.Instance.AlignSpheres = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -64,7 +64,7 @@ namespace OrbitPOInts
                 if (_enableCircles == value) return;
                 _enableCircles = value;
                 OrbitPoiVisualizer.Instance.DrawCircles = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -77,7 +77,7 @@ namespace OrbitPOInts
             {
                 if (_enablePOI_HillSphere == value) return;
                 _enablePOI_HillSphere = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -90,7 +90,7 @@ namespace OrbitPOInts
             {
                 if (_enablePOI_SOI == value) return;
                 _enablePOI_SOI = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -103,7 +103,7 @@ namespace OrbitPOInts
             {
                 if (_enablePOI_Atmo == value) return;
                 _enablePOI_Atmo = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -116,7 +116,7 @@ namespace OrbitPOInts
             {
                 if (_enablePOI_MinOrbit == value) return;
                 _enablePOI_MinOrbit = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -129,7 +129,7 @@ namespace OrbitPOInts
             {
                 if (_enablePOI_MaxAlt == value) return;
                 _enablePOI_MaxAlt = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -142,7 +142,7 @@ namespace OrbitPOInts
             {
                 if (_showPoiMaxAltOnAtmoBodies == value) return;
                 _showPoiMaxAltOnAtmoBodies = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
     }
