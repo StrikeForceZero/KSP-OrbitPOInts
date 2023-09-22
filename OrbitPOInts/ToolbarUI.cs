@@ -59,11 +59,15 @@ namespace OrbitPOInts
             GUILayout.BeginVertical();
             
                 Settings.GlobalEnable = GUILayout.Toggle(Settings.GlobalEnable, "Enabled");
+
+                GUILayout.Space(10);
+
                 Settings.EnableSpheres = GUILayout.Toggle(Settings.EnableSpheres, "Draw Spheres");
                 Settings.AlignSpheres = GUILayout.Toggle(Settings.AlignSpheres, "Align Spheres");
                 Settings.EnableCircles = GUILayout.Toggle(Settings.EnableCircles, "Draw Circles");
                 
-                GUILayout.Space(50);
+                GUILayout.Space(10);
+
                 Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere");
                 Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI");
                 Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere");
@@ -71,7 +75,7 @@ namespace OrbitPOInts
                 Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt");
                 
                     GUILayout.BeginHorizontal();
-                        GUILayout.Space(50);
+                        GUILayout.Space(20);
                         Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies,
                             "Show POI Max Altitude On Atmosphere Bodies");
                     GUILayout.EndHorizontal();
