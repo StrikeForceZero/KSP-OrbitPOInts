@@ -211,14 +211,14 @@ namespace OrbitPOInts
 
         public void SetEnabled(bool state)
         {
-            foreach (var p in _drawnSpheres)
+            foreach (var sphere in _drawnSpheres)
             {
-                p.SetEnabled(state);
+                sphere.SetEnabled(state);
             }
 
-            foreach (var p in _drawnCircles)
+            foreach (var circle in _drawnCircles)
             {
-                p.SetEnabled(state);
+                circle.SetEnabled(state);
             }
         }
 
