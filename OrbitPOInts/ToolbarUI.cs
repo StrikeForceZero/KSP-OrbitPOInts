@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using KSP.UI.Screens;
+using OrbitPOInts.Extensions;
 using UnityEngine;
 
 namespace OrbitPOInts
@@ -58,18 +59,31 @@ namespace OrbitPOInts
 
         private void CustomPoiGUI()
         {
+            // save the old values for checking later
+            var oldPoi1 = Settings.CustomPOI1;
+            var oldPoi2 = Settings.CustomPOI2;
+            var oldPoi3 = Settings.CustomPOI3;
+
             var customPoi1Input = TextFieldWithToggle(Settings.CustomPOI1Enabled, "Custom POI 1: ", Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture));
             var customPoi2Input = TextFieldWithToggle(Settings.CustomPOI2Enabled, "Custom POI 2: ", Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture));
             var customPoi3Input = TextFieldWithToggle(Settings.CustomPOI3Enabled, "Custom POI 3: ", Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture));
-            Settings.CustomPOI1Enabled = customPoi1Input.Enabled;
-            Settings.CustomPOI2Enabled = customPoi2Input.Enabled;
-            Settings.CustomPOI3Enabled = customPoi3Input.Enabled;
             var result1 = double.TryParse(customPoi1Input.Text, out var customPoi1);
             var result2 = double.TryParse(customPoi2Input.Text, out var customPoi2);
             var result3 = double.TryParse(customPoi3Input.Text, out var customPoi3);
             if (result1) Settings.CustomPOI1 = Math.Max(0, customPoi1);
             if (result2) Settings.CustomPOI2 = Math.Max(0, customPoi2);
             if (result3) Settings.CustomPOI3 = Math.Max(0, customPoi3);
+
+            // check if the values were changed
+            var poi1Changed = !Settings.CustomPOI1.AreRelativelyEqual(oldPoi1);
+            var poi2Changed = !Settings.CustomPOI2.AreRelativelyEqual(oldPoi2);
+            var poi3Changed = !Settings.CustomPOI3.AreRelativelyEqual(oldPoi3);
+
+            // if the value was updated and >0 enable it, otherwise disable it
+            Settings.CustomPOI1Enabled = Settings.CustomPOI1 > 0 && (poi1Changed || customPoi1Input.Enabled);
+            Settings.CustomPOI2Enabled = Settings.CustomPOI2 > 0 && (poi2Changed || customPoi2Input.Enabled);
+            Settings.CustomPOI3Enabled = Settings.CustomPOI3 > 0 && (poi3Changed || customPoi3Input.Enabled);
+
             // ReSharper disable RedundantAssignment
             customPoi1Input.Text = Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture);
             customPoi2Input.Text = Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture);
