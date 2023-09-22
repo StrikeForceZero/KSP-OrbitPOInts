@@ -58,19 +58,22 @@ namespace OrbitPOInts
 
         private void CustomPoiGUI()
         {
-            var customPoi1Input = TextFieldWithLabel("Custom POI 1: ", Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture));
-            var customPoi2Input = TextFieldWithLabel("Custom POI 2: ", Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture));
-            var customPoi3Input = TextFieldWithLabel("Custom POI 3: ", Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture));
-            var result1 = double.TryParse(customPoi1Input, out var customPoi1);
-            var result2 = double.TryParse(customPoi2Input, out var customPoi2);
-            var result3 = double.TryParse(customPoi3Input, out var customPoi3);
+            var customPoi1Input = TextFieldWithToggle(Settings.CustomPOI1Enabled, "Custom POI 1: ", Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture));
+            var customPoi2Input = TextFieldWithToggle(Settings.CustomPOI2Enabled, "Custom POI 2: ", Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture));
+            var customPoi3Input = TextFieldWithToggle(Settings.CustomPOI3Enabled, "Custom POI 3: ", Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture));
+            Settings.CustomPOI1Enabled = customPoi1Input.Enabled;
+            Settings.CustomPOI2Enabled = customPoi2Input.Enabled;
+            Settings.CustomPOI3Enabled = customPoi3Input.Enabled;
+            var result1 = double.TryParse(customPoi1Input.Text, out var customPoi1);
+            var result2 = double.TryParse(customPoi2Input.Text, out var customPoi2);
+            var result3 = double.TryParse(customPoi3Input.Text, out var customPoi3);
             if (result1) Settings.CustomPOI1 = Math.Max(0, customPoi1);
             if (result2) Settings.CustomPOI2 = Math.Max(0, customPoi2);
             if (result3) Settings.CustomPOI3 = Math.Max(0, customPoi3);
             // ReSharper disable RedundantAssignment
-            customPoi1Input = Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture);
-            customPoi2Input = Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture);
-            customPoi3Input = Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture);
+            customPoi1Input.Text = Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture);
+            customPoi2Input.Text = Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture);
+            customPoi3Input.Text = Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture);
             // ReSharper restore RedundantAssignment
         }
 
@@ -79,6 +82,16 @@ namespace OrbitPOInts
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
             var result = GUILayout.TextField(text);
+            GUILayout.EndHorizontal();
+            return result;
+        }
+
+        private ToggleTextFieldResult TextFieldWithToggle(bool toggled, string label, string text = "")
+        {
+            var result = ToggleTextFieldResult.Default;
+            GUILayout.BeginHorizontal();
+            result.Enabled = GUILayout.Toggle(toggled, label);
+            result.Text = GUILayout.TextField(text);
             GUILayout.EndHorizontal();
             return result;
         }
@@ -132,5 +145,13 @@ namespace OrbitPOInts
                 ApplicationLauncher.Instance.RemoveModApplication(toolbarButton);
             }
         }
+    }
+
+    sealed class ToggleTextFieldResult
+    {
+        public bool Enabled;
+        public string Text;
+
+        public static ToggleTextFieldResult Default => new ToggleTextFieldResult();
     }
 }
