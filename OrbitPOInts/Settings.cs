@@ -159,7 +159,7 @@ namespace OrbitPOInts
             {
                 if (_customPoi1.AreRelativelyEqual(value)) return;
                 _customPoi1 = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -171,7 +171,7 @@ namespace OrbitPOInts
             {
                 if (_customPoi1Enabled == value) return;
                 _customPoi1Enabled = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
         
@@ -184,7 +184,7 @@ namespace OrbitPOInts
             {
                 if (_customPoi2.AreRelativelyEqual(value)) return;
                 _customPoi2 = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -196,7 +196,7 @@ namespace OrbitPOInts
             {
                 if (_customPoi2Enabled == value) return;
                 _customPoi2Enabled = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
         
@@ -209,7 +209,7 @@ namespace OrbitPOInts
             {
                 if (_customPoi3.AreRelativelyEqual(value)) return;
                 _customPoi3 = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
@@ -221,7 +221,7 @@ namespace OrbitPOInts
             {
                 if (_customPoi3Enabled == value) return;
                 _customPoi3Enabled = value;
-                OrbitPoiVisualizer.Instance.Refresh(PlanetariumCamera.fetch.target);
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
         #endregion
