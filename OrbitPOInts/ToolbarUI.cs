@@ -58,9 +58,9 @@ namespace OrbitPOInts
 
         private void CustomPoiGUI()
         {
-            var customPoi1Input = GUILayout.TextField("Custom POI 1");
-            var customPoi2Input = GUILayout.TextField("Custom POI 2");
-            var customPoi3Input = GUILayout.TextField("Custom POI 3");
+            var customPoi1Input = TextFieldWithLabel("Custom POI 1: ", Settings.CustomPOI1.ToString(CultureInfo.CurrentCulture));
+            var customPoi2Input = TextFieldWithLabel("Custom POI 2: ", Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture));
+            var customPoi3Input = TextFieldWithLabel("Custom POI 3: ", Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture));
             var result1 = double.TryParse(customPoi1Input, out var customPoi1);
             var result2 = double.TryParse(customPoi2Input, out var customPoi2);
             var result3 = double.TryParse(customPoi3Input, out var customPoi3);
@@ -72,6 +72,15 @@ namespace OrbitPOInts
             customPoi2Input = Settings.CustomPOI2.ToString(CultureInfo.CurrentCulture);
             customPoi3Input = Settings.CustomPOI3.ToString(CultureInfo.CurrentCulture);
             // ReSharper restore RedundantAssignment
+        }
+
+        private string TextFieldWithLabel(string label, string text = "")
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(label);
+            var result = GUILayout.TextField(text);
+            GUILayout.EndHorizontal();
+            return result;
         }
 
         private void DrawUI(int windowID)
