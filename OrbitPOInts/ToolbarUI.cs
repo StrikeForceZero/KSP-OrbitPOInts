@@ -70,9 +70,10 @@ namespace OrbitPOInts
             var result1 = double.TryParse(customPoi1Input.Text, out var customPoi1);
             var result2 = double.TryParse(customPoi2Input.Text, out var customPoi2);
             var result3 = double.TryParse(customPoi3Input.Text, out var customPoi3);
-            if (result1) Settings.CustomPOI1 = Math.Max(0, customPoi1);
-            if (result2) Settings.CustomPOI2 = Math.Max(0, customPoi2);
-            if (result3) Settings.CustomPOI3 = Math.Max(0, customPoi3);
+            // ensure value is always positive
+            if (result1) Settings.CustomPOI1 = Math.Abs(customPoi1);
+            if (result2) Settings.CustomPOI2 = Math.Abs(customPoi2);
+            if (result3) Settings.CustomPOI3 = Math.Abs(customPoi3);
 
             // check if the values were changed
             var poi1Changed = !Settings.CustomPOI1.AreRelativelyEqual(oldPoi1);
