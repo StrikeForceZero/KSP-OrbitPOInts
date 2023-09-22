@@ -31,6 +31,11 @@ namespace OrbitPOInts
             }
         }
 
+        private static void Log(string message)
+        {
+            Logger.Log($"[OrbitPoiVisualizer] {message}");
+        }
+
         #region EventFunctions
 
         private void Awake()
@@ -69,7 +74,7 @@ namespace OrbitPOInts
 
             if (_lastVessel != vessel || _lastOrbitingBody != body)
             {
-                Logger.Log(
+                Log(
                     $"[UPDATE] lastVessel: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}, lastOrbitingBody: {MapObjectHelper.GetBodyName(_lastOrbitingBody)} -> {MapObjectHelper.GetBodyName(body)}");
                 Refresh(target);
 
@@ -86,33 +91,33 @@ namespace OrbitPOInts
 
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
-            Logger.Log($"[MapOverlay] Load Requested");
+            Log($"[MapOverlay] Load Requested");
             RemoveAll();
         }
 
         private void OnMapEntered()
         {
             var target = PlanetariumCamera.fetch.target;
-            Logger.Log($"[MapOverlay] Entering map view, focus on {MapObjectHelper.GetTargetName(target)}");
+            Log($"[MapOverlay] Entering map view, focus on {MapObjectHelper.GetTargetName(target)}");
 
             Refresh(target);
         }
 
         private void OnMapExited()
         {
-            Logger.Log($"[MapOverlay] Exiting map view");
+            Log($"[MapOverlay] Exiting map view");
             RemoveAll();
         }
 
         private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
         {
-            Logger.Log($"[OnVesselSOIChainge] soi changed: {data.from.name} -> {data.to.name}");
+            Log($"[OnVesselSOIChainge] soi changed: {data.from.name} -> {data.to.name}");
             UpdateBody(data.to);
         }
 
         private void OnVesselChange(Vessel vessel)
         {
-            Logger.Log(
+            Log(
                 $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
             if (vessel == null)
             {
@@ -125,7 +130,7 @@ namespace OrbitPOInts
 
         private void OnMapFocusChange(MapObject focusTarget)
         {
-            Logger.Log($"[MapOverlay] Changed focus to {focusTarget.name}");
+            Log($"[MapOverlay] Changed focus to {focusTarget.name}");
             Refresh(focusTarget);
         }
 
@@ -135,7 +140,7 @@ namespace OrbitPOInts
 
         public void UpdateBody(CelestialBody body)
         {
-            Logger.Log($"[UpdateBody] body: {body.name}");
+            Log($"[UpdateBody] body: {body.name}");
             DestroyAndRecreateBodySpheres(body);
             DestroyAndRecreateBodyCircles(body);
         }
@@ -150,12 +155,12 @@ namespace OrbitPOInts
         {
             if (target == null)
             {
-                Logger.Log("[Refresh] target is null!");
+                Log("[Refresh] target is null!");
                 return;
             }
 
             var body = MapObjectHelper.GetTargetBody(target);
-            Logger.Log($"[Refresh] target: {MapObjectHelper.GetTargetName(target)}, body: {body.name}");
+            Log($"[Refresh] target: {MapObjectHelper.GetTargetName(target)}, body: {body.name}");
             UpdateBody(body);
         }
 
@@ -214,7 +219,7 @@ namespace OrbitPOInts
 
         private void RemoveBodySpheres()
         {
-            Logger.Log($"[MapOverlay]: Removing body spheres");
+            Log($"[MapOverlay]: Removing body spheres");
             foreach (var sphere in _drawnSpheres)
             {
                 Destroy(sphere);
@@ -230,7 +235,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            Logger.Log($"[MapOverlay]: Generating spheres around {body.name}");
+            Log($"[MapOverlay]: Generating spheres around {body.name}");
             if (Settings.EnablePOI_HillSphere)
             {
                 CreateWireSphere(body, Color.white, (float)body.hillSphere, .1f, 50);
@@ -317,7 +322,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            Logger.Log($"[MapOverlay]: Generating circles around {body.name}");
+            Log($"[MapOverlay]: Generating circles around {body.name}");
             if (Settings.EnablePOI_HillSphere)
             {
                 CreateCircle(body, Color.white, (float)body.hillSphere, 1f);
