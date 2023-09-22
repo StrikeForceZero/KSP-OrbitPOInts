@@ -8,7 +8,7 @@ namespace OrbitPOInts
     {
         private ApplicationLauncherButton toolbarButton;
         private bool showUI = false;
-        private Rect windowRect = new Rect(0, 0, 250, 100); // Initial size for the window
+        private Rect windowRect = new Rect(0, 0, 400, 200); // Initial size for the window
 
         private void Start()
         {
@@ -57,17 +57,25 @@ namespace OrbitPOInts
         private void DrawUI(int windowID)
         {
             GUILayout.BeginVertical();
-            Settings.GlobalEnable = GUILayout.Toggle(Settings.GlobalEnable, "Enabled");
-            Settings.EnableSpheres = GUILayout.Toggle(Settings.EnableSpheres, "Draw Spheres");
-            Settings.AlignSpheres = GUILayout.Toggle(Settings.AlignSpheres, "Align Spheres");
-            Settings.EnableCircles = GUILayout.Toggle(Settings.EnableCircles, "Draw Circles");
-            Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere");
-            Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI");
-            Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere");
-            Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit");
-            Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt");
-            Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies,
-                "Show POI Max Altitude On Atmosphere Bodies");
+            
+                Settings.GlobalEnable = GUILayout.Toggle(Settings.GlobalEnable, "Enabled");
+                Settings.EnableSpheres = GUILayout.Toggle(Settings.EnableSpheres, "Draw Spheres");
+                Settings.AlignSpheres = GUILayout.Toggle(Settings.AlignSpheres, "Align Spheres");
+                Settings.EnableCircles = GUILayout.Toggle(Settings.EnableCircles, "Draw Circles");
+                
+                GUILayout.Space(50);
+                Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere");
+                Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI");
+                Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere");
+                Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit");
+                Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt");
+                
+                    GUILayout.BeginHorizontal();
+                        GUILayout.Space(50);
+                        Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies,
+                            "Show POI Max Altitude On Atmosphere Bodies");
+                    GUILayout.EndHorizontal();
+            
             GUILayout.EndVertical();
 
             // Make the window draggable
