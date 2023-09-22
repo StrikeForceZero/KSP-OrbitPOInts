@@ -7,16 +7,16 @@ namespace OrbitPOInts
     {
         public static double GetApproxTerrainMaxHeight(CelestialBody body, int sampleResolution = 100)
         {
-            double maxAltitude = Double.NegativeInfinity;
+            var maxAltitude = Double.NegativeInfinity;
 
-            for (int i = 0; i <= sampleResolution; i++)
+            for (var i = 0; i <= sampleResolution; i++)
             {
-                for (int j = 0; j <= sampleResolution; j++)
+                for (var j = 0; j <= sampleResolution; j++)
                 {
-                    double latitude = (i / (double)sampleResolution) * 180 - 90;
-                    double longitude = (j / (double)sampleResolution) * 360 - 180;
+                    var latitude = (i / (double)sampleResolution) * 180 - 90;
+                    var longitude = (j / (double)sampleResolution) * 360 - 180;
 
-                    double altitude = body.TerrainAltitude(latitude, longitude, true);
+                    var altitude = body.TerrainAltitude(latitude, longitude, true);
                     maxAltitude = Math.Max(maxAltitude, altitude);
                 }
             }
@@ -37,7 +37,7 @@ namespace OrbitPOInts
 
         public static void AlignTransformToNormal(Transform transform, Vector3d normal)
         {
-            Quaternion targetRotation = Quaternion.FromToRotation(Vector3.up, normal);
+            var targetRotation = Quaternion.FromToRotation(Vector3.up, normal);
             transform.rotation = targetRotation;
         }
     }

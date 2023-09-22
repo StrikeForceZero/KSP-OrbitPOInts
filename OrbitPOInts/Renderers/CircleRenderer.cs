@@ -40,11 +40,11 @@ namespace OrbitPOInts
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
-            for (int i = 0; i <= segments; i++)
+            for (var i = 0; i <= segments; i++)
             {
-                float angle = Mathf.Deg2Rad * (i * 360f / segments);
-                float x = radius * Mathf.Cos(angle);
-                float z = radius * Mathf.Sin(angle);
+                var angle = Mathf.Deg2Rad * (i * 360f / segments);
+                var x = radius * Mathf.Cos(angle);
+                var z = radius * Mathf.Sin(angle);
 
                 line.SetPosition(i, new Vector3(x, 0, z));
             }
