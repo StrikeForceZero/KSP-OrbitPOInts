@@ -199,6 +199,7 @@ namespace OrbitPOInts
                 transformsNeedsUpdate.Add(circle.transform);
             }
 
+            // TODO: fix, we are always aligning now for some reason...
             if (AlignSpheres)
             {
                 foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
