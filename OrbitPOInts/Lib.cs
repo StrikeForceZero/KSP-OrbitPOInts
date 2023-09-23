@@ -38,6 +38,8 @@ namespace OrbitPOInts
         public static void AlignTransformToNormal(Transform transform, Vector3d normal)
         {
             var targetRotation = Quaternion.FromToRotation(Vector3.up, normal);
+            if (transform.rotation == targetRotation) return;
+            Logger.Log($"[AlignTransformToNormal] {transform.rotation} -> {normal}");
             transform.rotation = targetRotation;
         }
 
