@@ -422,7 +422,7 @@ namespace OrbitPOInts
 
         private string GetPrefixName(CelestialBody body, double radius)
         {
-            return $"{body.name}_${radius}";
+            return $"{body.name}_{radius}";
         }
 
         private CircleRenderer AddOrGetCircleComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
