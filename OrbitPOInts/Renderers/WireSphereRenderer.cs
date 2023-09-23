@@ -66,7 +66,7 @@ namespace OrbitPOInts
 
         void DrawLatitudeLine(int index, float height, float circleRadius)
         {
-            var lineObject = new GameObject($"LatitudeLine_{index}");
+            var lineObject = new GameObject(GetLatName(index));
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
             line.material = MapView.fetch.orbitLinesMaterial;
@@ -98,7 +98,7 @@ namespace OrbitPOInts
 
         void DrawLongitudeLine(int index, float angle)
         {
-            var lineObject = new GameObject($"LongitudeLine_{index}");
+            var lineObject = new GameObject(GetLongName(index));
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
             line.material = MapView.fetch.orbitLinesMaterial;
@@ -139,6 +139,16 @@ namespace OrbitPOInts
         public void SetEnabled(bool state)
         {
             enabled = state;
+        }
+
+        private string GetLongName(int index)
+        {
+            return $"LongitudeLine_{index}";
+        }
+
+        private string GetLatName(int index)
+        {
+            return $"LatitudeLine_{index}";
         }
     }
 }
