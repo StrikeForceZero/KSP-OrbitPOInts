@@ -14,6 +14,7 @@ namespace OrbitPOInts
         public Color wireframeColor = Color.green;
         public float lineWidth = 0.1f;
         public string uniqueGameObjectNamePrefix;
+        public bool IsDying { get; private set; }
 
         private void Awake()
         {
@@ -133,6 +134,7 @@ namespace OrbitPOInts
 
         private void OnDestroy()
         {
+            IsDying = true;
             foreach (var lineObject in lineObjects)
             {
                 Destroy(lineObject);

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using OrbitPOInts.Extensions;
 using UnityEngine;
 using Enumerable = UniLinq.Enumerable;
 
@@ -195,29 +196,55 @@ namespace OrbitPOInts
 
         private void UpdateNormals(Vector3 normal)
         {
-            foreach (var circle in _drawnCircles)
+            List<Transform> transformsNeedsUpdate = new();
+            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
             {
-                Lib.AlignTransformToNormal(circle.transform, normal);
+                if (!circle.IsAlive() || circle.IsDying)
+                {
+                    Log($"[UpdateNormals] circle null or dying {index} / {_drawnSpheres.Count}");
+                    continue;
+                }
+                transformsNeedsUpdate.Add(circle.transform);
             }
 
             if (AlignSpheres)
             {
-                foreach (var sphere in _drawnSpheres)
+                foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
                 {
-                    Lib.AlignTransformToNormal(sphere.transform, normal);
+                    if (!sphere.IsAlive() || sphere.IsDying)
+                    {
+                        Log($"[UpdateNormals] sphere null or dying {index} / {_drawnSpheres.Count}");
+                        continue;
+                    }
+                    transformsNeedsUpdate.Add(sphere.transform);
                 }
+            }
+
+            foreach (var transform in transformsNeedsUpdate)
+            {
+                Lib.AlignTransformToNormal(transform, normal);
             }
         }
 
         public void SetEnabled(bool state)
         {
-            foreach (var sphere in _drawnSpheres)
+            foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
             {
+                if (!sphere.IsAlive() || sphere.IsDying)
+                {
+                    Log($"[SetEnabled] sphere null or dying {index} / {_drawnSpheres.Count}");
+                    continue;
+                }
                 sphere.SetEnabled(state);
             }
 
-            foreach (var circle in _drawnCircles)
+            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
             {
+                if (!circle.IsAlive() || circle.IsDying)
+                {
+                    Log($"[SetEnabled] circle null or dying {index} / {_drawnSpheres.Count}");
+                    continue;
+                }
                 circle.SetEnabled(state);
             }
         }
@@ -235,7 +262,7 @@ namespace OrbitPOInts
             Log($"[MapOverlay]: Removing body spheres");
             foreach (var sphere in _drawnSpheres)
             {
-                Destroy(sphere);
+                DestroyImmediate(sphere);
             }
 
             _drawnSpheres.Clear();
@@ -327,7 +354,7 @@ namespace OrbitPOInts
         {
             foreach (var circle in _drawnCircles)
             {
-                Destroy(circle);
+                DestroyImmediate(circle);
             }
 
             _drawnCircles.Clear();
@@ -411,7 +438,7 @@ namespace OrbitPOInts
             var components = target.GetComponents<CircleRenderer>();
             foreach (var component in components)
             {
-                if (component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
                 {
                     return component;
                 }
@@ -427,7 +454,7 @@ namespace OrbitPOInts
             var components = target.GetComponents<WireSphereRenderer>();
             foreach (var component in components)
             {
-                if (component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
                 {
                     return component;
                 }

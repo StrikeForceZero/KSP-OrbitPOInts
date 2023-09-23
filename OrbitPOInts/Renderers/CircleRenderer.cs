@@ -11,6 +11,7 @@ namespace OrbitPOInts
         public int segments = 50;
         private GameObject lineObject;
         public string uniqueGameObjectNamePrefix;
+        public bool IsDying { get; private set; }
 
         private void Awake()
         {
@@ -64,6 +65,7 @@ namespace OrbitPOInts
 
         private void OnDestroy()
         {
+            IsDying = true;
             Destroy(lineObject);
         }
 
