@@ -29,7 +29,7 @@ namespace OrbitPOInts
 
         void Start()
         {
-            lineObject = new GameObject(GetName());
+            lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             line.material = MapView.fetch.orbitLinesMaterial;
             line.receiveShadows = false;
@@ -74,10 +74,7 @@ namespace OrbitPOInts
             enabled = state;
         }
 
-        private string GetName()
-        {
-            return $"{uniqueGameObjectNamePrefix}_CircleLine";
-        }
+        public static string NameKey => "CircleLine";
 
         public override bool Equals(object obj)
         {

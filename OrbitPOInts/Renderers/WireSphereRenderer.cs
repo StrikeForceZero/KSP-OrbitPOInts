@@ -70,7 +70,7 @@ namespace OrbitPOInts
 
         void DrawLatitudeLine(int index, float height, float circleRadius)
         {
-            var lineObject = new GameObject(GetLatName(index));
+            var lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
             line.material = MapView.fetch.orbitLinesMaterial;
@@ -102,7 +102,7 @@ namespace OrbitPOInts
 
         void DrawLongitudeLine(int index, float angle)
         {
-            var lineObject = new GameObject(GetLongName(index));
+            var lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
             line.material = MapView.fetch.orbitLinesMaterial;
@@ -146,15 +146,7 @@ namespace OrbitPOInts
             enabled = state;
         }
 
-        private string GetLongName(int index)
-        {
-            return $"${uniqueGameObjectNamePrefix}_LongitudeLine_{index}";
-        }
-
-        private string GetLatName(int index)
-        {
-            return $"${uniqueGameObjectNamePrefix}_LatitudeLine_{index}";
-        }
+        public static string NameKey => "WireSphereLine";
 
         public override bool Equals(object obj)
         {
