@@ -66,7 +66,7 @@ namespace OrbitPOInts
         private void OnDestroy()
         {
             IsDying = true;
-            Destroy(lineObject);
+            DestroyImmediate(lineObject);
         }
 
         public void SetEnabled(bool state)

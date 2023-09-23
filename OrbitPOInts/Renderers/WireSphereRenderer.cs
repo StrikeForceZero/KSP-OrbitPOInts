@@ -137,7 +137,7 @@ namespace OrbitPOInts
             IsDying = true;
             foreach (var lineObject in lineObjects)
             {
-                Destroy(lineObject);
+                DestroyImmediate(lineObject);
             }
         }
 
