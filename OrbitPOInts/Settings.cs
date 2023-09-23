@@ -15,7 +15,6 @@ namespace OrbitPOInts
             {
                 if (_globalEnable == value) return;
                 _globalEnable = value;
-                OrbitPoiVisualizer.Instance.SetEnabled(value);
                 OrbitPoiVisualizer.Instance.enabled = value;
                 if (OrbitPoiVisualizer.Instance.enabled)
                 {
@@ -23,7 +22,7 @@ namespace OrbitPOInts
                 }
                 else
                 {
-                    OrbitPoiVisualizer.Instance.RemoveAll();
+                    OrbitPoiVisualizer.Instance.PurgeAll();
                 }
                 // TODO: maybe we should clean up and remove events too
             }
@@ -39,6 +38,7 @@ namespace OrbitPOInts
                 if (_enableSpheres == value) return;
                 _enableSpheres = value;
                 OrbitPoiVisualizer.Instance.DrawSpheres = value;
+                OrbitPoiVisualizer.Instance.PurgeSpheres();
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
@@ -67,6 +67,7 @@ namespace OrbitPOInts
                 if (_enableCircles == value) return;
                 _enableCircles = value;
                 OrbitPoiVisualizer.Instance.DrawCircles = value;
+                OrbitPoiVisualizer.Instance.PurgeCircles();
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }

@@ -121,7 +121,7 @@ namespace OrbitPOInts
         private void OnMapExited()
         {
             Log($"[MapOverlay] Exiting map view");
-            RemoveAll();
+            PurgeAll();
         }
 
         private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
@@ -156,6 +156,7 @@ namespace OrbitPOInts
         public void UpdateBody(CelestialBody body)
         {
             Log($"[UpdateBody] body: {body.name}");
+            PurgeAll();
             DestroyAndRecreateBodySpheres(body);
             DestroyAndRecreateBodyCircles(body);
         }
@@ -165,6 +166,7 @@ namespace OrbitPOInts
             if (focusTarget == null)
             {
                 Log("[Refresh] target is null!");
+                PurgeAll();
                 return;
             }
 
@@ -274,13 +276,7 @@ namespace OrbitPOInts
 
         private void RemoveBodySpheres()
         {
-            Log($"[MapOverlay]: Removing body spheres");
-            foreach (var sphere in _drawnSpheres)
-            {
-                DestroyImmediate(sphere);
-            }
-
-            _drawnSpheres.Clear();
+            PurgeSpheres();
         }
 
         private void CreateBodySphere(CelestialBody body)
@@ -367,12 +363,7 @@ namespace OrbitPOInts
 
         private void RemoveBodyCircles()
         {
-            foreach (var circle in _drawnCircles)
-            {
-                DestroyImmediate(circle);
-            }
-
-            _drawnCircles.Clear();
+            PurgeCircles();
         }
 
         private void CreateBodyCircle(CelestialBody body)
