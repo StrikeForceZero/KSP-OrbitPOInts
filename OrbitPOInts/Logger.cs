@@ -1,3 +1,4 @@
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 
 namespace OrbitPOInts
@@ -8,12 +9,12 @@ namespace OrbitPOInts
 
         public static void Log(string str)
         {
-            Debug.Log($"{TAG} {str}");
+            Debug.Log($"{TAG}[{Time.frameCount}] {str}");
         }
 
         public static void LogError(string str)
         {
-            Debug.LogError($"{TAG} {str}");
+            Debug.LogError($"{TAG}[{Time.frameCount}] {str}");
         }
     }
 }

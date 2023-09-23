@@ -70,6 +70,8 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Extensions\DoubleExtensions.cs" />
+        <Compile Include="Extensions\GameObjectExtensions.cs" />
+        <Compile Include="Extensions\MonoBehaviourExtensions.cs" />
         <Compile Include="Lib.cs" />
         <Compile Include="MapObjectHelper.cs" />
         <Compile Include="OrbitPoiVisualizer.cs" />

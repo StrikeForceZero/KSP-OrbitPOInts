@@ -1,4 +1,6 @@
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace OrbitPOInts
 {
@@ -11,6 +13,8 @@ namespace OrbitPOInts
         private GameObject[] lineObjects = { };
         public Color wireframeColor = Color.green;
         public float lineWidth = 0.1f;
+        public string uniqueGameObjectNamePrefix;
+        public bool IsDying { get; private set; }
 
         private void Awake()
         {
@@ -66,7 +70,7 @@ namespace OrbitPOInts
 
         void DrawLatitudeLine(int index, float height, float circleRadius)
         {
-            var lineObject = new GameObject($"LatitudeLine_{index}");
+            var lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
             line.material = MapView.fetch.orbitLinesMaterial;
@@ -98,7 +102,7 @@ namespace OrbitPOInts
 
         void DrawLongitudeLine(int index, float angle)
         {
-            var lineObject = new GameObject($"LongitudeLine_{index}");
+            var lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
             line.material = MapView.fetch.orbitLinesMaterial;
@@ -130,15 +134,32 @@ namespace OrbitPOInts
 
         private void OnDestroy()
         {
+            IsDying = true;
             foreach (var lineObject in lineObjects)
             {
-                Destroy(lineObject);
+                DestroyImmediate(lineObject);
             }
         }
 
         public void SetEnabled(bool state)
         {
             enabled = state;
+        }
+
+        public static string NameKey => "WireSphereLine";
+
+        public override bool Equals(object obj)
+        {
+            if (obj is WireSphereRenderer other)
+            {
+                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
         }
     }
 }

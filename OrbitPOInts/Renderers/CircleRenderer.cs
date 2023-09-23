@@ -10,6 +10,8 @@ namespace OrbitPOInts
         public float lineWidth = 0.1f;
         public int segments = 50;
         private GameObject lineObject;
+        public string uniqueGameObjectNamePrefix;
+        public bool IsDying { get; private set; }
 
         private void Awake()
         {
@@ -27,7 +29,7 @@ namespace OrbitPOInts
 
         void Start()
         {
-            lineObject = new GameObject($"CircleLine");
+            lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             line.material = MapView.fetch.orbitLinesMaterial;
             line.receiveShadows = false;
@@ -63,12 +65,29 @@ namespace OrbitPOInts
 
         private void OnDestroy()
         {
-            Destroy(lineObject);
+            IsDying = true;
+            DestroyImmediate(lineObject);
         }
 
         public void SetEnabled(bool state)
         {
             enabled = state;
+        }
+
+        public static string NameKey => "CircleLine";
+
+        public override bool Equals(object obj)
+        {
+            if (obj is CircleRenderer other)
+            {
+                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
         }
     }
 }

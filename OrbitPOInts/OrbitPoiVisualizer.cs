@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using OrbitPOInts.Extensions;
+using Smooth.Collections;
 using UnityEngine;
 using Enumerable = UniLinq.Enumerable;
 
@@ -12,8 +14,9 @@ namespace OrbitPOInts
     {
         public static OrbitPoiVisualizer Instance { get; private set; }
 
-        private readonly List<WireSphereRenderer> _drawnSpheres = new();
-        private readonly List<CircleRenderer> _drawnCircles = new();
+        private readonly Dictionary<string, GameObject> _bodyComponentHolders = new();
+        private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
+        private readonly HashSet<CircleRenderer> _drawnCircles = new();
 
         public bool DrawSpheres = true;
         public bool DrawCircles = true;
@@ -66,11 +69,15 @@ namespace OrbitPOInts
             GameEvents.onVesselChange.Remove(OnVesselChange);
             GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChange);
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
+            foreach (var componentHolder in _bodyComponentHolders.Values)
+            {
+                DestroyImmediate(componentHolder);
+            }
         }
 
         private void Update()
         {
-            if (!MapView.MapIsEnabled && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
+            if (!Lib.ViewingMapOrTrackingStation)
             {
                 return;
             }
@@ -114,7 +121,7 @@ namespace OrbitPOInts
         private void OnMapExited()
         {
             Log($"[MapOverlay] Exiting map view");
-            RemoveAll();
+            PurgeAll();
         }
 
         private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
@@ -127,7 +134,7 @@ namespace OrbitPOInts
         {
             Log(
                 $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
-            if (vessel == null)
+            if (vessel == null || !Lib.ViewingMapOrTrackingStation)
             {
                 return;
             }
@@ -149,35 +156,23 @@ namespace OrbitPOInts
         public void UpdateBody(CelestialBody body)
         {
             Log($"[UpdateBody] body: {body.name}");
+            PurgeAll();
             DestroyAndRecreateBodySpheres(body);
             DestroyAndRecreateBodyCircles(body);
         }
 
-        private IEnumerator DelayedRefresh(MapObject target)
+        public void Refresh(MapObject focusTarget)
         {
-            yield return new WaitForSeconds(0f);
-            SyncRefresh(target);
-        }
-
-        private void SyncRefresh(MapObject target)
-        {
-            if (target == null)
+            if (focusTarget == null)
             {
                 Log("[Refresh] target is null!");
+                PurgeAll();
                 return;
             }
 
-            var body = MapObjectHelper.GetTargetBody(target);
-            Log($"[Refresh] target: {MapObjectHelper.GetTargetName(target)}, body: {body.name}");
+            var body = MapObjectHelper.GetTargetBody(focusTarget);
+            Log($"[Refresh] target: {MapObjectHelper.GetTargetName(focusTarget)}, body: {body.name}");
             UpdateBody(body);
-        }
-
-        public void Refresh(MapObject focusTarget)
-        {
-            // TODO: no idea why this is needed, but without calling it sync, then async, we can't align our circles to the orbit normal
-            SyncRefresh(focusTarget);
-            // TODO: better hook?
-            StartCoroutine(DelayedRefresh(focusTarget));
         }
 
         public void CurrentTargetRefresh()
@@ -195,29 +190,77 @@ namespace OrbitPOInts
 
         private void UpdateNormals(Vector3 normal)
         {
-            foreach (var circle in _drawnCircles)
+            List<Transform> transformsNeedsUpdate = new();
+            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
             {
-                Lib.AlignTransformToNormal(circle.transform, normal);
+                if (!circle.IsAlive() || circle.IsDying)
+                {
+                    Log($"[UpdateNormals] circle null or dying {index} / {_drawnCircles.Count}");
+                    continue;
+                }
+                transformsNeedsUpdate.Add(circle.transform);
             }
 
             if (AlignSpheres)
             {
-                foreach (var sphere in _drawnSpheres)
+                foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
                 {
-                    Lib.AlignTransformToNormal(sphere.transform, normal);
+                    if (!sphere.IsAlive() || sphere.IsDying)
+                    {
+                        Log($"[UpdateNormals] sphere null or dying {index} / {_drawnSpheres.Count}");
+                        continue;
+                    }
+                    transformsNeedsUpdate.Add(sphere.transform);
                 }
             }
+
+            foreach (var transform in transformsNeedsUpdate)
+            {
+                NextFrameAlignTransformToNormal(transform, normal);
+            }
+        }
+
+        private void NextFrameAlignTransformToNormal(Transform transform, Vector3d normal)
+        {
+            if (transform == null)
+            {
+                Logger.Log($"[NextFrameAlignTransformToNormal] transform null!");
+                return;
+            }
+            StartCoroutine(AsyncAlignTransformToNormal(transform, normal));
+        }
+
+        private IEnumerator AsyncAlignTransformToNormal(Transform transform, Vector3d normal)
+        {
+            yield return null;
+            // TODO: sometimes the transform can be null
+            if (transform == null)
+            {
+                Logger.Log($"[AsyncAlignTransformToNormal] transform null!");
+                yield break;
+            }
+            Lib.AlignTransformToNormal(transform, normal);
         }
 
         public void SetEnabled(bool state)
         {
-            foreach (var sphere in _drawnSpheres)
+            foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
             {
+                if (!sphere.IsAlive() || sphere.IsDying)
+                {
+                    Log($"[SetEnabled] sphere null or dying {index} / {_drawnSpheres.Count}");
+                    continue;
+                }
                 sphere.SetEnabled(state);
             }
 
-            foreach (var circle in _drawnCircles)
+            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
             {
+                if (!circle.IsAlive() || circle.IsDying)
+                {
+                    Log($"[SetEnabled] circle null or dying {index} / {_drawnCircles.Count}");
+                    continue;
+                }
                 circle.SetEnabled(state);
             }
         }
@@ -232,13 +275,7 @@ namespace OrbitPOInts
 
         private void RemoveBodySpheres()
         {
-            Log($"[MapOverlay]: Removing body spheres");
-            foreach (var sphere in _drawnSpheres)
-            {
-                Destroy(sphere);
-            }
-
-            _drawnSpheres.Clear();
+            PurgeSpheres();
         }
 
         private void CreateBodySphere(CelestialBody body)
@@ -294,8 +331,7 @@ namespace OrbitPOInts
             int resolution = 50
         )
         {
-            var sphereObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            var sphere = sphereObj.AddComponent<WireSphereRenderer>();
+            var sphere = AddOrGetSphereComponent(body, GetPrefixName(body, radius));
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -326,12 +362,7 @@ namespace OrbitPOInts
 
         private void RemoveBodyCircles()
         {
-            foreach (var circle in _drawnCircles)
-            {
-                Destroy(circle);
-            }
-
-            _drawnCircles.Clear();
+            PurgeCircles();
         }
 
         private void CreateBodyCircle(CelestialBody body)
@@ -382,8 +413,7 @@ namespace OrbitPOInts
         private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
             int segments = 360)
         {
-            var circleObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            var circle = circleObj.AddComponent<CircleRenderer>();
+            var circle = AddOrGetCircleComponent(body, GetPrefixName(body, radius));
 
             circle.wireframeColor = color;
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -402,6 +432,233 @@ namespace OrbitPOInts
         }
 
         #endregion
+
+        private string GetPrefixName(CelestialBody body, double radius)
+        {
+            return $"{body.name}_{radius}";
+        }
+
+        private CircleRenderer AddOrGetCircleComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
+        {
+            var target = GetOrCreateBodyComponentHolder(body, ComponentHolderType.Circle);
+            var components = target.GetComponents<CircleRenderer>();
+            foreach (var component in components)
+            {
+                if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                {
+                    Log($"[AddOrGetCircleComponent] Reusing: {uniqueGameObjectNamePrefix}");
+                    return component;
+                }
+
+                if(component.IsAlive() && component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                {
+                    Log($"[AddOrGetCircleComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
+                    continue;
+                }
+
+                Log("[AddOrGetCircleComponent] Skipping unknown dead component");
+            }
+
+            Log($"[AddOrGetCircleComponent] Creating new component {uniqueGameObjectNamePrefix}");
+            var circle = target.AddComponent<CircleRenderer>();
+            circle.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
+            return circle;
+        }
+
+        private WireSphereRenderer AddOrGetSphereComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
+        {
+            var target = GetOrCreateBodyComponentHolder(body, ComponentHolderType.Sphere);
+            var components = target.GetComponents<WireSphereRenderer>();
+            foreach (var component in components)
+            {
+                if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                {
+                    Log($"[AddOrGetSphereComponent] Reusing: {uniqueGameObjectNamePrefix}");
+                    return component;
+                }
+
+                if(component.IsAlive() && component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                {
+                    Log($"[AddOrGetSphereComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
+                    continue;
+                }
+
+                Log("[AddOrGetSphereComponent] Skipping unknown dead component");
+            }
+
+            Log($"[AddOrGetSphereComponent] Creating new component {uniqueGameObjectNamePrefix}");
+            var sphere = target.AddComponent<WireSphereRenderer>();
+            sphere.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
+            return sphere;
+        }
+
+        private enum ComponentHolderType
+        {
+            Sphere,
+            Circle,
+        }
+        private string GetComponentHolderName(CelestialBody body, ComponentHolderType type)
+        {
+            return $"component_holder_{GetComponentHolderKey(body, type)}";
+        }
+
+        private string GetComponentHolderKey(CelestialBody body, ComponentHolderType type)
+        {
+            return $"{body.name}_{type}";
+        }
+
+        private GameObject GetOrCreateBodyComponentHolder(CelestialBody body, ComponentHolderType type)
+        {
+            var componentHolder = _bodyComponentHolders.TryGet(GetComponentHolderKey(body, type));
+            if (componentHolder.isSome && componentHolder.value.IsAlive())
+            {
+                Log($"[GetOrCreateBodyComponentHolder] Reusing component holder {type} for {body.name}");
+                return componentHolder.value;
+            }
+            if (componentHolder.isSome && !componentHolder.value.IsAlive())
+            {
+                Log($"[GetOrCreateBodyComponentHolder] Skipping dead component holder for {body.name}");
+            }
+            Log($"[GetOrCreateBodyComponentHolder] Creating component holder for {body.name}");
+            var primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            primitive.name = GetComponentHolderName(body, type);
+            _bodyComponentHolders.Add(GetComponentHolderKey(body, type), primitive);
+            return primitive;
+        }
+
+        private string GetComponentHolderName(CelestialBody body)
+        {
+            return $"component_holder_{body.name}";
+        }
+
+        private void PurgeAllByNamePrefix(string namePrefix)
+        {
+            PurgeAllCirclesByNamePrefix(namePrefix);
+            PurgeAllSpheresByNamePrefix(namePrefix);
+        }
+
+        private void PurgeAllCirclesByNamePrefix(string namePrefix)
+        {
+            foreach (var bodyComponentHolder in _bodyComponentHolders)
+            {
+                var components = bodyComponentHolder.Value.GetComponents<CircleRenderer>().Where(c => c.uniqueGameObjectNamePrefix == namePrefix);;
+                Log($"[PurgeAllCirclesByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
+                foreach (var component in components)
+                {
+                    DestroyImmediate(component);
+                }
+            }
+        }
+
+        private void PurgeAllSpheresByNamePrefix(string namePrefix)
+        {
+            foreach (var bodyComponentHolder in _bodyComponentHolders)
+            {
+                var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>().Where(c => c.uniqueGameObjectNamePrefix == namePrefix);
+                Log($"[PurgeAllSpheresByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
+                foreach (var component in components)
+                {
+                    DestroyImmediate(component);
+                }
+            }
+        }
+
+        private void PurgeAllByBody(CelestialBody body)
+        {
+            PurgeAllCirclesByBody(body);
+            PurgeAllSpheresByBody(body);
+        }
+
+        private void PurgeAllCirclesByBody(CelestialBody body)
+        {
+            var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
+            if (bodyComponentHolder.isNone) return;
+            var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
+            Log($"[PurgeAllCirclesByBody] {body.name} - {components.Length}");
+            foreach (var component in components)
+            {
+                DestroyImmediate(component);
+            }
+        }
+
+        private void PurgeAllSpheresByBody(CelestialBody body)
+        {
+            var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
+            if (bodyComponentHolder.isNone) return;
+            var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
+            Log($"[PurgeAllSpheresByBody] {body.name} - {components.Length}");
+            foreach (var component in components)
+            {
+                DestroyImmediate(component);
+            }
+        }
+
+        // TODO: desperate times call for desperate measures
+        internal void PurgeAll()
+        {
+            Log("=== PURGING ALL ===");
+
+            PurgeSpheres();
+            PurgeCircles();
+            PurgeBodyHolders();
+        }
+
+        private void PurgeBodyHolders()
+        {
+            Log("=== PURGING BODY HOLDERS ===");
+            _bodyComponentHolders.Clear();
+            foreach (var body in FlightGlobals.Bodies)
+            {
+                foreach (ComponentHolderType type in Enum.GetValues(typeof(ComponentHolderType)))
+                {
+                    DestroyIfAliveGO(GameObject.Find(GetComponentHolderName(body, type)));
+                }
+            }
+        }
+
+        internal void PurgeSpheres()
+        {
+            Log("=== PURGING SPHERES ===");
+            _drawnSpheres.Clear();
+            foreach (var component in GameObject.FindObjectsOfType<WireSphereRenderer>())
+            {
+                DestroyIfAliveMB(component);
+            }
+            foreach (var lineRenderer in GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == WireSphereRenderer.NameKey))
+            {
+                DestroyIfAliveGO(lineRenderer);
+            }
+        }
+
+        internal void PurgeCircles()
+        {
+            Log("=== PURGING CIRCLES ===");
+            _drawnCircles.Clear();
+            foreach (var component in GameObject.FindObjectsOfType<CircleRenderer>())
+            {
+                DestroyIfAliveMB(component);
+            }
+            foreach (var lineRenderer in GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == CircleRenderer.NameKey))
+            {
+                DestroyIfAliveGO(lineRenderer);
+            }
+        }
+
+        private void DestroyIfAliveMB(MonoBehaviour target)
+        {
+            if (target.IsAlive())
+            {
+                DestroyImmediate(target);
+            }
+        }
+
+        private void DestroyIfAliveGO(GameObject target)
+        {
+            if (target.IsAlive())
+            {
+                DestroyImmediate(target);
+            }
+        }
     }
 
     sealed class CustomPOI
