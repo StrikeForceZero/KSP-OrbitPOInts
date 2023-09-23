@@ -128,7 +128,7 @@ namespace OrbitPOInts
         {
             Log(
                 $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
-            if (vessel == null)
+            if (vessel == null || !Lib.ViewingMapOrTrackingStation)
             {
                 return;
             }
