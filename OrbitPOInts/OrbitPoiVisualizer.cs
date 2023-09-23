@@ -302,6 +302,7 @@ namespace OrbitPOInts
             sphere.lineWidth = width;
             sphere.latitudeLines = resolution;
             sphere.longitudeLines = resolution;
+            sphere.uniqueGameObjectNamePrefix = GetPrefixName(body, radius);
 
             sphere.transform.SetParent(body.MapObject.trf);
             sphere.transform.localRotation = Quaternion.identity;
@@ -389,6 +390,7 @@ namespace OrbitPOInts
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
             circle.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
             circle.segments = segments;
+            circle.uniqueGameObjectNamePrefix = GetPrefixName(body, radius);
 
             circle.transform.SetParent(body.MapObject.trf);
             circle.transform.localRotation = Quaternion.identity;
@@ -402,6 +404,11 @@ namespace OrbitPOInts
         }
 
         #endregion
+
+        private string GetPrefixName(CelestialBody body, double radius)
+        {
+            return $"{body.name}_${radius}";
+        }
     }
 
     sealed class CustomPOI

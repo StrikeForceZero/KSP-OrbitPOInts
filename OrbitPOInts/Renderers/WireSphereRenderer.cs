@@ -1,4 +1,6 @@
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace OrbitPOInts
 {
@@ -11,6 +13,7 @@ namespace OrbitPOInts
         private GameObject[] lineObjects = { };
         public Color wireframeColor = Color.green;
         public float lineWidth = 0.1f;
+        public string uniqueGameObjectNamePrefix;
 
         private void Awake()
         {
@@ -143,12 +146,12 @@ namespace OrbitPOInts
 
         private string GetLongName(int index)
         {
-            return $"LongitudeLine_{index}";
+            return $"${uniqueGameObjectNamePrefix}_LongitudeLine_{index}";
         }
 
         private string GetLatName(int index)
         {
-            return $"LatitudeLine_{index}";
+            return $"${uniqueGameObjectNamePrefix}_LatitudeLine_{index}";
         }
     }
 }

@@ -10,6 +10,7 @@ namespace OrbitPOInts
         public float lineWidth = 0.1f;
         public int segments = 50;
         private GameObject lineObject;
+        public string uniqueGameObjectNamePrefix;
 
         private void Awake()
         {
@@ -73,7 +74,7 @@ namespace OrbitPOInts
 
         private string GetName()
         {
-            return "CircleLine";
+            return $"{uniqueGameObjectNamePrefix}_CircleLine";
         }
     }
 }
