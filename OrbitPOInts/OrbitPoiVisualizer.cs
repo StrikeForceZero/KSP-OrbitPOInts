@@ -71,7 +71,7 @@ namespace OrbitPOInts
 
         private void Update()
         {
-            if (!MapView.MapIsEnabled && HighLogic.LoadedScene != GameScenes.TRACKSTATION)
+            if (!Lib.ViewingMapOrTrackingStation)
             {
                 return;
             }

@@ -40,5 +40,8 @@ namespace OrbitPOInts
             var targetRotation = Quaternion.FromToRotation(Vector3.up, normal);
             transform.rotation = targetRotation;
         }
+
+        public static bool ViewingMapOrTrackingStation =>
+            MapView.MapIsEnabled || HighLogic.LoadedScene == GameScenes.TRACKSTATION;
     }
 }
