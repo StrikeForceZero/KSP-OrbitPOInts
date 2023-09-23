@@ -313,7 +313,7 @@ namespace OrbitPOInts
             int resolution = 50
         )
         {
-            var sphere = AddOrGetSphereComponent(body.MapObject.gameObject, GetPrefixName(body, radius));
+            var sphere = AddOrGetSphereComponent(body, GetPrefixName(body, radius));
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -400,7 +400,7 @@ namespace OrbitPOInts
         private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
             int segments = 360)
         {
-            var circle = AddOrGetCircleComponent(body.MapObject.gameObject, GetPrefixName(body, radius));
+            var circle = AddOrGetCircleComponent(body, GetPrefixName(body, radius));
 
             circle.wireframeColor = color;
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -425,36 +425,77 @@ namespace OrbitPOInts
             return $"{body.name}_${radius}";
         }
 
-        private CircleRenderer AddOrGetCircleComponent(GameObject target, string uniqueGameObjectNamePrefix)
+        private CircleRenderer AddOrGetCircleComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
         {
+            var target = GetOrCreateBodyComponentHolder(body);
             var components = target.GetComponents<CircleRenderer>();
             foreach (var component in components)
             {
                 if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
                 {
+                    Log($"[AddOrGetCircleComponent] Reusing: {uniqueGameObjectNamePrefix}");
                     return component;
                 }
+
+                if(component.IsAlive() && component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                {
+                    Log($"[AddOrGetCircleComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
+                    continue;
+                }
+
+                Log("[AddOrGetCircleComponent] Skipping unknown dead component");
             }
 
+            Log($"[AddOrGetCircleComponent] Creating new component {uniqueGameObjectNamePrefix}");
             var circle = target.AddComponent<CircleRenderer>();
             circle.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
             return circle;
         }
 
-        private WireSphereRenderer AddOrGetSphereComponent(GameObject target, string uniqueGameObjectNamePrefix)
+        private WireSphereRenderer AddOrGetSphereComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
         {
+            var target = GetOrCreateBodyComponentHolder(body);
             var components = target.GetComponents<WireSphereRenderer>();
             foreach (var component in components)
             {
                 if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
                 {
+                    Log($"[AddOrGetSphereComponent] Reusing: {uniqueGameObjectNamePrefix}");
                     return component;
                 }
+
+                if(component.IsAlive() && component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                {
+                    Log($"[AddOrGetSphereComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
+                    continue;
+                }
+
+                Log("[AddOrGetSphereComponent] Skipping unknown dead component");
             }
 
+            Log($"[AddOrGetSphereComponent] Creating new component {uniqueGameObjectNamePrefix}");
             var sphere = target.AddComponent<WireSphereRenderer>();
             sphere.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
             return sphere;
+        }
+
+        private GameObject GetOrCreateBodyComponentHolder(CelestialBody body)
+        {
+            var componentHolder = _bodyComponentHolders.TryGet(body.name);
+            if (componentHolder.isSome && componentHolder.value.IsAlive())
+            {
+                Log($"[GetOrCreateBodyComponentHolder] Reusing component holder for {body.name}");
+                return componentHolder.value;
+            }
+            if (componentHolder.isSome && !componentHolder.value.IsAlive())
+            {
+                Log($"[GetOrCreateBodyComponentHolder] Skipping dead component holder for {body.name}");
+            }
+            Log($"[GetOrCreateBodyComponentHolder] Creating component holder for {body.name}");
+            var primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            primitive.name = GetComponentHolderName(body);
+            _bodyComponentHolders.Add(body.name, primitive);
+            return primitive;
         }
 
         private string GetComponentHolderName(CelestialBody body)
