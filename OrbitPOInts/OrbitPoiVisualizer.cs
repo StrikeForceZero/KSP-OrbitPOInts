@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using OrbitPOInts.Extensions;
+using Smooth.Collections;
 using UnityEngine;
 using Enumerable = UniLinq.Enumerable;
 
@@ -13,6 +14,7 @@ namespace OrbitPOInts
     {
         public static OrbitPoiVisualizer Instance { get; private set; }
 
+        private readonly Dictionary<string, GameObject> _bodyComponentHolders = new();
         private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
         private readonly HashSet<CircleRenderer> _drawnCircles = new();
 
@@ -67,6 +69,10 @@ namespace OrbitPOInts
             GameEvents.onVesselChange.Remove(OnVesselChange);
             GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChange);
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
+            foreach (var componentHolder in _bodyComponentHolders.Values)
+            {
+                DestroyImmediate(componentHolder);
+            }
         }
 
         private void Update()
@@ -449,6 +455,137 @@ namespace OrbitPOInts
             var sphere = target.AddComponent<WireSphereRenderer>();
             sphere.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
             return sphere;
+        }
+
+        private string GetComponentHolderName(CelestialBody body)
+        {
+            return $"component_holder_{body.name}";
+        }
+
+        private void PurgeAllByNamePrefix(string namePrefix)
+        {
+            PurgeAllCirclesByNamePrefix(namePrefix);
+            PurgeAllSpheresByNamePrefix(namePrefix);
+        }
+
+        private void PurgeAllCirclesByNamePrefix(string namePrefix)
+        {
+            foreach (var bodyComponentHolder in _bodyComponentHolders)
+            {
+                var components = bodyComponentHolder.Value.GetComponents<CircleRenderer>().Where(c => c.uniqueGameObjectNamePrefix == namePrefix);;
+                Log($"[PurgeAllCirclesByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
+                foreach (var component in components)
+                {
+                    DestroyImmediate(component);
+                }
+            }
+        }
+
+        private void PurgeAllSpheresByNamePrefix(string namePrefix)
+        {
+            foreach (var bodyComponentHolder in _bodyComponentHolders)
+            {
+                var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>().Where(c => c.uniqueGameObjectNamePrefix == namePrefix);
+                Log($"[PurgeAllSpheresByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
+                foreach (var component in components)
+                {
+                    DestroyImmediate(component);
+                }
+            }
+        }
+
+        private void PurgeAllByBody(CelestialBody body)
+        {
+            PurgeAllCirclesByBody(body);
+            PurgeAllSpheresByBody(body);
+        }
+
+        private void PurgeAllCirclesByBody(CelestialBody body)
+        {
+            var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
+            if (bodyComponentHolder.isNone) return;
+            var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
+            Log($"[PurgeAllCirclesByBody] {body.name} - {components.Length}");
+            foreach (var component in components)
+            {
+                DestroyImmediate(component);
+            }
+        }
+
+        private void PurgeAllSpheresByBody(CelestialBody body)
+        {
+            var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
+            if (bodyComponentHolder.isNone) return;
+            var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
+            Log($"[PurgeAllSpheresByBody] {body.name} - {components.Length}");
+            foreach (var component in components)
+            {
+                DestroyImmediate(component);
+            }
+        }
+
+        // TODO: desperate times call for desperate measures
+        internal void PurgeAll()
+        {
+            Log("=== PURGING ALL ===");
+
+            PurgeSpheres();
+            PurgeCircles();
+            PurgeBodyHolders();
+        }
+
+        private void PurgeBodyHolders()
+        {
+            Log("=== PURGING BODY HOLDERS ===");
+            _bodyComponentHolders.Clear();
+            foreach (var body in FlightGlobals.Bodies)
+            {
+                DestroyIfAliveGO(GameObject.Find(GetComponentHolderName(body)));
+            }
+        }
+
+        internal void PurgeSpheres()
+        {
+            Log("=== PURGING SPHERES ===");
+            _drawnSpheres.Clear();
+            foreach (var component in GameObject.FindObjectsOfType<WireSphereRenderer>())
+            {
+                DestroyIfAliveMB(component);
+            }
+            foreach (var lineRenderer in GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == WireSphereRenderer.NameKey))
+            {
+                DestroyIfAliveGO(lineRenderer);
+            }
+        }
+
+        internal void PurgeCircles()
+        {
+            Log("=== PURGING CIRCLES ===");
+            _drawnCircles.Clear();
+            foreach (var component in GameObject.FindObjectsOfType<CircleRenderer>())
+            {
+                DestroyIfAliveMB(component);
+            }
+            foreach (var lineRenderer in GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == CircleRenderer.NameKey))
+            {
+                DestroyIfAliveGO(lineRenderer);
+            }
+        }
+
+        private void DestroyIfAliveMB(MonoBehaviour target)
+        {
+            if (target.IsAlive())
+            {
+                DestroyImmediate(target);
+            }
+        }
+
+        private void DestroyIfAliveGO(GameObject target)
+        {
+            if (target.IsAlive())
+            {
+                DestroyImmediate(target);
+            }
         }
     }
 
