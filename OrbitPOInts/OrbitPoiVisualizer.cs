@@ -294,15 +294,13 @@ namespace OrbitPOInts
             int resolution = 50
         )
         {
-            var sphereObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            var sphere = sphereObj.AddComponent<WireSphereRenderer>();
+            var sphere = AddOrGetSphereComponent(body.MapObject.gameObject, GetPrefixName(body, radius));
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
             sphere.lineWidth = width;
             sphere.latitudeLines = resolution;
             sphere.longitudeLines = resolution;
-            sphere.uniqueGameObjectNamePrefix = GetPrefixName(body, radius);
 
             sphere.transform.SetParent(body.MapObject.trf);
             sphere.transform.localRotation = Quaternion.identity;
@@ -383,14 +381,12 @@ namespace OrbitPOInts
         private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
             int segments = 360)
         {
-            var circleObj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            var circle = circleObj.AddComponent<CircleRenderer>();
+            var circle = AddOrGetCircleComponent(body.MapObject.gameObject, GetPrefixName(body, radius));
 
             circle.wireframeColor = color;
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
             circle.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
             circle.segments = segments;
-            circle.uniqueGameObjectNamePrefix = GetPrefixName(body, radius);
 
             circle.transform.SetParent(body.MapObject.trf);
             circle.transform.localRotation = Quaternion.identity;
@@ -408,6 +404,38 @@ namespace OrbitPOInts
         private string GetPrefixName(CelestialBody body, double radius)
         {
             return $"{body.name}_${radius}";
+        }
+
+        private CircleRenderer AddOrGetCircleComponent(GameObject target, string uniqueGameObjectNamePrefix)
+        {
+            var components = target.GetComponents<CircleRenderer>();
+            foreach (var component in components)
+            {
+                if (component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                {
+                    return component;
+                }
+            }
+
+            var circle = target.AddComponent<CircleRenderer>();
+            circle.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
+            return circle;
+        }
+
+        private WireSphereRenderer AddOrGetSphereComponent(GameObject target, string uniqueGameObjectNamePrefix)
+        {
+            var components = target.GetComponents<WireSphereRenderer>();
+            foreach (var component in components)
+            {
+                if (component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
+                {
+                    return component;
+                }
+            }
+
+            var sphere = target.AddComponent<WireSphereRenderer>();
+            sphere.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
+            return sphere;
         }
     }
 
