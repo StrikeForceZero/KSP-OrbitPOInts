@@ -214,8 +214,30 @@ namespace OrbitPOInts
 
             foreach (var transform in transformsNeedsUpdate)
             {
-                Lib.AlignTransformToNormal(transform, normal);
+                NextFrameAlignTransformToNormal(transform, normal);
             }
+        }
+
+        private void NextFrameAlignTransformToNormal(Transform transform, Vector3d normal)
+        {
+            if (transform == null)
+            {
+                Logger.Log($"[NextFrameAlignTransformToNormal] transform null!");
+                return;
+            }
+            StartCoroutine(AsyncAlignTransformToNormal(transform, normal));
+        }
+
+        private IEnumerator AsyncAlignTransformToNormal(Transform transform, Vector3d normal)
+        {
+            yield return null;
+            // TODO: sometimes the transform can be null
+            if (transform == null)
+            {
+                Logger.Log($"[AsyncAlignTransformToNormal] transform null!");
+                yield break;
+            }
+            Lib.AlignTransformToNormal(transform, normal);
         }
 
         public void SetEnabled(bool state)
