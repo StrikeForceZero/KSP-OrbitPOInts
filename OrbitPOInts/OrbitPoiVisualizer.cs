@@ -154,31 +154,17 @@ namespace OrbitPOInts
             DestroyAndRecreateBodyCircles(body);
         }
 
-        private IEnumerator DelayedRefresh(MapObject target)
+        public void Refresh(MapObject focusTarget)
         {
-            yield return new WaitForSeconds(0f);
-            SyncRefresh(target);
-        }
-
-        private void SyncRefresh(MapObject target)
-        {
-            if (target == null)
+            if (focusTarget == null)
             {
                 Log("[Refresh] target is null!");
                 return;
             }
 
-            var body = MapObjectHelper.GetTargetBody(target);
-            Log($"[Refresh] target: {MapObjectHelper.GetTargetName(target)}, body: {body.name}");
+            var body = MapObjectHelper.GetTargetBody(focusTarget);
+            Log($"[Refresh] target: {MapObjectHelper.GetTargetName(focusTarget)}, body: {body.name}");
             UpdateBody(body);
-        }
-
-        public void Refresh(MapObject focusTarget)
-        {
-            // TODO: no idea why this is needed, but without calling it sync, then async, we can't align our circles to the orbit normal
-            SyncRefresh(focusTarget);
-            // TODO: better hook?
-            StartCoroutine(DelayedRefresh(focusTarget));
         }
 
         public void CurrentTargetRefresh()
