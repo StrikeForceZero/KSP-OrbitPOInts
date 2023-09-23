@@ -39,7 +39,7 @@ namespace OrbitPOInts
         {
             var targetRotation = Quaternion.FromToRotation(Vector3.up, normal);
             if (transform.rotation == targetRotation) return;
-            Logger.Log($"[AlignTransformToNormal] {transform.rotation} -> {normal}");
+            // Logger.Log($"[AlignTransformToNormal] {transform.rotation} -> {normal}");
             transform.rotation = targetRotation;
         }
 
