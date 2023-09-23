@@ -201,7 +201,6 @@ namespace OrbitPOInts
                 transformsNeedsUpdate.Add(circle.transform);
             }
 
-            // TODO: fix, we are always aligning now for some reason...
             if (AlignSpheres)
             {
                 foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
@@ -441,7 +440,7 @@ namespace OrbitPOInts
 
         private CircleRenderer AddOrGetCircleComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
         {
-            var target = GetOrCreateBodyComponentHolder(body);
+            var target = GetOrCreateBodyComponentHolder(body, ComponentHolderType.Circle);
             var components = target.GetComponents<CircleRenderer>();
             foreach (var component in components)
             {
@@ -468,7 +467,7 @@ namespace OrbitPOInts
 
         private WireSphereRenderer AddOrGetSphereComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
         {
-            var target = GetOrCreateBodyComponentHolder(body);
+            var target = GetOrCreateBodyComponentHolder(body, ComponentHolderType.Sphere);
             var components = target.GetComponents<WireSphereRenderer>();
             foreach (var component in components)
             {
@@ -493,12 +492,27 @@ namespace OrbitPOInts
             return sphere;
         }
 
-        private GameObject GetOrCreateBodyComponentHolder(CelestialBody body)
+        private enum ComponentHolderType
         {
-            var componentHolder = _bodyComponentHolders.TryGet(body.name);
+            Sphere,
+            Circle,
+        }
+        private string GetComponentHolderName(CelestialBody body, ComponentHolderType type)
+        {
+            return $"component_holder_{GetComponentHolderKey(body, type)}";
+        }
+
+        private string GetComponentHolderKey(CelestialBody body, ComponentHolderType type)
+        {
+            return $"{body.name}_{type}";
+        }
+
+        private GameObject GetOrCreateBodyComponentHolder(CelestialBody body, ComponentHolderType type)
+        {
+            var componentHolder = _bodyComponentHolders.TryGet(GetComponentHolderKey(body, type));
             if (componentHolder.isSome && componentHolder.value.IsAlive())
             {
-                Log($"[GetOrCreateBodyComponentHolder] Reusing component holder for {body.name}");
+                Log($"[GetOrCreateBodyComponentHolder] Reusing component holder {type} for {body.name}");
                 return componentHolder.value;
             }
             if (componentHolder.isSome && !componentHolder.value.IsAlive())
@@ -507,8 +521,8 @@ namespace OrbitPOInts
             }
             Log($"[GetOrCreateBodyComponentHolder] Creating component holder for {body.name}");
             var primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            primitive.name = GetComponentHolderName(body);
-            _bodyComponentHolders.Add(body.name, primitive);
+            primitive.name = GetComponentHolderName(body, type);
+            _bodyComponentHolders.Add(GetComponentHolderKey(body, type), primitive);
             return primitive;
         }
 
@@ -595,7 +609,10 @@ namespace OrbitPOInts
             _bodyComponentHolders.Clear();
             foreach (var body in FlightGlobals.Bodies)
             {
-                DestroyIfAliveGO(GameObject.Find(GetComponentHolderName(body)));
+                foreach (ComponentHolderType type in Enum.GetValues(typeof(ComponentHolderType)))
+                {
+                    DestroyIfAliveGO(GameObject.Find(GetComponentHolderName(body, type)));
+                }
             }
         }
 
