@@ -193,7 +193,7 @@ namespace OrbitPOInts
             {
                 if (!circle.IsAlive() || circle.IsDying)
                 {
-                    Log($"[UpdateNormals] circle null or dying {index} / {_drawnSpheres.Count}");
+                    Log($"[UpdateNormals] circle null or dying {index} / {_drawnCircles.Count}");
                     continue;
                 }
                 transformsNeedsUpdate.Add(circle.transform);
@@ -256,7 +256,7 @@ namespace OrbitPOInts
             {
                 if (!circle.IsAlive() || circle.IsDying)
                 {
-                    Log($"[SetEnabled] circle null or dying {index} / {_drawnSpheres.Count}");
+                    Log($"[SetEnabled] circle null or dying {index} / {_drawnCircles.Count}");
                     continue;
                 }
                 circle.SetEnabled(state);
