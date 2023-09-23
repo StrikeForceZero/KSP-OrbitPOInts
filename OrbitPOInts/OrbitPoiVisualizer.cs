@@ -12,8 +12,8 @@ namespace OrbitPOInts
     {
         public static OrbitPoiVisualizer Instance { get; private set; }
 
-        private readonly List<WireSphereRenderer> _drawnSpheres = new();
-        private readonly List<CircleRenderer> _drawnCircles = new();
+        private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
+        private readonly HashSet<CircleRenderer> _drawnCircles = new();
 
         public bool DrawSpheres = true;
         public bool DrawCircles = true;

@@ -76,5 +76,19 @@ namespace OrbitPOInts
         {
             return $"{uniqueGameObjectNamePrefix}_CircleLine";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is CircleRenderer other)
+            {
+                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
+        }
     }
 }

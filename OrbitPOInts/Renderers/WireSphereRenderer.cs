@@ -153,5 +153,19 @@ namespace OrbitPOInts
         {
             return $"${uniqueGameObjectNamePrefix}_LatitudeLine_{index}";
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is WireSphereRenderer other)
+            {
+                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
+        }
     }
 }
