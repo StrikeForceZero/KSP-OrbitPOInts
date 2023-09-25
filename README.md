@@ -3,6 +3,8 @@ Visualize Orbital Points of Interest in the Tracking Station and Mapview
 
 ![Logo](./Assets/logo.svg)
 
+[Space Dock](https://spacedock.info/mod/3466/OrbitPOInts)
+
 ## Features
 Points of Interest:
 - HillSphere
