@@ -316,6 +316,7 @@ namespace OrbitPOInts
 
         #endregion
 
+        #region Normals
         private void UpdateNormals(Vector3 normal)
         {
             if (!enabled || _sceneLoading || !Lib.ViewingMapOrTrackingStation)
@@ -377,6 +378,7 @@ namespace OrbitPOInts
             }
             Lib.AlignTransformToNormal(transform, normal);
         }
+        #endregion
 
         public void SetEnabled(bool state)
         {
