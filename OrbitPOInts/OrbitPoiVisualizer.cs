@@ -366,6 +366,8 @@ namespace OrbitPOInts
                 }
                 circle.SetEnabled(state);
             }
+
+            enabled = state;
         }
 
         private double GetCustomPoiRadius(CelestialBody body, double poiRadius)
