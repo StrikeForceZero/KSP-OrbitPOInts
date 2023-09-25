@@ -5,7 +5,7 @@ namespace OrbitPOInts
 {
     public static class MapObjectHelper
     {
-        public static String GetTargetName(MapObject target)
+        public static string GetTargetName(MapObject target)
         {
             if (target.vessel != null)
             {
@@ -35,7 +35,7 @@ namespace OrbitPOInts
             throw new Exception("bad target, no celestial body");
         }
 
-        public static String GetVesselName(Vessel vessel)
+        public static string GetVesselName(Vessel vessel)
         {
             if (vessel == null)
             {
@@ -45,7 +45,7 @@ namespace OrbitPOInts
             return vessel.name;
         }
 
-        public static String GetBodyName(CelestialBody body)
+        public static string GetBodyName(CelestialBody body)
         {
             return body == null ? "no body" : body.name;
         }
