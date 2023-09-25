@@ -451,7 +451,7 @@ namespace OrbitPOInts
             Log($"[CreateBodySphere]: Generating spheres around {body.name}");
             if (Settings.EnablePOI_HillSphere)
             {
-                CreateWireSphere(body, Color.white, (float)body.hillSphere, .1f, 50);
+                CreateWireSphere(body, Color.white, (float)body.hillSphere, .05f, 50);
             }
 
             var shouldShowMaxAlt =
@@ -460,7 +460,7 @@ namespace OrbitPOInts
             {
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
-                CreateWireSphere(body, Color.red, (float)maxAlt, .01f, 55);
+                CreateWireSphere(body, Color.red, (float)maxAlt, .1f, 55);
             }
 
             if (Settings.EnablePOI_SOI)
@@ -470,19 +470,19 @@ namespace OrbitPOInts
 
             if (Settings.EnablePOI_MinOrbit)
             {
-                CreateWireSphere(body, Color.green, (float)body.minOrbitalDistance, 0.01f, 50);
+                CreateWireSphere(body, Color.green, (float)body.minOrbitalDistance, 0.1f, 50);
             }
 
             if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
-                CreateWireSphere(body, Color.cyan, (float)atmoDist, 0.01f, 40);
+                CreateWireSphere(body, Color.cyan, (float)atmoDist, 0.1f, 40);
             }
             
             foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
             {
                 // TODO: custom color and specific body
-                CreateWireSphere(body, Color.white, (float)GetCustomPoiRadius(body, customPoi.Diameter()), .01f);
+                CreateWireSphere(body, Color.white, (float)GetCustomPoiRadius(body, customPoi.Diameter()), .1f);
             }
         }
 
@@ -499,6 +499,7 @@ namespace OrbitPOInts
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
             sphere.lineWidth = width;
+            sphere.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
             sphere.latitudeLines = resolution;
             sphere.longitudeLines = resolution;
 
