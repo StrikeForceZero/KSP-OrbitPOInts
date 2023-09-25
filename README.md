@@ -19,8 +19,8 @@ See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issu
 - Custom colors
 - ~~Custom POIs ("I want to visualize a 500km ring around a body")~~
     - Allow any number of custom POIs
+- Rewrite the mess OrbitPoiVisualizer has become.
 - High resolution max altitude detection for current orbit to warn user if they are at risk of impact
-- Better scaling for wireframe sphere lines
 - Show POI for High/Low Orbit and potentially other science related altitudes
 - Persistent Settings
 
