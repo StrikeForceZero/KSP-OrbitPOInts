@@ -157,21 +157,21 @@ namespace OrbitPOInts
 
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
-            Log($"[MapOverlay] Load Requested");
+            Log($"[OnGameSceneLoadRequested] {Enum.GetName(typeof(GameScenes), scenes)}");
             RemoveAll();
         }
 
         private void OnMapEntered()
         {
             var target = PlanetariumCamera.fetch.target;
-            Log($"[MapOverlay] Entering map view, focus on {MapObjectHelper.GetTargetName(target)}");
+            Log($"[OnMapEntered] focus on {MapObjectHelper.GetTargetName(target)}");
 
             Refresh(target);
         }
 
         private void OnMapExited()
         {
-            Log($"[MapOverlay] Exiting map view");
+            Log($"[OnMapExited]");
             PurgeAll();
         }
 
@@ -343,7 +343,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            Log($"[MapOverlay]: Generating spheres around {body.name}");
+            Log($"[CreateBodySphere]: Generating spheres around {body.name}");
             if (Settings.EnablePOI_HillSphere)
             {
                 CreateWireSphere(body, Color.white, (float)body.hillSphere, .1f, 50);
@@ -430,7 +430,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            Log($"[MapOverlay]: Generating circles around {body.name}");
+            Log($"[CreateBodyCircle]: Generating circles around {body.name}");
             if (Settings.EnablePOI_HillSphere)
             {
                 CreateCircle(body, Color.white, (float)body.hillSphere, 1f);
