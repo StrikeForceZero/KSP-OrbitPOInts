@@ -43,6 +43,7 @@ namespace OrbitPOInts
             transform.rotation = targetRotation;
         }
 
+        // TODO: MapView.MapIsEnabled and HighLogic.LoadedScene == GameScenes.FLIGHT on quicksave load
         public static bool ViewingMapOrTrackingStation =>
             MapView.MapIsEnabled || HighLogic.LoadedScene == GameScenes.TRACKSTATION;
     }
