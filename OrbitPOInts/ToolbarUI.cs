@@ -14,8 +14,14 @@ namespace OrbitPOInts
         private Rect windowRect = new Rect(0, 0, 400, 200); // Initial size for the window
         private bool _useTopRightCloseButton = false;
 
+        private void Log(string message)
+        {
+            Logger.Log($"[ToolbarUI] {message}");
+        }
+
         private void Start()
         {
+            Log("[Start]");
             toolbarButton = ApplicationLauncher.Instance.AddModApplication(
                 OnToolbarButtonClick,
                 OnToolbarButtonClick,
@@ -126,7 +132,7 @@ namespace OrbitPOInts
 
                         if (GUILayout.Button("X", GUILayout.Width(closeButtonSize)))
                         {
-                            Logger.Log("[GUI] Close button clicked");
+                            Log("[GUI] Close button clicked");
                             CloseWindow();
                         }
 
@@ -174,7 +180,7 @@ namespace OrbitPOInts
                 {
                     if (closeButtonRect.Contains(Event.current.mousePosition))
                     {
-                        Logger.Log("[GUI] Close button clicked");
+                        Log("[GUI] Close button clicked");
                         CloseWindow();
                         Event.current.Use();
                         return;
@@ -199,6 +205,7 @@ namespace OrbitPOInts
 
         private void OnDestroy()
         {
+            Log("[OnDestroy]");
             if (toolbarButton != null)
             {
                 ApplicationLauncher.Instance.RemoveModApplication(toolbarButton);
