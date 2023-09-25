@@ -24,6 +24,7 @@ namespace OrbitPOInts
 
 
         private bool _eventsRegistered;
+        private static bool _sceneLoading;
 
         private Vessel _lastVessel;
         private CelestialBody _lastOrbitingBody;
@@ -98,6 +99,7 @@ namespace OrbitPOInts
                 GameEvents.onVesselChange.Add(OnVesselChange);
                 GameEvents.onVesselSOIChanged.Add(OnVesselSOIChange);
                 GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
+                GameEvents.onLevelWasLoadedGUIReady.Add(OnGameSceneLoadedGUIReady);
                 _eventsRegistered = true;
                 return;
             }
@@ -110,6 +112,7 @@ namespace OrbitPOInts
             GameEvents.onVesselChange.Remove(OnVesselChange);
             GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChange);
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
+            GameEvents.onLevelWasLoadedGUIReady.Remove(OnGameSceneLoadedGUIReady);
             _eventsRegistered = false;
         }
 
@@ -172,8 +175,21 @@ namespace OrbitPOInts
 
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
+            _sceneLoading = true;
             Log($"[OnGameSceneLoadRequested] {Enum.GetName(typeof(GameScenes), scenes)}");
             RemoveAll();
+        }
+
+        private void OnGameSceneLoadedGUIReady(GameScenes scenes)
+        {
+            _sceneLoading = false;
+            Log($"[OnGameSceneLoadedGUIReady] {Enum.GetName(typeof(GameScenes), scenes)}");
+            if (PurgeIfNotInMapOrTracking())
+            {
+                Log("[OnGameSceneLoadedGUIReady] purge complete");
+                return;
+            }
+            CurrentTargetRefresh();
         }
 
         private void OnMapEntered()
@@ -248,6 +264,11 @@ namespace OrbitPOInts
                 Log("[UpdateBody] UpdateBody called when not enabled!");
                 return;
             }
+            if (_sceneLoading)
+            {
+                Log("[UpdateBody] UpdateBody called when scene loading!");
+                return;
+            }
             DestroyAndRecreateBodySpheres(body);
             DestroyAndRecreateBodyCircles(body);
         }
@@ -262,6 +283,11 @@ namespace OrbitPOInts
             if (PurgeIfNotInMapOrTracking())
             {
                 Log("[Refresh] refresh called when not in map or tracking!");
+                return;
+            }
+            if (_sceneLoading)
+            {
+                Log("[Refresh] refresh called when scene loading!");
                 return;
             }
 
@@ -293,6 +319,10 @@ namespace OrbitPOInts
 
         private void UpdateNormals(Vector3 normal)
         {
+            if (!enabled || _sceneLoading)
+            {
+                return;
+            }
             List<Transform> transformsNeedsUpdate = new();
             foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
             {
@@ -340,6 +370,10 @@ namespace OrbitPOInts
             if (transform == null)
             {
                 Logger.Log($"[AsyncAlignTransformToNormal] transform null!");
+                yield break;
+            }
+            if (!enabled)
+            {
                 yield break;
             }
             Lib.AlignTransformToNormal(transform, normal);
