@@ -123,7 +123,22 @@ namespace OrbitPOInts
                 PurgeAll();
                 return;
             }
+
+            PurgeIfNotInMapOrTracking();
             RegisterEvents();
+        }
+
+        private bool PurgeIfNotInMapOrTracking()
+        {
+            // if for some reason we end up here and we arent in the mapview or tracking station we should purge
+            if (!Lib.ViewingMapOrTrackingStation)
+            {
+                Log("[PurgeIfNotInMapOrTracking] Purging");
+                PurgeAll();
+                return true;
+            }
+
+            return false;
         }
 
         private void Update()
@@ -178,6 +193,12 @@ namespace OrbitPOInts
         private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
         {
             Log($"[OnVesselSOIChange] soi changed: {data.from.name} -> {data.to.name}");
+            if (PurgeIfNotInMapOrTracking())
+            {
+                // TODO: this might be ok if our SOI changes while flying
+                Log("[OnVesselSOIChange] OnVesselSOIChange called when not in map or tracking!");
+                return;
+            }
             UpdateBody(data.to);
         }
 
@@ -185,7 +206,15 @@ namespace OrbitPOInts
         {
             Log(
                 $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
-            if (vessel == null || !Lib.ViewingMapOrTrackingStation)
+
+            if (PurgeIfNotInMapOrTracking())
+            {
+                // TODO: this might be ok if we are flightview and switch ships
+                Log("[OnVesselChange] OnVesselChange called when not in map or tracking!");
+                return;
+            }
+
+            if (vessel == null)
             {
                 return;
             }
@@ -198,9 +227,9 @@ namespace OrbitPOInts
         {
             Log($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
             // TODO: this gets called when loading a save and we dont want to generate anything unless in map
-            if (!Lib.ViewingMapOrTrackingStation)
+            if (PurgeIfNotInMapOrTracking())
             {
-                Log("[OnMapFocusChange] Not in map, skipping event.");
+                Log("[OnMapFocusChange] OnMapFocusChange called when not in map or tracking!");
                 return;
             }
             Refresh(focusTarget);
@@ -214,12 +243,28 @@ namespace OrbitPOInts
         {
             Log($"[UpdateBody] body: {body.name}");
             PurgeAll();
+            if (!enabled)
+            {
+                Log("[UpdateBody] UpdateBody called when not enabled!");
+                return;
+            }
             DestroyAndRecreateBodySpheres(body);
             DestroyAndRecreateBodyCircles(body);
         }
 
         public void Refresh(MapObject focusTarget)
         {
+            if (!enabled)
+            {
+                Log("[Refresh] refresh called when not enabled!");
+                return;
+            }
+            if (PurgeIfNotInMapOrTracking())
+            {
+                Log("[Refresh] refresh called when not in map or tracking!");
+                return;
+            }
+
             if (focusTarget == null)
             {
                 Log("[Refresh] target is null!");
