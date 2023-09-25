@@ -532,11 +532,6 @@ namespace OrbitPOInts
             return primitive;
         }
 
-        private string GetComponentHolderName(CelestialBody body)
-        {
-            return $"component_holder_{body.name}";
-        }
-
         private void PurgeAllByNamePrefix(string namePrefix)
         {
             PurgeAllCirclesByNamePrefix(namePrefix);
