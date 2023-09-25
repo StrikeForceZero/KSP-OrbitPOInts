@@ -18,9 +18,12 @@ namespace OrbitPOInts
         private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
         private readonly HashSet<CircleRenderer> _drawnCircles = new();
 
-        public bool DrawSpheres = true;
-        public bool DrawCircles = true;
-        public bool AlignSpheres = false;
+        public bool DrawSpheres = Settings.EnableSpheres;
+        public bool DrawCircles = Settings.EnableCircles;
+        public bool AlignSpheres = Settings.AlignSpheres;
+
+
+        private bool _eventsRegistered;
 
         private Vessel _lastVessel;
         private CelestialBody _lastOrbitingBody;
@@ -51,28 +54,66 @@ namespace OrbitPOInts
 
         private void Awake()
         {
+            Log("Awake");
             LoadStandardLineWidthDistance();
             Instance = this;
-            GameEvents.OnMapEntered.Add(OnMapEntered);
-            GameEvents.OnMapExited.Add(OnMapExited);
-            GameEvents.OnMapFocusChange.Add(OnMapFocusChange);
-            GameEvents.onVesselChange.Add(OnVesselChange);
-            GameEvents.onVesselSOIChanged.Add(OnVesselSOIChange);
-            GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
+        }
+
+        private void OnEnable()
+        {
+            Log("OnEnable");
+            RegisterEvents();
+        }
+
+        private void Start()
+        {
+            Log("Start");
+            enabled = Settings.GlobalEnable;
+            // check to make sure we still enabled after loading settings
+            if (enabled)
+            {
+                RegisterEvents();
+            }
+        }
+
+        private void OnDisable()
+        {
+            Log("OnDisable");
+            RegisterEvents(false);
         }
 
         private void OnDestroy()
         {
+            Log("OnDestroy");
+            RegisterEvents(false);
+            PurgeAll();
+        }
+
+        private void RegisterEvents(bool register = true)
+        {
+            if (register)
+            {
+                if (_eventsRegistered) return;
+                Log("RegisterEvents");
+                GameEvents.OnMapEntered.Add(OnMapEntered);
+                GameEvents.OnMapExited.Add(OnMapExited);
+                GameEvents.OnMapFocusChange.Add(OnMapFocusChange);
+                GameEvents.onVesselChange.Add(OnVesselChange);
+                GameEvents.onVesselSOIChanged.Add(OnVesselSOIChange);
+                GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
+                _eventsRegistered = true;
+                return;
+            }
+
+            if (!_eventsRegistered) return;
+            Log("UnRegisterEvents");
             GameEvents.OnMapEntered.Remove(OnMapEntered);
             GameEvents.OnMapExited.Remove(OnMapExited);
             GameEvents.OnMapFocusChange.Remove(OnMapFocusChange);
             GameEvents.onVesselChange.Remove(OnVesselChange);
             GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChange);
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
-            foreach (var componentHolder in _bodyComponentHolders.Values)
-            {
-                DestroyImmediate(componentHolder);
-            }
+            _eventsRegistered = false;
         }
 
         private void Update()
