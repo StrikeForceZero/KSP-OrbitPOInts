@@ -176,14 +176,14 @@ namespace OrbitPOInts
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
             _sceneLoading = true;
-            Log($"[OnGameSceneLoadRequested] {Enum.GetName(typeof(GameScenes), scenes)}");
+            Log($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
             RemoveAll();
         }
 
         private void OnGameSceneLoadedGUIReady(GameScenes scenes)
         {
             _sceneLoading = false;
-            Log($"[OnGameSceneLoadedGUIReady] {Enum.GetName(typeof(GameScenes), scenes)}");
+            Log($"[OnGameSceneLoadedGUIReady] {Lib.GetSceneName(scenes)}");
             if (PurgeIfNotInMapOrTracking())
             {
                 Log("[OnGameSceneLoadedGUIReady] purge complete");

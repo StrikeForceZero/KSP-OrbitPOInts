@@ -136,7 +136,7 @@ namespace OrbitPOInts
 
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
-            Log($"[OnGameSceneLoadRequested] {Enum.GetName(typeof(GameScenes), scenes)}");
+            Log($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
             if (scenes == GameScenes.TRACKSTATION || scenes == GameScenes.FLIGHT && MapView.MapIsEnabled)
             {
                 CreateToolbarButton();

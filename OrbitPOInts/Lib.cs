@@ -46,5 +46,10 @@ namespace OrbitPOInts
         // TODO: MapView.MapIsEnabled and HighLogic.LoadedScene == GameScenes.FLIGHT on quicksave load
         public static bool ViewingMapOrTrackingStation =>
             MapView.MapIsEnabled || HighLogic.LoadedScene == GameScenes.TRACKSTATION;
+
+        public static string GetSceneName(GameScenes scene)
+        {
+            return Enum.GetName(typeof(GameScenes), scene);
+        }
     }
 }
