@@ -181,14 +181,22 @@ namespace OrbitPOInts
 
         private void OnGameSceneLoadedGUIReady(GameScenes scenes)
         {
-            _sceneLoading = false;
             Log($"[OnGameSceneLoadedGUIReady] {Lib.GetSceneName(scenes)}");
-            if (PurgeIfNotInMapOrTracking())
-            {
-                Log("[OnGameSceneLoadedGUIReady] purge complete");
-                return;
-            }
-            CurrentTargetRefresh();
+            // TOD: this might not be the same on all systems
+            StartCoroutine(Lib.DelayedAction(() =>
+                {
+                    Log($"[OnGameSceneLoadedGUIReady][DelayedAction] {Lib.GetSceneName(scenes)}");
+                    _sceneLoading = false;
+                    if (PurgeIfNotInMapOrTracking())
+                    {
+                        Log("[OnGameSceneLoadedGUIReady] purge complete");
+                        return;
+                    }
+
+                    CurrentTargetRefresh();
+                },
+                6 // appears it takes 6 frames on my system before OnMapExit is called
+            ));
         }
 
         private void OnMapEntered()
