@@ -76,6 +76,7 @@ namespace OrbitPOInts
         {
             Log("OnDisable");
             RegisterEvents(false);
+            PurgeAll();
         }
 
         private void OnDestroy()
@@ -117,7 +118,11 @@ namespace OrbitPOInts
             enabled = Settings.GlobalEnable;
             Log($"[CheckEnabled] enable: {Settings.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
             // check to make sure we still enabled after loading settings
-            if (!enabled) return;
+            if (!enabled)
+            {
+                PurgeAll();
+                return;
+            }
             RegisterEvents();
         }
 
