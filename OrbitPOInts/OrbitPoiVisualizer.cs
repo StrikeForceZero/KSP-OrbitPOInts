@@ -145,7 +145,13 @@ namespace OrbitPOInts
 
         private void OnMapFocusChange(MapObject focusTarget)
         {
-            Log($"[MapOverlay] Changed focus to {focusTarget.name}");
+            Log($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
+            // TODO: this gets called when loading a save and we dont want to generate anything unless in map
+            if (!Lib.ViewingMapOrTrackingStation)
+            {
+                Log("[OnMapFocusChange] Not in map, skipping event.");
+                return;
+            }
             Refresh(focusTarget);
         }
 
