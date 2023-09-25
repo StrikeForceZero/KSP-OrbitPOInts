@@ -252,6 +252,13 @@ namespace OrbitPOInts
 
                 GUILayout.Space(10);
 
+                GUILayout.BeginVertical();
+                    Settings.ActiveBodyOnly = GUILayout.Toggle(Settings.ActiveBodyOnly, "Active Body Only");
+                    GUILayout.Label("(turning this off can have major performance impacts)");
+                GUILayout.EndVertical();
+
+                GUILayout.Space(10);
+
                 Settings.EnableSpheres = GUILayout.Toggle(Settings.EnableSpheres, "Draw Spheres");
                 Settings.AlignSpheres = GUILayout.Toggle(Settings.AlignSpheres, "Align Spheres");
                 Settings.EnableCircles = GUILayout.Toggle(Settings.EnableCircles, "Draw Circles");

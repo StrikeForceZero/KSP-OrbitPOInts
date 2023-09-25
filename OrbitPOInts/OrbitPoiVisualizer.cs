@@ -283,8 +283,20 @@ namespace OrbitPOInts
                 Log("[UpdateBody] UpdateBody called when scene loading!");
                 return;
             }
-            DestroyAndRecreateBodySpheres(body);
-            DestroyAndRecreateBodyCircles(body);
+
+            if (Settings.ActiveBodyOnly)
+            {
+                DestroyAndRecreateBodySpheres(body);
+                DestroyAndRecreateBodyCircles(body);
+                return;
+            }
+
+            // TODO: this is more of a bad hack since we are still using purge methods
+            foreach (var curBody in FlightGlobals.Bodies)
+            {
+                CreateBodySphere(curBody);
+                CreateBodyCircle(curBody);
+            }
         }
 
         public void Refresh(MapObject focusTarget)

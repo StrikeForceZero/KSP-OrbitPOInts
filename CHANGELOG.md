@@ -1,5 +1,9 @@
 # Changelog
 
+## XXXX-XX-XX v?
+- Added:
+    - Ability to draw POIs for all bodies
+
 ## 2023-09-25 v0.3
 - Added:
     - close button (resolves #7)

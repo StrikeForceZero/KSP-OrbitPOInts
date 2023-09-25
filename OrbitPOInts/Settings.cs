@@ -20,6 +20,19 @@ namespace OrbitPOInts
             }
         }
 
+        private static bool _activeBodyOnly = true;
+
+        public static bool ActiveBodyOnly
+        {
+            get => _activeBodyOnly;
+            set
+            {
+                if (_activeBodyOnly == value) return;
+                _activeBodyOnly = value;
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+            }
+        }
+
         private static bool _enableSpheres = true;
 
         public static bool EnableSpheres
