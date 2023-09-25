@@ -220,6 +220,7 @@ namespace OrbitPOInts
 
         private void OnVesselChange(Vessel vessel)
         {
+            if (_sceneLoading || !Lib.ViewingMapOrTrackingStation) return;
             Log(
                 $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
 
@@ -241,6 +242,7 @@ namespace OrbitPOInts
 
         private void OnMapFocusChange(MapObject focusTarget)
         {
+            if (_sceneLoading || !Lib.ViewingMapOrTrackingStation) return;
             Log($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
             // TODO: this gets called when loading a save and we dont want to generate anything unless in map
             if (PurgeIfNotInMapOrTracking())
@@ -262,6 +264,11 @@ namespace OrbitPOInts
             if (!enabled)
             {
                 Log("[UpdateBody] UpdateBody called when not enabled!");
+                return;
+            }
+            if (!Lib.ViewingMapOrTrackingStation)
+            {
+                Log("[UpdateBody] UpdateBody called not ViewingMapOrTrackingStation!");
                 return;
             }
             if (_sceneLoading)
@@ -319,7 +326,7 @@ namespace OrbitPOInts
 
         private void UpdateNormals(Vector3 normal)
         {
-            if (!enabled || _sceneLoading)
+            if (!enabled || _sceneLoading || !Lib.ViewingMapOrTrackingStation)
             {
                 return;
             }
