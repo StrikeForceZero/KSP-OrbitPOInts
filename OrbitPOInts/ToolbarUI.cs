@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using KSP.UI.Screens;
 using OrbitPOInts.Extensions;
+using OrbitPOInts.UI;
 using UnityEngine;
 
 namespace OrbitPOInts
@@ -324,13 +325,5 @@ namespace OrbitPOInts
             Log("[OnDestroy]");
             Cleanup();
         }
-    }
-
-    sealed class ToggleTextFieldResult
-    {
-        public bool Enabled;
-        public string Text;
-
-        public static ToggleTextFieldResult Default => new ToggleTextFieldResult();
     }
 }

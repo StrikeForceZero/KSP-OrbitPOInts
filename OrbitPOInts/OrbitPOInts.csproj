@@ -81,6 +81,7 @@
         <Compile Include="Renderers\WireSphereRenderer.cs" />
         <Compile Include="Settings.cs" />
         <Compile Include="ToolbarUI.cs" />
+        <Compile Include="UI\ToggleTextfieldResult.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
