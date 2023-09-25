@@ -817,6 +817,7 @@ namespace OrbitPOInts
         }
         #endregion
 
+        #region DestroyHelpers
         private void DestroyIfAliveMB(MonoBehaviour target)
         {
             if (target.IsAlive())
@@ -832,6 +833,7 @@ namespace OrbitPOInts
                 DestroyImmediate(target);
             }
         }
+        #endregion
     }
 
     sealed class CustomPOI
