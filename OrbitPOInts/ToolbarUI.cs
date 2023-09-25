@@ -19,6 +19,11 @@ namespace OrbitPOInts
             Logger.Log($"[ToolbarUI] {message}");
         }
 
+        private void Awake()
+        {
+            Log("[Awake]");
+        }
+
         private void Start()
         {
             Log("[Start]");
@@ -32,6 +37,16 @@ namespace OrbitPOInts
                 ApplicationLauncher.AppScenes.MAPVIEW | ApplicationLauncher.AppScenes.TRACKSTATION,
                 GameDatabase.Instance.GetTexture("OrbitPOInts/UI/toolbar_icon", false)
             );
+        }
+
+        private void OnEnable()
+        {
+            Log("[OnEnable]");
+        }
+
+        private void OnDisable()
+        {
+            Log("[OnDisable]");
         }
 
         private void OnToolbarButtonClick()
