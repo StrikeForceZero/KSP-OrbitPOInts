@@ -57,23 +57,19 @@ namespace OrbitPOInts
             Log("Awake");
             LoadStandardLineWidthDistance();
             Instance = this;
+            CheckEnabled();
         }
 
         private void OnEnable()
         {
             Log("OnEnable");
-            RegisterEvents();
+            CheckEnabled();
         }
 
         private void Start()
         {
             Log("Start");
-            enabled = Settings.GlobalEnable;
-            // check to make sure we still enabled after loading settings
-            if (enabled)
-            {
-                RegisterEvents();
-            }
+            CheckEnabled();
         }
 
         private void OnDisable()
@@ -114,6 +110,15 @@ namespace OrbitPOInts
             GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChange);
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
             _eventsRegistered = false;
+        }
+
+        private void CheckEnabled()
+        {
+            enabled = Settings.GlobalEnable;
+            Log($"[CheckEnabled] enable: {Settings.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
+            // check to make sure we still enabled after loading settings
+            if (!enabled) return;
+            RegisterEvents();
         }
 
         private void Update()
