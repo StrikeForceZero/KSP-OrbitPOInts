@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using OrbitPOInts.Extensions;
@@ -367,21 +366,21 @@ namespace OrbitPOInts
                 Logger.Log($"[NextFrameAlignTransformToNormal] transform null!");
                 return;
             }
-            StartCoroutine(AsyncAlignTransformToNormal(transform, normal));
+
+            StartCoroutine(Lib.DelayedAction(() => AlignTransformToNormal(transform, normal), 1));
         }
 
-        private IEnumerator AsyncAlignTransformToNormal(Transform transform, Vector3d normal)
+        private void AlignTransformToNormal(Transform transform, Vector3d normal)
         {
-            yield return null;
             // TODO: sometimes the transform can be null
             if (transform == null)
             {
-                Logger.Log($"[AsyncAlignTransformToNormal] transform null!");
-                yield break;
+                Logger.Log($"[AlignTransformToNormal] transform null!");
+                return;
             }
             if (!enabled)
             {
-                yield break;
+                return;
             }
             Lib.AlignTransformToNormal(transform, normal);
         }
