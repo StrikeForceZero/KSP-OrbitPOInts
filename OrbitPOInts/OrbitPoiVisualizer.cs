@@ -37,9 +37,19 @@ namespace OrbitPOInts
             new() { Enabled = () => Settings.CustomPOI3Enabled, Diameter = () => Settings.CustomPOI3 },
         };
 
+        private static void LogDebug(string message)
+        {
+            Logger.LogDebug($"[OrbitPoiVisualizer] {message}");
+        }
+
         private static void Log(string message)
         {
             Logger.Log($"[OrbitPoiVisualizer] {message}");
+        }
+
+        private static void LogError(string message)
+        {
+            Logger.LogError($"[OrbitPoiVisualizer] {message}");
         }
 
         public void SetEnabled(bool state)
@@ -48,7 +58,7 @@ namespace OrbitPOInts
             {
                 if (!sphere.IsAlive() || sphere.IsDying)
                 {
-                    Log($"[SetEnabled] sphere null or dying {index} / {_drawnSpheres.Count}");
+                    LogError($"[SetEnabled] sphere null or dying {index} / {_drawnSpheres.Count}");
                     continue;
                 }
                 sphere.SetEnabled(state);
@@ -58,7 +68,7 @@ namespace OrbitPOInts
             {
                 if (!circle.IsAlive() || circle.IsDying)
                 {
-                    Log($"[SetEnabled] circle null or dying {index} / {_drawnCircles.Count}");
+                    LogError($"[SetEnabled] circle null or dying {index} / {_drawnCircles.Count}");
                     continue;
                 }
                 circle.SetEnabled(state);
@@ -71,7 +81,7 @@ namespace OrbitPOInts
 
         private void Awake()
         {
-            Log("Awake");
+            LogDebug("Awake");
             LoadStandardLineWidthDistance();
             Instance = this;
             CheckEnabled();
@@ -79,26 +89,26 @@ namespace OrbitPOInts
 
         private void OnEnable()
         {
-            Log("OnEnable");
+            LogDebug("OnEnable");
             CheckEnabled();
         }
 
         private void Start()
         {
-            Log("Start");
+            LogDebug("Start");
             CheckEnabled();
         }
 
         private void OnDisable()
         {
-            Log("OnDisable");
+            LogDebug("OnDisable");
             RegisterEvents(false);
             PurgeAll();
         }
 
         private void OnDestroy()
         {
-            Log("OnDestroy");
+            LogDebug("OnDestroy");
             RegisterEvents(false);
             PurgeAll();
         }
@@ -108,7 +118,7 @@ namespace OrbitPOInts
             if (register)
             {
                 if (_eventsRegistered) return;
-                Log("RegisterEvents");
+                LogDebug("RegisterEvents");
                 GameEvents.OnMapEntered.Add(OnMapEntered);
                 GameEvents.OnMapExited.Add(OnMapExited);
                 GameEvents.OnMapFocusChange.Add(OnMapFocusChange);
@@ -121,7 +131,7 @@ namespace OrbitPOInts
             }
 
             if (!_eventsRegistered) return;
-            Log("UnRegisterEvents");
+            LogDebug("UnRegisterEvents");
             GameEvents.OnMapEntered.Remove(OnMapEntered);
             GameEvents.OnMapExited.Remove(OnMapExited);
             GameEvents.OnMapFocusChange.Remove(OnMapFocusChange);
@@ -146,7 +156,7 @@ namespace OrbitPOInts
 
             if (_lastVessel != vessel || _lastOrbitingBody != body)
             {
-                Log(
+                LogDebug(
                     $"[UPDATE] lastVessel: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}, lastOrbitingBody: {MapObjectHelper.GetBodyName(_lastOrbitingBody)} -> {MapObjectHelper.GetBodyName(body)}");
                 Refresh(target);
 
@@ -164,21 +174,21 @@ namespace OrbitPOInts
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
             _sceneLoading = true;
-            Log($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
+            LogDebug($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
             RemoveAll();
         }
 
         private void OnGameSceneLoadedGUIReady(GameScenes scenes)
         {
-            Log($"[OnGameSceneLoadedGUIReady] {Lib.GetSceneName(scenes)}");
+            LogDebug($"[OnGameSceneLoadedGUIReady] {Lib.GetSceneName(scenes)}");
             // TOD: this might not be the same on all systems
             StartCoroutine(Lib.DelayedAction(() =>
                 {
-                    Log($"[OnGameSceneLoadedGUIReady][DelayedAction] {Lib.GetSceneName(scenes)}");
+                    LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {Lib.GetSceneName(scenes)}");
                     _sceneLoading = false;
                     if (PurgeIfNotInMapOrTracking())
                     {
-                        Log("[OnGameSceneLoadedGUIReady] purge complete");
+                        LogDebug("[OnGameSceneLoadedGUIReady] purge complete");
                         return;
                     }
 
@@ -191,24 +201,24 @@ namespace OrbitPOInts
         private void OnMapEntered()
         {
             var target = PlanetariumCamera.fetch.target;
-            Log($"[OnMapEntered] focus on {MapObjectHelper.GetTargetName(target)}");
+            LogDebug($"[OnMapEntered] focus on {MapObjectHelper.GetTargetName(target)}");
 
             Refresh(target);
         }
 
         private void OnMapExited()
         {
-            Log($"[OnMapExited]");
+            LogDebug($"[OnMapExited]");
             PurgeAll();
         }
 
         private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
         {
-            Log($"[OnVesselSOIChange] soi changed: {data.from.name} -> {data.to.name}");
+            LogDebug($"[OnVesselSOIChange] soi changed: {data.from.name} -> {data.to.name}");
             if (PurgeIfNotInMapOrTracking())
             {
                 // TODO: this might be ok if our SOI changes while flying
-                Log("[OnVesselSOIChange] OnVesselSOIChange called when not in map or tracking!");
+                LogError("[OnVesselSOIChange] OnVesselSOIChange called when not in map or tracking!");
                 return;
             }
             UpdateBody(data.to);
@@ -217,13 +227,13 @@ namespace OrbitPOInts
         private void OnVesselChange(Vessel vessel)
         {
             if (_sceneLoading || !Lib.ViewingMapOrTrackingStation) return;
-            Log(
+            LogDebug(
                 $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
 
             if (PurgeIfNotInMapOrTracking())
             {
                 // TODO: this might be ok if we are flightview and switch ships
-                Log("[OnVesselChange] OnVesselChange called when not in map or tracking!");
+                LogError("[OnVesselChange] OnVesselChange called when not in map or tracking!");
                 return;
             }
 
@@ -239,11 +249,11 @@ namespace OrbitPOInts
         private void OnMapFocusChange(MapObject focusTarget)
         {
             if (_sceneLoading || !Lib.ViewingMapOrTrackingStation) return;
-            Log($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
+            LogDebug($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
             // TODO: this gets called when loading a save and we dont want to generate anything unless in map
             if (PurgeIfNotInMapOrTracking())
             {
-                Log("[OnMapFocusChange] OnMapFocusChange called when not in map or tracking!");
+                LogError("[OnMapFocusChange] OnMapFocusChange called when not in map or tracking!");
                 return;
             }
             Refresh(focusTarget);
@@ -255,21 +265,21 @@ namespace OrbitPOInts
 
         public void UpdateBody(CelestialBody body)
         {
-            Log($"[UpdateBody] body: {body.name}");
+            LogDebug($"[UpdateBody] body: {body.name}");
             PurgeAll();
             if (!enabled)
             {
-                Log("[UpdateBody] UpdateBody called when not enabled!");
+                LogError("[UpdateBody] UpdateBody called when not enabled!");
                 return;
             }
             if (!Lib.ViewingMapOrTrackingStation)
             {
-                Log("[UpdateBody] UpdateBody called not ViewingMapOrTrackingStation!");
+                LogError("[UpdateBody] UpdateBody called not ViewingMapOrTrackingStation!");
                 return;
             }
             if (_sceneLoading)
             {
-                Log("[UpdateBody] UpdateBody called when scene loading!");
+                LogError("[UpdateBody] UpdateBody called when scene loading!");
                 return;
             }
 
@@ -292,29 +302,29 @@ namespace OrbitPOInts
         {
             if (!enabled)
             {
-                Log("[Refresh] refresh called when not enabled!");
+                LogError("[Refresh] refresh called when not enabled!");
                 return;
             }
             if (PurgeIfNotInMapOrTracking())
             {
-                Log("[Refresh] refresh called when not in map or tracking!");
+                LogError("[Refresh] refresh called when not in map or tracking!");
                 return;
             }
             if (_sceneLoading)
             {
-                Log("[Refresh] refresh called when scene loading!");
+                LogError("[Refresh] refresh called when scene loading!");
                 return;
             }
 
             if (focusTarget == null)
             {
-                Log("[Refresh] target is null!");
+                LogError("[Refresh] target is null!");
                 PurgeAll();
                 return;
             }
 
             var body = MapObjectHelper.GetTargetBody(focusTarget);
-            Log($"[Refresh] target: {MapObjectHelper.GetTargetName(focusTarget)}, body: {body.name}");
+            LogDebug($"[Refresh] target: {MapObjectHelper.GetTargetName(focusTarget)}, body: {body.name}");
             UpdateBody(body);
         }
 
@@ -344,7 +354,7 @@ namespace OrbitPOInts
             {
                 if (!circle.IsAlive() || circle.IsDying)
                 {
-                    Log($"[UpdateNormals] circle null or dying {index} / {_drawnCircles.Count}");
+                    LogError($"[UpdateNormals] circle null or dying {index} / {_drawnCircles.Count}");
                     continue;
                 }
                 transformsNeedsUpdate.Add(circle.transform);
@@ -356,7 +366,7 @@ namespace OrbitPOInts
                 {
                     if (!sphere.IsAlive() || sphere.IsDying)
                     {
-                        Log($"[UpdateNormals] sphere null or dying {index} / {_drawnSpheres.Count}");
+                        LogError($"[UpdateNormals] sphere null or dying {index} / {_drawnSpheres.Count}");
                         continue;
                     }
                     transformsNeedsUpdate.Add(sphere.transform);
@@ -373,7 +383,7 @@ namespace OrbitPOInts
         {
             if (transform == null)
             {
-                Logger.Log($"[NextFrameAlignTransformToNormal] transform null!");
+                Logger.LogError($"[NextFrameAlignTransformToNormal] transform null!");
                 return;
             }
 
@@ -385,7 +395,7 @@ namespace OrbitPOInts
             // TODO: sometimes the transform can be null
             if (transform == null)
             {
-                Logger.Log($"[AlignTransformToNormal] transform null!");
+                Logger.LogError($"[AlignTransformToNormal] transform null!");
                 return;
             }
             if (!enabled)
@@ -416,7 +426,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            Log($"[CreateBodySphere]: Generating spheres around {body.name}");
+            LogDebug($"[CreateBodySphere]: Generating spheres around {body.name}");
             if (Settings.EnablePOI_HillSphere)
             {
                 CreateWireSphere(body, Color.white, (float)body.hillSphere, .05f, 50);
@@ -504,7 +514,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            Log($"[CreateBodyCircle]: Generating circles around {body.name}");
+            LogDebug($"[CreateBodyCircle]: Generating circles around {body.name}");
             if (Settings.EnablePOI_HillSphere)
             {
                 CreateCircle(body, Color.white, (float)body.hillSphere, 1f);
@@ -569,7 +579,7 @@ namespace OrbitPOInts
         private void CheckEnabled()
         {
             enabled = Settings.GlobalEnable;
-            Log($"[CheckEnabled] enable: {Settings.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
+            LogDebug($"[CheckEnabled] enable: {Settings.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
             // check to make sure we still enabled after loading settings
             if (!enabled)
             {
@@ -586,7 +596,7 @@ namespace OrbitPOInts
             // if for some reason we end up here and we arent in the mapview or tracking station we should purge
             if (!Lib.ViewingMapOrTrackingStation)
             {
-                Log("[PurgeIfNotInMapOrTracking] Purging");
+                LogDebug("[PurgeIfNotInMapOrTracking] Purging");
                 PurgeAll();
                 return true;
             }
@@ -628,20 +638,20 @@ namespace OrbitPOInts
             {
                 if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
                 {
-                    Log($"[AddOrGetCircleComponent] Reusing: {uniqueGameObjectNamePrefix}");
+                    LogDebug($"[AddOrGetCircleComponent] Reusing: {uniqueGameObjectNamePrefix}");
                     return component;
                 }
 
                 if(component.IsAlive() && component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
                 {
-                    Log($"[AddOrGetCircleComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
+                    LogDebug($"[AddOrGetCircleComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
                     continue;
                 }
 
-                Log("[AddOrGetCircleComponent] Skipping unknown dead component");
+                LogDebug("[AddOrGetCircleComponent] Skipping unknown dead component");
             }
 
-            Log($"[AddOrGetCircleComponent] Creating new component {uniqueGameObjectNamePrefix}");
+            LogDebug($"[AddOrGetCircleComponent] Creating new component {uniqueGameObjectNamePrefix}");
             var circle = target.AddComponent<CircleRenderer>();
             circle.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
             return circle;
@@ -655,20 +665,20 @@ namespace OrbitPOInts
             {
                 if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
                 {
-                    Log($"[AddOrGetSphereComponent] Reusing: {uniqueGameObjectNamePrefix}");
+                    LogDebug($"[AddOrGetSphereComponent] Reusing: {uniqueGameObjectNamePrefix}");
                     return component;
                 }
 
                 if(component.IsAlive() && component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
                 {
-                    Log($"[AddOrGetSphereComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
+                    LogDebug($"[AddOrGetSphereComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
                     continue;
                 }
 
-                Log("[AddOrGetSphereComponent] Skipping unknown dead component");
+                LogDebug("[AddOrGetSphereComponent] Skipping unknown dead component");
             }
 
-            Log($"[AddOrGetSphereComponent] Creating new component {uniqueGameObjectNamePrefix}");
+            LogDebug($"[AddOrGetSphereComponent] Creating new component {uniqueGameObjectNamePrefix}");
             var sphere = target.AddComponent<WireSphereRenderer>();
             sphere.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
             return sphere;
@@ -695,14 +705,14 @@ namespace OrbitPOInts
             var componentHolder = _bodyComponentHolders.TryGet(GetComponentHolderKey(body, type));
             if (componentHolder.isSome && componentHolder.value.IsAlive())
             {
-                Log($"[GetOrCreateBodyComponentHolder] Reusing component holder {type} for {body.name}");
+                LogDebug($"[GetOrCreateBodyComponentHolder] Reusing component holder {type} for {body.name}");
                 return componentHolder.value;
             }
             if (componentHolder.isSome && !componentHolder.value.IsAlive())
             {
-                Log($"[GetOrCreateBodyComponentHolder] Skipping dead component holder for {body.name}");
+                LogDebug($"[GetOrCreateBodyComponentHolder] Skipping dead component holder for {body.name}");
             }
-            Log($"[GetOrCreateBodyComponentHolder] Creating component holder for {body.name}");
+            LogDebug($"[GetOrCreateBodyComponentHolder] Creating component holder for {body.name}");
             var primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             primitive.name = GetComponentHolderName(body, type);
             _bodyComponentHolders.Add(GetComponentHolderKey(body, type), primitive);
@@ -723,7 +733,7 @@ namespace OrbitPOInts
             foreach (var bodyComponentHolder in _bodyComponentHolders)
             {
                 var components = bodyComponentHolder.Value.GetComponents<CircleRenderer>().Where(c => c.uniqueGameObjectNamePrefix == namePrefix);;
-                Log($"[PurgeAllCirclesByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
+                LogDebug($"[PurgeAllCirclesByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
                 foreach (var component in components)
                 {
                     DestroyImmediate(component);
@@ -736,7 +746,7 @@ namespace OrbitPOInts
             foreach (var bodyComponentHolder in _bodyComponentHolders)
             {
                 var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>().Where(c => c.uniqueGameObjectNamePrefix == namePrefix);
-                Log($"[PurgeAllSpheresByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
+                LogDebug($"[PurgeAllSpheresByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
                 foreach (var component in components)
                 {
                     DestroyImmediate(component);
@@ -755,7 +765,7 @@ namespace OrbitPOInts
             var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
             if (bodyComponentHolder.isNone) return;
             var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
-            Log($"[PurgeAllCirclesByBody] {body.name} - {components.Length}");
+            LogDebug($"[PurgeAllCirclesByBody] {body.name} - {components.Length}");
             foreach (var component in components)
             {
                 DestroyImmediate(component);
@@ -767,7 +777,7 @@ namespace OrbitPOInts
             var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
             if (bodyComponentHolder.isNone) return;
             var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
-            Log($"[PurgeAllSpheresByBody] {body.name} - {components.Length}");
+            LogDebug($"[PurgeAllSpheresByBody] {body.name} - {components.Length}");
             foreach (var component in components)
             {
                 DestroyImmediate(component);
@@ -777,7 +787,7 @@ namespace OrbitPOInts
         // TODO: desperate times call for desperate measures
         internal void PurgeAll()
         {
-            Log("=== PURGING ALL ===");
+            LogDebug("=== PURGING ALL ===");
 
             PurgeSpheres();
             PurgeCircles();
@@ -786,7 +796,7 @@ namespace OrbitPOInts
 
         private void PurgeBodyHolders()
         {
-            Log("=== PURGING BODY HOLDERS ===");
+            LogDebug("=== PURGING BODY HOLDERS ===");
             _bodyComponentHolders.Clear();
             foreach (var body in FlightGlobals.Bodies)
             {
@@ -799,7 +809,7 @@ namespace OrbitPOInts
 
         internal void PurgeSpheres()
         {
-            Log("=== PURGING SPHERES ===");
+            LogDebug("=== PURGING SPHERES ===");
             _drawnSpheres.Clear();
             foreach (var component in GameObject.FindObjectsOfType<WireSphereRenderer>())
             {
@@ -813,7 +823,7 @@ namespace OrbitPOInts
 
         internal void PurgeCircles()
         {
-            Log("=== PURGING CIRCLES ===");
+            LogDebug("=== PURGING CIRCLES ===");
             _drawnCircles.Clear();
             foreach (var component in GameObject.FindObjectsOfType<CircleRenderer>())
             {

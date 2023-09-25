@@ -16,6 +16,11 @@ namespace OrbitPOInts
         private bool _useTopRightCloseButton = false;
         private bool _eventsRegistered;
 
+        private void LogDebug(string message)
+        {
+            Logger.LogDebug($"[ToolbarUI] {message}");
+        }
+        
         private void Log(string message)
         {
             Logger.Log($"[ToolbarUI] {message}");
@@ -23,28 +28,28 @@ namespace OrbitPOInts
 
         private void Awake()
         {
-            Log("[Awake]");
+            LogDebug("[Awake]");
             RegisterEvents();
             FixState();
         }
 
         private void Start()
         {
-            Log("[Start]");
+            LogDebug("[Start]");
             RegisterEvents();
             FixState();
         }
 
         private void OnEnable()
         {
-            Log("[OnEnable]");
+            LogDebug("[OnEnable]");
             RegisterEvents();
             FixState();
         }
 
         private void OnDisable()
         {
-            Log("[OnDisable]");
+            LogDebug("[OnDisable]");
             Cleanup();
         }
 
@@ -59,7 +64,7 @@ namespace OrbitPOInts
             if (register)
             {
                 if (_eventsRegistered) return;
-                Log("RegisterEvents");
+                LogDebug("RegisterEvents");
                 GameEvents.OnMapEntered.Add(OnMapEntered);
                 GameEvents.OnMapExited.Add(OnMapExited);
                 GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
@@ -68,7 +73,7 @@ namespace OrbitPOInts
             }
 
             if (!_eventsRegistered) return;
-            Log("UnRegisterEvents");
+            LogDebug("UnRegisterEvents");
             GameEvents.OnMapEntered.Remove(OnMapEntered);
             GameEvents.OnMapExited.Remove(OnMapExited);
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
@@ -77,19 +82,19 @@ namespace OrbitPOInts
 
         private void FixState()
         {
-            Log($"[FixState] ViewingMapOrTrackingStation: {Lib.ViewingMapOrTrackingStation} scene: {Enum.GetName(typeof(GameScenes), HighLogic.LoadedScene)}");
+            LogDebug($"[FixState] ViewingMapOrTrackingStation: {Lib.ViewingMapOrTrackingStation} scene: {Enum.GetName(typeof(GameScenes), HighLogic.LoadedScene)}");
             if (!Lib.ViewingMapOrTrackingStation)
             {
                 if (RemoveToolbarButton())
                 {
-                    Log("[FixState] Remove button");
+                    LogDebug("[FixState] Remove button");
                 }
                 return;
             }
 
             if (CreateToolbarButton())
             {
-                Log("[FixState] Add button");
+                LogDebug("[FixState] Add button");
             }
         }
 
@@ -125,19 +130,19 @@ namespace OrbitPOInts
 
         private void OnMapEntered()
         {
-            Log("[OnMapEntered]");
+            LogDebug("[OnMapEntered]");
             FixState();
         }
 
         private void OnMapExited()
         {
-            Log("[OnMapExited]");
+            LogDebug("[OnMapExited]");
             FixState();
         }
 
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
-            Log($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
+            LogDebug($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
             if (scenes == GameScenes.TRACKSTATION || scenes == GameScenes.FLIGHT && MapView.MapIsEnabled)
             {
                 CreateToolbarButton();
@@ -242,7 +247,7 @@ namespace OrbitPOInts
 
                         if (GUILayout.Button("X", GUILayout.Width(closeButtonSize)))
                         {
-                            Log("[GUI] Close button clicked");
+                            LogDebug("[GUI] Close button clicked");
                             CloseWindow();
                         }
 
@@ -279,6 +284,10 @@ namespace OrbitPOInts
                     GUILayout.EndHorizontal();
 
                 CustomPoiGUI();
+
+                GUILayout.FlexibleSpace();
+
+                Settings.LogDebugEnabled = GUILayout.Toggle(Settings.LogDebugEnabled, "Enable Debug Level Logging");
             
             GUILayout.EndVertical();
 
@@ -297,7 +306,7 @@ namespace OrbitPOInts
                 {
                     if (closeButtonRect.Contains(Event.current.mousePosition))
                     {
-                        Log("[GUI] Close button clicked");
+                        LogDebug("[GUI] Close button clicked");
                         CloseWindow();
                         Event.current.Use();
                         return;
@@ -322,7 +331,7 @@ namespace OrbitPOInts
 
         private void OnDestroy()
         {
-            Log("[OnDestroy]");
+            LogDebug("[OnDestroy]");
             Cleanup();
         }
     }

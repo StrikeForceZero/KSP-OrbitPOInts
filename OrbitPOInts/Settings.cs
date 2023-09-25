@@ -231,5 +231,7 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
+
+        public static bool LogDebugEnabled { get; set; }
     }
 }
