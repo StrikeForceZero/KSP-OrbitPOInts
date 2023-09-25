@@ -16,15 +16,7 @@ namespace OrbitPOInts
                 if (_globalEnable == value) return;
                 _globalEnable = value;
                 OrbitPoiVisualizer.Instance.enabled = value;
-                if (OrbitPoiVisualizer.Instance.enabled)
-                {
-                    OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
-                }
-                else
-                {
-                    OrbitPoiVisualizer.Instance.PurgeAll();
-                }
-                // TODO: maybe we should clean up and remove events too
+                if (OrbitPoiVisualizer.Instance.enabled) OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
 
