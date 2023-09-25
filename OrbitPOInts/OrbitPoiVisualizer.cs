@@ -479,7 +479,7 @@ namespace OrbitPOInts
             int resolution = 50
         )
         {
-            var sphere = AddOrGetSphereComponent(body, GetPrefixName(body, radius));
+            var sphere = AddOrGetSphereComponent(body, GetComponentPrefixName(body, radius));
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -562,7 +562,7 @@ namespace OrbitPOInts
         private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
             int segments = 360)
         {
-            var circle = AddOrGetCircleComponent(body, GetPrefixName(body, radius));
+            var circle = AddOrGetCircleComponent(body, GetComponentPrefixName(body, radius));
 
             circle.wireframeColor = color;
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -610,7 +610,8 @@ namespace OrbitPOInts
             return false;
         }
 
-        private string GetPrefixName(CelestialBody body, double radius)
+        #region Components
+        private string GetComponentPrefixName(CelestialBody body, double radius)
         {
             return $"{body.name}_{radius}";
         }
@@ -669,6 +670,7 @@ namespace OrbitPOInts
             return sphere;
         }
 
+        #region Component Holder
         private enum ComponentHolderType
         {
             Sphere,
@@ -702,6 +704,8 @@ namespace OrbitPOInts
             _bodyComponentHolders.Add(GetComponentHolderKey(body, type), primitive);
             return primitive;
         }
+        #endregion
+        #endregion
 
         #region PurgeMethods
         private void PurgeAllByNamePrefix(string namePrefix)
