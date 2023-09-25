@@ -51,7 +51,7 @@ namespace OrbitPOInts
             Logger.Log($"[OrbitPoiVisualizer] {message}");
         }
 
-        #region EventFunctions
+        #region Lifecycle Methods
 
         private void Awake()
         {
@@ -114,34 +114,6 @@ namespace OrbitPOInts
             GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
             GameEvents.onLevelWasLoadedGUIReady.Remove(OnGameSceneLoadedGUIReady);
             _eventsRegistered = false;
-        }
-
-        private void CheckEnabled()
-        {
-            enabled = Settings.GlobalEnable;
-            Log($"[CheckEnabled] enable: {Settings.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
-            // check to make sure we still enabled after loading settings
-            if (!enabled)
-            {
-                PurgeAll();
-                return;
-            }
-
-            PurgeIfNotInMapOrTracking();
-            RegisterEvents();
-        }
-
-        private bool PurgeIfNotInMapOrTracking()
-        {
-            // if for some reason we end up here and we arent in the mapview or tracking station we should purge
-            if (!Lib.ViewingMapOrTrackingStation)
-            {
-                Log("[PurgeIfNotInMapOrTracking] Purging");
-                PurgeAll();
-                return true;
-            }
-
-            return false;
         }
 
         private void Update()
@@ -609,6 +581,34 @@ namespace OrbitPOInts
         }
 
         #endregion
+
+        private void CheckEnabled()
+        {
+            enabled = Settings.GlobalEnable;
+            Log($"[CheckEnabled] enable: {Settings.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
+            // check to make sure we still enabled after loading settings
+            if (!enabled)
+            {
+                PurgeAll();
+                return;
+            }
+
+            PurgeIfNotInMapOrTracking();
+            RegisterEvents();
+        }
+
+        private bool PurgeIfNotInMapOrTracking()
+        {
+            // if for some reason we end up here and we arent in the mapview or tracking station we should purge
+            if (!Lib.ViewingMapOrTrackingStation)
+            {
+                Log("[PurgeIfNotInMapOrTracking] Purging");
+                PurgeAll();
+                return true;
+            }
+
+            return false;
+        }
 
         private string GetPrefixName(CelestialBody body, double radius)
         {
