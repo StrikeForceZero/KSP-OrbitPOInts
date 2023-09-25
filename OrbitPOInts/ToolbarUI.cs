@@ -171,6 +171,10 @@ namespace OrbitPOInts
 
         private void CustomPoiGUI()
         {
+            GUILayout.Space(10);
+            Settings.CustomPOiFromCenter = GUILayout.Toggle(Settings.CustomPOiFromCenter, "Draw Custom POIs from body center");
+            GUILayout.Space(10);
+
             // save the old values for checking later
             var oldPoi1 = Settings.CustomPOI1;
             var oldPoi2 = Settings.CustomPOI2;

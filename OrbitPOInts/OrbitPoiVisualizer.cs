@@ -323,6 +323,16 @@ namespace OrbitPOInts
             }
         }
 
+        private double GetCustomPoiRadius(CelestialBody body, double poiRadius)
+        {
+            if (Settings.CustomPOiFromCenter)
+            {
+                return poiRadius;
+            }
+
+            return body.Radius + poiRadius;
+        }
+
         #region Spheres
 
         private void DestroyAndRecreateBodySpheres(CelestialBody targetObject)
@@ -377,7 +387,7 @@ namespace OrbitPOInts
             foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
             {
                 // TODO: custom color and specific body
-                CreateWireSphere(body, Color.white, (float)customPoi.Diameter(), .01f);
+                CreateWireSphere(body, Color.white, (float)GetCustomPoiRadius(body, customPoi.Diameter()), .01f);
             }
         }
 
@@ -464,7 +474,7 @@ namespace OrbitPOInts
             foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
             {
                 // TODO: custom color and specific body
-                CreateCircle(body, Color.white, (float)customPoi.Diameter(), 1f);
+                CreateCircle(body, Color.white, (float)GetCustomPoiRadius(body, customPoi.Diameter()), 1f);
             }
         }
 

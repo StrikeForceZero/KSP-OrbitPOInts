@@ -143,6 +143,21 @@ namespace OrbitPOInts
         }
 
         #region CustomPOI
+
+        private static bool _customPoisFromCenter;
+
+        public static bool CustomPOiFromCenter
+        {
+            get => _customPoisFromCenter;
+            set
+            {
+                if (_customPoisFromCenter == value) return;
+                _customPoisFromCenter = value;
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+            }
+        }
+
+
         private static double _customPoi1;
 
         public static double CustomPOI1
