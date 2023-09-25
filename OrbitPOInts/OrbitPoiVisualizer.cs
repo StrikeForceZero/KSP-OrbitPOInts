@@ -37,18 +37,34 @@ namespace OrbitPOInts
             new() { Enabled = () => Settings.CustomPOI3Enabled, Diameter = () => Settings.CustomPOI3 },
         };
 
-        private static void LoadStandardLineWidthDistance()
-        {
-            foreach (var body in FlightGlobals.Bodies.Where(body => body.isHomeWorld))
-            {
-                _standardLineWidthDistance = body.minOrbitalDistance;
-                break;
-            }
-        }
-
         private static void Log(string message)
         {
             Logger.Log($"[OrbitPoiVisualizer] {message}");
+        }
+
+        public void SetEnabled(bool state)
+        {
+            foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
+            {
+                if (!sphere.IsAlive() || sphere.IsDying)
+                {
+                    Log($"[SetEnabled] sphere null or dying {index} / {_drawnSpheres.Count}");
+                    continue;
+                }
+                sphere.SetEnabled(state);
+            }
+
+            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
+            {
+                if (!circle.IsAlive() || circle.IsDying)
+                {
+                    Log($"[SetEnabled] circle null or dying {index} / {_drawnCircles.Count}");
+                    continue;
+                }
+                circle.SetEnabled(state);
+            }
+
+            enabled = state;
         }
 
         #region Lifecycle Methods
@@ -380,41 +396,6 @@ namespace OrbitPOInts
         }
         #endregion
 
-        public void SetEnabled(bool state)
-        {
-            foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
-            {
-                if (!sphere.IsAlive() || sphere.IsDying)
-                {
-                    Log($"[SetEnabled] sphere null or dying {index} / {_drawnSpheres.Count}");
-                    continue;
-                }
-                sphere.SetEnabled(state);
-            }
-
-            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
-            {
-                if (!circle.IsAlive() || circle.IsDying)
-                {
-                    Log($"[SetEnabled] circle null or dying {index} / {_drawnCircles.Count}");
-                    continue;
-                }
-                circle.SetEnabled(state);
-            }
-
-            enabled = state;
-        }
-
-        private double GetCustomPoiRadius(CelestialBody body, double poiRadius)
-        {
-            if (Settings.CustomPOiFromCenter)
-            {
-                return poiRadius;
-            }
-
-            return body.Radius + poiRadius;
-        }
-
         #region Spheres
 
         private void DestroyAndRecreateBodySpheres(CelestialBody targetObject)
@@ -584,6 +565,7 @@ namespace OrbitPOInts
 
         #endregion
 
+        #region MISC
         private void CheckEnabled()
         {
             enabled = Settings.GlobalEnable;
@@ -611,6 +593,26 @@ namespace OrbitPOInts
 
             return false;
         }
+
+        private double GetCustomPoiRadius(CelestialBody body, double poiRadius)
+        {
+            if (Settings.CustomPOiFromCenter)
+            {
+                return poiRadius;
+            }
+
+            return body.Radius + poiRadius;
+        }
+
+        private static void LoadStandardLineWidthDistance()
+        {
+            foreach (var body in FlightGlobals.Bodies.Where(body => body.isHomeWorld))
+            {
+                _standardLineWidthDistance = body.minOrbitalDistance;
+                break;
+            }
+        }
+        #endregion
 
         #region Components
         private string GetComponentPrefixName(CelestialBody body, double radius)
