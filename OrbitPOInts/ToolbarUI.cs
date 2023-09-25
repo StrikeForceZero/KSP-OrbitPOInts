@@ -13,9 +13,88 @@ namespace OrbitPOInts
         private bool showUI = false;
         private Rect windowRect = new Rect(0, 0, 400, 200); // Initial size for the window
         private bool _useTopRightCloseButton = false;
+        private bool _eventsRegistered;
+
+        private void Log(string message)
+        {
+            Logger.Log($"[ToolbarUI] {message}");
+        }
+
+        private void Awake()
+        {
+            Log("[Awake]");
+            RegisterEvents();
+            FixState();
+        }
 
         private void Start()
         {
+            Log("[Start]");
+            RegisterEvents();
+            FixState();
+        }
+
+        private void OnEnable()
+        {
+            Log("[OnEnable]");
+            RegisterEvents();
+            FixState();
+        }
+
+        private void OnDisable()
+        {
+            Log("[OnDisable]");
+            Cleanup();
+        }
+
+        private void Cleanup()
+        {
+            RegisterEvents(false);
+            RemoveToolbarButton();
+        }
+
+        private void RegisterEvents(bool register = true)
+        {
+            if (register)
+            {
+                if (_eventsRegistered) return;
+                Log("RegisterEvents");
+                GameEvents.OnMapEntered.Add(OnMapEntered);
+                GameEvents.OnMapExited.Add(OnMapExited);
+                GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
+                _eventsRegistered = true;
+                return;
+            }
+
+            if (!_eventsRegistered) return;
+            Log("UnRegisterEvents");
+            GameEvents.OnMapEntered.Remove(OnMapEntered);
+            GameEvents.OnMapExited.Remove(OnMapExited);
+            GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
+            _eventsRegistered = false;
+        }
+
+        private void FixState()
+        {
+            Log($"[FixState] ViewingMapOrTrackingStation: {Lib.ViewingMapOrTrackingStation} scene: {Enum.GetName(typeof(GameScenes), HighLogic.LoadedScene)}");
+            if (!Lib.ViewingMapOrTrackingStation)
+            {
+                if (RemoveToolbarButton())
+                {
+                    Log("[FixState] Remove button");
+                }
+                return;
+            }
+
+            if (CreateToolbarButton())
+            {
+                Log("[FixState] Add button");
+            }
+        }
+
+        private bool CreateToolbarButton()
+        {
+            if (toolbarButton) return false;
             toolbarButton = ApplicationLauncher.Instance.AddModApplication(
                 OnToolbarButtonClick,
                 OnToolbarButtonClick,
@@ -26,12 +105,44 @@ namespace OrbitPOInts
                 ApplicationLauncher.AppScenes.MAPVIEW | ApplicationLauncher.AppScenes.TRACKSTATION,
                 GameDatabase.Instance.GetTexture("OrbitPOInts/UI/toolbar_icon", false)
             );
+            return true;
+        }
+
+        private bool RemoveToolbarButton()
+        {
+            if (!toolbarButton) return false;
+            CloseWindow();
+            ApplicationLauncher.Instance.RemoveModApplication(toolbarButton);
+            return true;
         }
 
         private void OnToolbarButtonClick()
         {
             showUI = !showUI;
             CenterWindowPos();
+        }
+
+        private void OnMapEntered()
+        {
+            Log("[OnMapEntered]");
+            FixState();
+        }
+
+        private void OnMapExited()
+        {
+            Log("[OnMapExited]");
+            FixState();
+        }
+
+        private void OnGameSceneLoadRequested(GameScenes scenes)
+        {
+            Log($"[OnGameSceneLoadRequested] {Enum.GetName(typeof(GameScenes), scenes)}");
+            if (scenes == GameScenes.TRACKSTATION || scenes == GameScenes.FLIGHT && MapView.MapIsEnabled)
+            {
+                CreateToolbarButton();
+                return;
+            }
+            FixState();
         }
 
         private void CenterWindowPos()
@@ -126,7 +237,7 @@ namespace OrbitPOInts
 
                         if (GUILayout.Button("X", GUILayout.Width(closeButtonSize)))
                         {
-                            Logger.Log("[GUI] Close button clicked");
+                            Log("[GUI] Close button clicked");
                             CloseWindow();
                         }
 
@@ -174,7 +285,7 @@ namespace OrbitPOInts
                 {
                     if (closeButtonRect.Contains(Event.current.mousePosition))
                     {
-                        Logger.Log("[GUI] Close button clicked");
+                        Log("[GUI] Close button clicked");
                         CloseWindow();
                         Event.current.Use();
                         return;
@@ -199,10 +310,8 @@ namespace OrbitPOInts
 
         private void OnDestroy()
         {
-            if (toolbarButton != null)
-            {
-                ApplicationLauncher.Instance.RemoveModApplication(toolbarButton);
-            }
+            Log("[OnDestroy]");
+            Cleanup();
         }
     }
 
