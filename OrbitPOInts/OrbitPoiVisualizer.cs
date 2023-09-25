@@ -702,6 +702,7 @@ namespace OrbitPOInts
             return primitive;
         }
 
+        #region PurgeMethods
         private void PurgeAllByNamePrefix(string namePrefix)
         {
             PurgeAllCirclesByNamePrefix(namePrefix);
@@ -814,6 +815,7 @@ namespace OrbitPOInts
                 DestroyIfAliveGO(lineRenderer);
             }
         }
+        #endregion
 
         private void DestroyIfAliveMB(MonoBehaviour target)
         {
