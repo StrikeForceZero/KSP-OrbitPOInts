@@ -12,6 +12,7 @@ namespace OrbitPOInts
         private ApplicationLauncherButton toolbarButton;
         private bool showUI = false;
         private Rect windowRect = new Rect(0, 0, 400, 200); // Initial size for the window
+        private bool _useTopRightCloseButton = false;
 
         private void Start()
         {
@@ -115,8 +116,23 @@ namespace OrbitPOInts
 
         private void DrawUI(int windowID)
         {
+            const int closeButtonSize = 25;
             GUILayout.BeginVertical();
-            
+
+                if (!_useTopRightCloseButton) {
+                    GUILayout.BeginHorizontal();
+
+                        GUILayout.FlexibleSpace(); // Pushes the following items to the right
+
+                        if (GUILayout.Button("X", GUILayout.Width(closeButtonSize)))
+                        {
+                            Logger.Log("[GUI] Close button clicked");
+                            CloseWindow();
+                        }
+
+                    GUILayout.EndHorizontal();
+                }
+
                 Settings.GlobalEnable = GUILayout.Toggle(Settings.GlobalEnable, "Enabled");
 
                 GUILayout.Space(10);
@@ -145,6 +161,32 @@ namespace OrbitPOInts
 
             // Make the window draggable
             GUI.DragWindow();
+
+            // TODO: the GUILayout close button seems out of place
+            if (_useTopRightCloseButton)
+            {
+                const float padding = 5; // Padding from the edge of the window
+                var closeButtonRect = new Rect(windowRect.width - closeButtonSize - padding, padding, closeButtonSize, closeButtonSize);
+                GUI.Button(closeButtonRect, "X");
+
+                // GUI.Button never captures the mouse when rendered on top of GUILayout
+                if (Event.current.type == EventType.MouseDown)
+                {
+                    if (closeButtonRect.Contains(Event.current.mousePosition))
+                    {
+                        Logger.Log("[GUI] Close button clicked");
+                        CloseWindow();
+                        Event.current.Use();
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void CloseWindow()
+        {
+            toolbarButton.SetFalse();
+            showUI = false;
         }
 
         void Update()
