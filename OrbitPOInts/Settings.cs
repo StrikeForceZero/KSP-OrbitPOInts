@@ -1,4 +1,3 @@
-using System;
 using OrbitPOInts.Extensions;
 
 namespace OrbitPOInts
@@ -7,6 +6,27 @@ namespace OrbitPOInts
     public static class Settings
     {
         private static bool _globalEnable = true;
+
+        private static bool _activeBodyOnly = true;
+
+        private static bool _enableSpheres = true;
+        private static bool _alignSpheres;
+        private static bool _enableCircles = true;
+
+        private static bool _enablePOI_HillSphere;
+        private static bool _enablePOI_SOI = true;
+        private static bool _enablePOI_Atmo = true;
+        private static bool _enablePOI_MinOrbit = true;
+        private static bool _enablePOI_MaxAlt = true;
+        private static bool _showPoiMaxAltOnAtmoBodies;
+
+        private static bool _customPoisFromCenter;
+        private static double _customPoi1;
+        private static bool _customPoi1Enabled;
+        private static double _customPoi2;
+        private static bool _customPoi2Enabled;
+        private static double _customPoi3;
+        private static bool _customPoi3Enabled;
 
         public static bool GlobalEnable
         {
@@ -20,8 +40,6 @@ namespace OrbitPOInts
             }
         }
 
-        private static bool _activeBodyOnly = true;
-
         public static bool ActiveBodyOnly
         {
             get => _activeBodyOnly;
@@ -32,8 +50,6 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-
-        private static bool _enableSpheres = true;
 
         public static bool EnableSpheres
         {
@@ -48,8 +64,6 @@ namespace OrbitPOInts
             }
         }
 
-        private static bool _alignSpheres = false;
-
         public static bool AlignSpheres
         {
             get => _alignSpheres;
@@ -61,8 +75,6 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-
-        private static bool _enableCircles = true;
 
         public static bool EnableCircles
         {
@@ -77,8 +89,6 @@ namespace OrbitPOInts
             }
         }
 
-        private static bool _enablePOI_HillSphere = false;
-
         public static bool EnablePOI_HillSphere
         {
             get => _enablePOI_HillSphere;
@@ -89,8 +99,6 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-
-        private static bool _enablePOI_SOI = true;
 
         public static bool EnablePOI_SOI
         {
@@ -103,8 +111,6 @@ namespace OrbitPOInts
             }
         }
 
-        private static bool _enablePOI_Atmo = true;
-
         public static bool EnablePOI_Atmo
         {
             get => _enablePOI_Atmo;
@@ -115,8 +121,6 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-
-        private static bool _enablePOI_MinOrbit = true;
 
         public static bool EnablePOI_MinOrbit
         {
@@ -129,8 +133,6 @@ namespace OrbitPOInts
             }
         }
 
-        private static bool _enablePOI_MaxAlt = true;
-
         public static bool EnablePOI_MaxAlt
         {
             get => _enablePOI_MaxAlt;
@@ -141,8 +143,6 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-
-        private static bool _showPoiMaxAltOnAtmoBodies = false;
 
         public static bool ShowPOI_MaxAlt_OnAtmoBodies
         {
@@ -155,10 +155,6 @@ namespace OrbitPOInts
             }
         }
 
-        #region CustomPOI
-
-        private static bool _customPoisFromCenter;
-
         public static bool CustomPOiFromCenter
         {
             get => _customPoisFromCenter;
@@ -169,9 +165,6 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-
-
-        private static double _customPoi1;
 
         public static double CustomPOI1
         {
@@ -184,7 +177,6 @@ namespace OrbitPOInts
             }
         }
 
-        private static bool _customPoi1Enabled;
         public static bool CustomPOI1Enabled
         {
             get => _customPoi1Enabled;
@@ -195,8 +187,6 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-        
-        private static double _customPoi2;
 
         public static double CustomPOI2
         {
@@ -209,7 +199,6 @@ namespace OrbitPOInts
             }
         }
 
-        private static bool _customPoi2Enabled;
         public static bool CustomPOI2Enabled
         {
             get => _customPoi2Enabled;
@@ -220,8 +209,6 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-        
-        private static double _customPoi3;
 
         public static double CustomPOI3
         {
@@ -234,7 +221,6 @@ namespace OrbitPOInts
             }
         }
 
-        private static bool _customPoi3Enabled;
         public static bool CustomPOI3Enabled
         {
             get => _customPoi3Enabled;
@@ -245,6 +231,5 @@ namespace OrbitPOInts
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
-        #endregion
     }
 }
