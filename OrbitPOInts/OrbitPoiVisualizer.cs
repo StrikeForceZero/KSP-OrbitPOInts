@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
 using Smooth.Collections;
 using UnityEngine;
@@ -834,11 +835,5 @@ namespace OrbitPOInts
             }
         }
         #endregion
-    }
-
-    sealed class CustomPOI
-    {
-        public Func<bool> Enabled { get; set; }
-        public Func<double> Diameter { get; set; }
     }
 }
