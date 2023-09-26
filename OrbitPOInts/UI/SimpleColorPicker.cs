@@ -3,6 +3,8 @@ using UnityEngine.Events;
 
 namespace OrbitPOInts.UI
 {
+    // using instance and calling OnGUI()
+    // [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class SimpleColorPicker : MonoBehaviour
     {
         private float _red = 1.0f;
@@ -26,21 +28,20 @@ namespace OrbitPOInts.UI
             _red = initialColor.r;
             _green = initialColor.g;
             _blue = initialColor.b;
-            _showGUI = true;
+            DisplayGUI();
             CenterWindowPos();
         }
 
         public Color GetCurrentColor() => new Color(_red, _green, _blue);
         
-        public void DisplayGUI(bool state)
+        public void DisplayGUI(bool state = true)
         {
             _showGUI = state;
         }
 
-        void OnGUI()
+        internal void OnGUI()
         {
             if (!_showGUI) return;
-            
             GUI.skin = HighLogic.Skin;
             _windowRect = GUILayout.Window(123456, _windowRect, DrawUI, _title);
         }

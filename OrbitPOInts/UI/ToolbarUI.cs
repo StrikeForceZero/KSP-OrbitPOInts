@@ -174,6 +174,7 @@ namespace OrbitPOInts
             {
                 GUI.skin = HighLogic.Skin;
                 windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts");
+                _colorPicker.OnGUI();
             }
         }
 
