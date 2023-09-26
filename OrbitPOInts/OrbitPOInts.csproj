@@ -68,6 +68,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Data\POI.cs" />
         <Compile Include="Extensions\ColorExtensions.cs" />
         <Compile Include="Extensions\ConfigNodeExtensions.cs" />
         <Compile Include="ModScenerio.cs" />
@@ -78,7 +79,6 @@
         <Compile Include="Lib.cs" />
         <Compile Include="MapObjectHelper.cs" />
         <Compile Include="OrbitPoiVisualizer.cs" />
-        <Compile Include="POI.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="Logger.cs" />
         <Compile Include="Renderers\CircleRenderer.cs" />
