@@ -3,6 +3,8 @@
 ## XXXX-XX-XX v?
 - Added:
     - Ability to draw POIs for all bodies
+    - Ability to change colors for all POIs
+    - Toggle for debug logging, otherwise hides majority of the existing logging by default
 
 ## 2023-09-25 v0.3
 - Added:
