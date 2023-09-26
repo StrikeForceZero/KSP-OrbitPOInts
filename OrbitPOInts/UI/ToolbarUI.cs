@@ -287,9 +287,13 @@ namespace OrbitPOInts
             var customColorButtonClicked = GUILayout.Button("Color", GUILayout.ExpandWidth(false));
             if (customColorButtonClicked)
             {
-                LogDebug($"customColorButtonClicked {initialColor}");
+                LogDebug($"customColorButtonClicked {name} {initialColor}");
                 _colorPicker.OpenColorPicker(initialColor, $"Edit {Enum.GetName(typeof(PoiName), name)} color");
-                _colorPicker.OnColorPickerClosed += onColorChangedAction.Invoke;
+                _colorPicker.OnColorPickerClosed += color =>
+                {
+                    LogDebug($"color picker closed {name} {initialColor} -> {color}");
+                    onColorChangedAction.Invoke(color);
+                };
             }
         }
 
