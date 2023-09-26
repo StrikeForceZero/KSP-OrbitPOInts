@@ -395,6 +395,7 @@ namespace OrbitPOInts
                 CustomPoiGUI();
 
                 GUILayout.FlexibleSpace();
+                GUILayout.Space(20);
 
                 Settings.LogDebugEnabled = GUILayout.Toggle(Settings.LogDebugEnabled, "Enable Debug Level Logging");
             
