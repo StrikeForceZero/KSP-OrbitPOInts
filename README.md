@@ -24,7 +24,7 @@ See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issu
 - Rewrite the mess OrbitPoiVisualizer has become.
 - High resolution max altitude detection for current orbit to warn user if they are at risk of impact
 - Show POI for High/Low Orbit and potentially other science related altitudes
-- Persistent Settings
+- ~~Persistent Settings~~
 
 ## Screenshots
 ![POI Mun SOI Screenshot](./Screenshots/Mun%20SOI.png)
