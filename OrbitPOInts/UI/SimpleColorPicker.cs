@@ -12,6 +12,8 @@ namespace OrbitPOInts.UI
         private Color _initialColor;
 
         private bool _showGUI;
+        
+        private Rect _windowRect = new Rect(0, 0, 400, 200); // Initial size for the window
 
         public UnityAction<Color> OnColorPickerClosed;
 
@@ -22,6 +24,7 @@ namespace OrbitPOInts.UI
             _green = initialColor.g;
             _blue = initialColor.b;
             _showGUI = true;
+            CenterWindowPos();
         }
 
         public Color GetCurrentColor() => new Color(_red, _green, _blue);
@@ -34,7 +37,13 @@ namespace OrbitPOInts.UI
         void OnGUI()
         {
             if (!_showGUI) return;
+            
+            GUI.skin = HighLogic.Skin;
+            _windowRect = GUILayout.Window(123456, _windowRect, DrawUI, _title);
+        }
 
+        private void DrawUI(int windowID)
+        {
             GUILayout.BeginVertical();
 
             GUILayout.Label("Red");
@@ -72,6 +81,20 @@ namespace OrbitPOInts.UI
         {
             onCloseAction?.Invoke();
             DisplayGUI(false);
+        }
+
+        private void CenterWindowPos()
+        {
+            if (_showGUI)
+            {
+                // Calculate the screen's center
+                float centerX = Screen.width / 2;
+                float centerY = Screen.height / 2;
+
+                // Adjust for the window's size to get the top-left position
+                _windowRect.x = centerX - (_windowRect.width / 2);
+                _windowRect.y = centerY - (_windowRect.height / 2);
+            }
         }
     }
 }
