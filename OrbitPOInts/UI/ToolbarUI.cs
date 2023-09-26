@@ -422,6 +422,7 @@ namespace OrbitPOInts
         {
             toolbarButton.SetFalse();
             showUI = false;
+            _colorPicker.DisplayGUI(false);
         }
 
         void Update()

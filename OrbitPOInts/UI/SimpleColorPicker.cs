@@ -85,6 +85,7 @@ namespace OrbitPOInts.UI
         private void CloseWindow(OnCloseAction onCloseAction = null)
         {
             onCloseAction?.Invoke();
+            OnColorPickerClosed = null;
             DisplayGUI(false);
         }
 
