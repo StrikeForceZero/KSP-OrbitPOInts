@@ -16,6 +16,8 @@ namespace OrbitPOInts
         private bool _useTopRightCloseButton = false;
         private bool _eventsRegistered;
 
+        private SimpleColorPicker _colorPicker = new SimpleColorPicker();
+
         private void LogDebug(string message)
         {
             Logger.LogDebug($"[ToolbarUI] {message}");
@@ -175,43 +177,84 @@ namespace OrbitPOInts
             }
         }
 
+        private delegate double GetCustomPoiRadiusAction();
+        private delegate void SetCustomPoiRadiusAction(double radius);
+
+        private delegate bool GetCustomPoiEnabledAction();
+        private delegate void SetCustomPoiEnabledAction(bool enabled);
+
+        // TODO: needs moar abstraction!
+        private void CustomPoiHandler(
+            GetCustomPoiRadiusAction getCustomPoiRadiusAction,
+            SetCustomPoiRadiusAction setCustomPoiRadiusAction,
+            GetCustomPoiEnabledAction getCustomPoiEnabledAction,
+            SetCustomPoiEnabledAction setCustomPoiEnabledAction,
+            string label
+        )
+        {
+            // save the old values for checking later
+            var oldPoi = getCustomPoiRadiusAction.Invoke();
+            var customPoiInput = TextFieldWithToggle(getCustomPoiEnabledAction.Invoke(), label, oldPoi.ToString("N", CultureInfo.CurrentCulture));
+            var result1 = double.TryParse(customPoiInput.Text, out var newPoi);
+            // ensure value is always positive
+            if (result1) setCustomPoiRadiusAction(Math.Abs(newPoi));
+            newPoi = getCustomPoiRadiusAction.Invoke();
+            // check if the values were changed
+            var poiChanged = !newPoi.AreRelativelyEqual(oldPoi);
+            setCustomPoiEnabledAction(newPoi > 0 && (poiChanged || customPoiInput.Enabled));
+            customPoiInput.Text = newPoi.ToString("N", CultureInfo.CurrentCulture);
+        }
+
         private void CustomPoiGUI()
         {
             GUILayout.Space(10);
             Settings.CustomPOiFromCenter = GUILayout.Toggle(Settings.CustomPOiFromCenter, "Draw Custom POIs from body center");
             GUILayout.Space(10);
 
-            // save the old values for checking later
-            var oldPoi1 = Settings.CustomPOI1;
-            var oldPoi2 = Settings.CustomPOI2;
-            var oldPoi3 = Settings.CustomPOI3;
+            PoiContainer(
+                () =>
+                {
+                    CustomPoiHandler(
+                        () => Settings.CustomPOI1,
+                        radius => Settings.CustomPOI1 = radius,
+                        () => Settings.CustomPOI1Enabled,
+                        enabled => Settings.CustomPOI1Enabled = enabled,
+                        "Custom POI 1:"
+                    );
+                },
+                Settings.PoiColors[PoiName.Custom1],
+                AssignPoiColorFactory(PoiName.Custom1)
+            );
 
-            var customPoi1Input = TextFieldWithToggle(Settings.CustomPOI1Enabled, "Custom POI 1: ", Settings.CustomPOI1.ToString("N", CultureInfo.CurrentCulture));
-            var customPoi2Input = TextFieldWithToggle(Settings.CustomPOI2Enabled, "Custom POI 2: ", Settings.CustomPOI2.ToString("N", CultureInfo.CurrentCulture));
-            var customPoi3Input = TextFieldWithToggle(Settings.CustomPOI3Enabled, "Custom POI 3: ", Settings.CustomPOI3.ToString("N", CultureInfo.CurrentCulture));
-            var result1 = double.TryParse(customPoi1Input.Text, out var customPoi1);
-            var result2 = double.TryParse(customPoi2Input.Text, out var customPoi2);
-            var result3 = double.TryParse(customPoi3Input.Text, out var customPoi3);
-            // ensure value is always positive
-            if (result1) Settings.CustomPOI1 = Math.Abs(customPoi1);
-            if (result2) Settings.CustomPOI2 = Math.Abs(customPoi2);
-            if (result3) Settings.CustomPOI3 = Math.Abs(customPoi3);
+            PoiContainer(
+                () =>
+                {
+                    CustomPoiHandler(
+                        () => Settings.CustomPOI2,
+                        radius => Settings.CustomPOI2 = radius,
+                        () => Settings.CustomPOI2Enabled,
+                        enabled => Settings.CustomPOI2Enabled = enabled,
+                        "Custom POI 2:"
+                    );
+                },
+                Settings.PoiColors[PoiName.Custom2],
+                AssignPoiColorFactory(PoiName.Custom2)
+            );
 
-            // check if the values were changed
-            var poi1Changed = !Settings.CustomPOI1.AreRelativelyEqual(oldPoi1);
-            var poi2Changed = !Settings.CustomPOI2.AreRelativelyEqual(oldPoi2);
-            var poi3Changed = !Settings.CustomPOI3.AreRelativelyEqual(oldPoi3);
-
-            // if the value was updated and >0 enable it, otherwise disable it
-            Settings.CustomPOI1Enabled = Settings.CustomPOI1 > 0 && (poi1Changed || customPoi1Input.Enabled);
-            Settings.CustomPOI2Enabled = Settings.CustomPOI2 > 0 && (poi2Changed || customPoi2Input.Enabled);
-            Settings.CustomPOI3Enabled = Settings.CustomPOI3 > 0 && (poi3Changed || customPoi3Input.Enabled);
-
-            // ReSharper disable RedundantAssignment
-            customPoi1Input.Text = Settings.CustomPOI1.ToString("N", CultureInfo.CurrentCulture);
-            customPoi2Input.Text = Settings.CustomPOI2.ToString("N", CultureInfo.CurrentCulture);
-            customPoi3Input.Text = Settings.CustomPOI3.ToString("N", CultureInfo.CurrentCulture);
-            // ReSharper restore RedundantAssignment
+            PoiContainer(
+                () =>
+                {
+                    CustomPoiHandler(
+                        () => Settings.CustomPOI3,
+                        radius => Settings.CustomPOI3 = radius,
+                        () => Settings.CustomPOI3Enabled,
+                        enabled => Settings.CustomPOI3Enabled = enabled,
+                        "Custom POI 3:"
+                    );
+                },
+                Settings.PoiColors[PoiName.Custom3],
+                AssignPoiColorFactory(PoiName.Custom3)
+            );
         }
 
         private string TextFieldWithLabel(string label, string text = "")
@@ -227,12 +270,43 @@ namespace OrbitPOInts
         {
             var result = ToggleTextFieldResult.Default;
             GUILayout.BeginHorizontal();
-            result.Enabled = GUILayout.Toggle(toggled, label);
-            // TODO: why is the toggle label getting cut off?
+            result.Enabled = GUILayout.Toggle(toggled, label, GUILayout.ExpandWidth(false));
             GUILayout.Space(100);
             result.Text = GUILayout.TextField(text, GUILayout.ExpandWidth(false), GUILayout.Width(100));
             GUILayout.EndHorizontal();
             return result;
+        }
+
+        private delegate void OnColorChangedAction(Color color);
+        private void CustomColorButton(Color initialColor, OnColorChangedAction onColorChangedAction)
+        {
+            var customColorButtonClicked = GUILayout.Button("Color", GUILayout.ExpandWidth(false));
+            if (customColorButtonClicked)
+            {
+                LogDebug($"customColorButtonClicked {initialColor}");
+                _colorPicker.OpenColorPicker(initialColor);
+                _colorPicker.OnColorPickerClosed += onColorChangedAction.Invoke;
+            }
+        }
+
+        private delegate void Children();
+        private void PoiContainer(Children children, Color initialColor, OnColorChangedAction onColorChangedAction)
+        {
+            GUILayout.BeginHorizontal();
+            children.Invoke();
+            GUILayout.FlexibleSpace();
+            CustomColorButton(initialColor, onColorChangedAction);
+            GUILayout.EndHorizontal();
+        }
+
+        private OnColorChangedAction AssignPoiColorFactory(PoiName name)
+        {
+            return color =>
+            {
+                LogDebug($"OnColorChangedAction {Enum.GetName(typeof(PoiName), name)}: {color}");
+                Settings.PoiColors[name] = color;
+                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+            };
         }
 
         private void DrawUI(int windowID)
@@ -271,11 +345,32 @@ namespace OrbitPOInts
                 
                 GUILayout.Space(10);
 
-                Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere");
-                Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI");
-                Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere");
-                Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit");
-                Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt");
+                // TODO: abstract even more
+                PoiContainer(
+                    () => { Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
+                    Settings.PoiColors[PoiName.HillSphere],
+                    AssignPoiColorFactory(PoiName.HillSphere)
+                );
+                PoiContainer(
+                    () => { Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
+                    Settings.PoiColors[PoiName.SOI],
+                    AssignPoiColorFactory(PoiName.SOI)
+                );
+                PoiContainer(
+                    () => { Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
+                    Settings.PoiColors[PoiName.Atmo],
+                    AssignPoiColorFactory(PoiName.Atmo)
+                );
+                PoiContainer(
+                    () => { Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
+                    Settings.PoiColors[PoiName.MinOrbit],
+                    AssignPoiColorFactory(PoiName.MinOrbit)
+                );
+                PoiContainer(
+                    () => { Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
+                    Settings.PoiColors[PoiName.MaxAlt],
+                    AssignPoiColorFactory(PoiName.MaxAlt)
+                );
                 
                     GUILayout.BeginHorizontal();
                         GUILayout.Space(20);
