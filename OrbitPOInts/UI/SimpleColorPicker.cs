@@ -77,6 +77,8 @@ namespace OrbitPOInts.UI
             GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();
+
+            GUI.DragWindow();
         }
 
         private delegate void OnCloseAction();
