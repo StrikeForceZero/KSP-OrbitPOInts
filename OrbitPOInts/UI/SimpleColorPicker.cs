@@ -70,10 +70,6 @@ namespace OrbitPOInts.UI
 
             GUILayout.Space(10);
 
-            GUILayout.Label("(these wont persist between game launches, yet!)");
-
-            GUILayout.Space(10);
-
             GUILayout.BeginHorizontal();
                 var cancelButtonClicked = GUILayout.Button("Cancel");
                 var saveButtonClicked = GUILayout.Button("Save");
