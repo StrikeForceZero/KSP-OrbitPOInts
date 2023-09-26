@@ -70,6 +70,7 @@
     <ItemGroup>
         <Compile Include="Extensions\ColorExtensions.cs" />
         <Compile Include="Extensions\ConfigNodeExtensions.cs" />
+        <Compile Include="ModScenerio.cs" />
         <Compile Include="Data\CustomPOI.cs" />
         <Compile Include="Extensions\DoubleExtensions.cs" />
         <Compile Include="Extensions\GameObjectExtensions.cs" />
