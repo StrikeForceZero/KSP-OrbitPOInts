@@ -292,6 +292,7 @@ namespace OrbitPOInts
                 _colorPicker.OnColorPickerClosed += color =>
                 {
                     LogDebug($"color picker closed {name} {initialColor} -> {color}");
+                    if (color == initialColor) return;
                     onColorChangedAction.Invoke(color);
                 };
             }
