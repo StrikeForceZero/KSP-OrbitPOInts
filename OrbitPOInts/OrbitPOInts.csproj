@@ -68,6 +68,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Extensions\ColorExtensions.cs" />
         <Compile Include="Data\CustomPOI.cs" />
         <Compile Include="Extensions\DoubleExtensions.cs" />
         <Compile Include="Extensions\GameObjectExtensions.cs" />
