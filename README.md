@@ -18,7 +18,7 @@ See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issu
 
 ## Planned/TODO/PRs Welcome!
 - [~~Submit to CKAN!~~](https://github.com/KSP-CKAN/NetKAN/blob/master/NetKAN/OrbitPOInts.netkan)
-- Custom colors
+- ~~Custom colors~~
 - ~~Custom POIs ("I want to visualize a 500km ring around a body")~~
     - Allow any number of custom POIs
 - Rewrite the mess OrbitPoiVisualizer has become.
@@ -28,6 +28,7 @@ See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issu
 
 ## Screenshots
 ![POI Mun SOI Screenshot](./Screenshots/Mun%20SOI.png)
+![Custom Colors Screenshot](./Screenshots/Custom%20Colors.png)
 ![POI SOI and Escape Trajectory Screenshot](./Screenshots/SOI%20and%20Escape%20Trajectory.png)
 ![POI Atmosphere Screenshot](./Screenshots/Atmosphere.png)
 ![POI Max Alt Screenshot](./Screenshots/Max%20ALT.png)
