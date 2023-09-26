@@ -10,6 +10,7 @@ namespace OrbitPOInts.UI
         private float _blue = 1.0f;
         private Color _color = Color.white;
         private Color _initialColor;
+        private string _title;
 
         private bool _showGUI;
         
@@ -17,8 +18,10 @@ namespace OrbitPOInts.UI
 
         public UnityAction<Color> OnColorPickerClosed;
 
-        public void OpenColorPicker(Color initialColor)
+        public void OpenColorPicker(Color initialColor, string title)
         {
+
+            _title = title;
             _initialColor = initialColor;
             _red = initialColor.r;
             _green = initialColor.g;

@@ -212,6 +212,7 @@ namespace OrbitPOInts
             GUILayout.Space(10);
 
             PoiContainer(
+                PoiName.Custom1,
                 () =>
                 {
                     CustomPoiHandler(
@@ -227,6 +228,7 @@ namespace OrbitPOInts
             );
 
             PoiContainer(
+                PoiName.Custom2,
                 () =>
                 {
                     CustomPoiHandler(
@@ -242,6 +244,7 @@ namespace OrbitPOInts
             );
 
             PoiContainer(
+                PoiName.Custom3,
                 () =>
                 {
                     CustomPoiHandler(
@@ -278,24 +281,24 @@ namespace OrbitPOInts
         }
 
         private delegate void OnColorChangedAction(Color color);
-        private void CustomColorButton(Color initialColor, OnColorChangedAction onColorChangedAction)
+        private void CustomColorButton(PoiName name, Color initialColor, OnColorChangedAction onColorChangedAction)
         {
             var customColorButtonClicked = GUILayout.Button("Color", GUILayout.ExpandWidth(false));
             if (customColorButtonClicked)
             {
                 LogDebug($"customColorButtonClicked {initialColor}");
-                _colorPicker.OpenColorPicker(initialColor);
+                _colorPicker.OpenColorPicker(initialColor, $"Edit {Enum.GetName(typeof(PoiName), name)} color");
                 _colorPicker.OnColorPickerClosed += onColorChangedAction.Invoke;
             }
         }
 
         private delegate void Children();
-        private void PoiContainer(Children children, Color initialColor, OnColorChangedAction onColorChangedAction)
+        private void PoiContainer(PoiName name, Children children, Color initialColor, OnColorChangedAction onColorChangedAction)
         {
             GUILayout.BeginHorizontal();
             children.Invoke();
             GUILayout.FlexibleSpace();
-            CustomColorButton(initialColor, onColorChangedAction);
+            CustomColorButton(name, initialColor, onColorChangedAction);
             GUILayout.EndHorizontal();
         }
 
@@ -347,26 +350,31 @@ namespace OrbitPOInts
 
                 // TODO: abstract even more
                 PoiContainer(
+                    PoiName.HillSphere,
                     () => { Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
                     Settings.PoiColors[PoiName.HillSphere],
                     AssignPoiColorFactory(PoiName.HillSphere)
                 );
                 PoiContainer(
+                    PoiName.SOI,
                     () => { Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
                     Settings.PoiColors[PoiName.SOI],
                     AssignPoiColorFactory(PoiName.SOI)
                 );
                 PoiContainer(
+                    PoiName.Atmo,
                     () => { Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
                     Settings.PoiColors[PoiName.Atmo],
                     AssignPoiColorFactory(PoiName.Atmo)
                 );
                 PoiContainer(
+                    PoiName.MinOrbit,
                     () => { Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
                     Settings.PoiColors[PoiName.MinOrbit],
                     AssignPoiColorFactory(PoiName.MinOrbit)
                 );
                 PoiContainer(
+                    PoiName.MaxAlt,
                     () => { Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
                     Settings.PoiColors[PoiName.MaxAlt],
                     AssignPoiColorFactory(PoiName.MaxAlt)
