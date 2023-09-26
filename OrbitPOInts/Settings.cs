@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using OrbitPOInts.Extensions;
+using UnityEngine;
 
 namespace OrbitPOInts
 {
@@ -233,5 +235,18 @@ namespace OrbitPOInts
         }
 
         public static bool LogDebugEnabled { get; set; }
+
+        // TODO: need to encapsulate
+        public static Dictionary<PoiName, Color> PoiColors = new()
+        {
+            { PoiName.HillSphere, Color.white },
+            { PoiName.SOI, Color.magenta },
+            { PoiName.Atmo, Color.cyan },
+            { PoiName.MinOrbit, Color.green },
+            { PoiName.MaxAlt, Color.red },
+            { PoiName.Custom1, Color.white },
+            { PoiName.Custom2, Color.white },
+            { PoiName.Custom3, Color.white },
+        };
     }
 }
