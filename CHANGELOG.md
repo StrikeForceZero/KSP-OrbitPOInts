@@ -1,6 +1,6 @@
 # Changelog
 
-## XXXX-XX-XX v?
+## 2023-09-25 v0.4
 - Added:
     - Ability to draw POIs for all bodies
     - Ability to change colors for all POIs
