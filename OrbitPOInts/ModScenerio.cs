@@ -76,12 +76,12 @@ namespace OrbitPOInts
             Settings.CustomPOI2 = node.GetDouble(GetKey(SettingsDouble.CustomPOI2), 0.0);
             Settings.CustomPOI3 = node.GetDouble(GetKey(SettingsDouble.CustomPOI3), 0.0);
 
-            foreach (PoiName name in Enum.GetValues(typeof(PoiName)))
+            foreach (PoiType poiType in Enum.GetValues(typeof(PoiType)))
             {
-                var serializedColor = node.GetString(GetKey(SettingsDictionary.PoiColors) + "_" + name, null);
+                var serializedColor = node.GetString(GetKey(SettingsDictionary.PoiColors) + "_" + poiType, null);
                 if (serializedColor != null && ColorExtensions.TryDeserialize(serializedColor, out var color))
                 {
-                    Settings.PoiColors[name] = color;
+                    Settings.PoiColors[poiType] = color;
                 }
             }
             Log("[OnLoad] load complete");

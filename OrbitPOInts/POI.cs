@@ -5,7 +5,7 @@ namespace OrbitPOInts
         // TODO: maybe hold poi information
     }
 
-    public enum PoiName
+    public enum PoiType
     {
         HillSphere,
         SOI,
