@@ -224,7 +224,7 @@ namespace OrbitPOInts.UI
                         "Custom POI 1:"
                     );
                 },
-                Settings.PoiColors[PoiType.Custom],
+                Settings.FakePoiColors[PoiType.Custom],
                 AssignPoiColorFactory(PoiType.Custom)
             );
         }
@@ -281,7 +281,7 @@ namespace OrbitPOInts.UI
             return color =>
             {
                 LogDebug($"OnColorChangedAction {Enum.GetName(typeof(PoiType), type)}: {color}");
-                Settings.PoiColors[type] = color;
+                Settings.FakePoiColors[type] = color;
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             };
         }
@@ -326,31 +326,31 @@ namespace OrbitPOInts.UI
                 PoiContainer(
                     PoiType.HillSphere,
                     () => { Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.HillSphere],
+                    Settings.FakePoiColors[PoiType.HillSphere],
                     AssignPoiColorFactory(PoiType.HillSphere)
                 );
                 PoiContainer(
                     PoiType.SphereOfInfluence,
                     () => { Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.SphereOfInfluence],
+                    Settings.FakePoiColors[PoiType.SphereOfInfluence],
                     AssignPoiColorFactory(PoiType.SphereOfInfluence)
                 );
                 PoiContainer(
                     PoiType.Atmosphere,
                     () => { Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.Atmosphere],
+                    Settings.FakePoiColors[PoiType.Atmosphere],
                     AssignPoiColorFactory(PoiType.Atmosphere)
                 );
                 PoiContainer(
                     PoiType.MinimumOrbit,
                     () => { Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.MinimumOrbit],
+                    Settings.FakePoiColors[PoiType.MinimumOrbit],
                     AssignPoiColorFactory(PoiType.MinimumOrbit)
                 );
                 PoiContainer(
                     PoiType.MaxTerrainAltitude,
                     () => { Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.MaxTerrainAltitude],
+                    Settings.FakePoiColors[PoiType.MaxTerrainAltitude],
                     AssignPoiColorFactory(PoiType.MaxTerrainAltitude)
                 );
                 

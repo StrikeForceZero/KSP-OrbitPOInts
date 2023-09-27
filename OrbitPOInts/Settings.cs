@@ -243,6 +243,17 @@ namespace OrbitPOInts
 
         public static bool LogDebugEnabled { get; set; }
 
+        [Obsolete]
+        public static readonly Dictionary<PoiType, Color> FakePoiColors = new()
+        {
+            { PoiType.HillSphere, Color.white },
+            { PoiType.SphereOfInfluence, Color.magenta },
+            { PoiType.Atmosphere, Color.cyan },
+            { PoiType.MinimumOrbit, Color.green },
+            { PoiType.MaxTerrainAltitude, Color.red },
+            { PoiType.Custom, Color.white },
+        };
+
         public static readonly Dictionary<PoiType, Color> DefaultPoiColors = new()
         {
             { PoiType.HillSphere, Color.white },

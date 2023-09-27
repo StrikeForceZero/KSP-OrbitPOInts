@@ -56,6 +56,8 @@ namespace OrbitPOInts
         {
             Log("[OnLoad] loading settings");
             base.OnLoad(node);
+            // TODO: finish
+            // node.GetString("Version");
             Settings.GlobalEnable = node.GetBool(GetKey(SettingsBool.GlobalEnable), true);
             Settings.ActiveBodyOnly = node.GetBool(GetKey(SettingsBool.ActiveBodyOnly), true);
             Settings.EnableSpheres = node.GetBool(GetKey(SettingsBool.EnableSpheres), true);
@@ -82,7 +84,7 @@ namespace OrbitPOInts
                 var serializedColor = node.GetString(GetKey(SettingsDictionary.PoiColors) + "_" + poiType, null);
                 if (serializedColor != null && ColorExtensions.TryDeserialize(serializedColor, out var color))
                 {
-                    Settings.PoiColors[poiType] = color;
+                    Settings.FakePoiColors[poiType] = color;
                 }
             }
             Log("[OnLoad] load complete");
@@ -92,6 +94,8 @@ namespace OrbitPOInts
         {
             Log("[OnSave] saving settings");
             base.OnSave(node);
+            // TODO: finish
+            // node.AddValue("Version", "");
             node.AddValue(GetKey(SettingsBool.GlobalEnable), Settings.GlobalEnable);
             node.AddValue(GetKey(SettingsBool.ActiveBodyOnly), Settings.ActiveBodyOnly);
             node.AddValue(GetKey(SettingsBool.EnableSpheres), Settings.EnableSpheres);
@@ -113,7 +117,7 @@ namespace OrbitPOInts
             node.AddValue(GetKey(SettingsDouble.CustomPOI2), Settings.CustomPOI2);
             node.AddValue(GetKey(SettingsDouble.CustomPOI3), Settings.CustomPOI3);
 
-            foreach (var entry in Settings.PoiColors)
+            foreach (var entry in Settings.FakePoiColors)
             {
                 node.AddValue($"{GetKey(SettingsDictionary.PoiColors)}_{entry.Key}", entry.Value.Serialize());
             }
