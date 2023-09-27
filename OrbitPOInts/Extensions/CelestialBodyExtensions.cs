@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using OrbitPOInts.Wrappers;
 
 namespace OrbitPOInts.Extensions
 {
@@ -8,7 +9,7 @@ namespace OrbitPOInts.Extensions
         {
             result = null;
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (var body in FlightGlobals.Bodies)
+            foreach (var body in FlightGlobalsWrapper.Instance.Bodies)
             {
                 if (body.Serialize() != input) continue;
                 result = body;

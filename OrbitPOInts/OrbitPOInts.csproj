@@ -95,6 +95,7 @@
         <Compile Include="UI\SimpleColorPicker.cs" />
         <Compile Include="UI\ToggleTextfieldResult.cs" />
         <Compile Include="UI\ToolbarUI.cs" />
+        <Compile Include="Wrappers\FlightGlobalsWrapper.cs" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

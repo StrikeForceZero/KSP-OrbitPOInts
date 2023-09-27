@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
+using OrbitPOInts.Wrappers;
 using UnityEngine;
 
 namespace OrbitPOInts.Tests
@@ -16,7 +17,7 @@ namespace OrbitPOInts.Tests
         [SetUp]
         public void SetUp()
         {
-            foreach (var body in FlightGlobals.Bodies)
+            foreach (var body in FakeFlightGlobalsWrapper.Instance.Bodies)
             {
                 _celestialBodyReference = body;
             }
