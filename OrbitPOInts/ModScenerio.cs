@@ -57,7 +57,12 @@ namespace OrbitPOInts
             Log("[OnLoad] loading settings");
             base.OnLoad(node);
             // TODO: finish
-            // node.GetString("Version");
+            var loadedVersion = node.GetUInt(nameof(Settings.VERSION));
+            if (loadedVersion < Settings.VERSION)
+            {
+                Logger.LogError("Older settings version!");
+                // TODO: converters
+            }
             Settings.GlobalEnable = node.GetBool(GetKey(SettingsBool.GlobalEnable), true);
             Settings.ActiveBodyOnly = node.GetBool(GetKey(SettingsBool.ActiveBodyOnly), true);
             Settings.EnableSpheres = node.GetBool(GetKey(SettingsBool.EnableSpheres), true);
@@ -94,8 +99,7 @@ namespace OrbitPOInts
         {
             Log("[OnSave] saving settings");
             base.OnSave(node);
-            // TODO: finish
-            // node.AddValue("Version", "");
+            node.AddValue(nameof(Settings.VERSION), Settings.VERSION);
             node.AddValue(GetKey(SettingsBool.GlobalEnable), Settings.GlobalEnable);
             node.AddValue(GetKey(SettingsBool.ActiveBodyOnly), Settings.ActiveBodyOnly);
             node.AddValue(GetKey(SettingsBool.EnableSpheres), Settings.EnableSpheres);

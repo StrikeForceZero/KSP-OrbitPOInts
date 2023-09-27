@@ -14,6 +14,8 @@ namespace OrbitPOInts
     // TODO: this is lazy, come up with a better way later
     public static class Settings
     {
+        public const uint VERSION = 0;
+
         private static bool _globalEnable = true;
 
         private static bool _activeBodyOnly = true;
