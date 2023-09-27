@@ -33,7 +33,17 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
+    <PropertyGroup>
+        <HOME_DIR>../../..</HOME_DIR>
+    </PropertyGroup>
+    <PropertyGroup>
+        <KSP_DATA_MANAGED>$(HOME_DIR)/.local/share/Steam/steamapps/common/Kerbal Space Program/KSP_Data/Managed</KSP_DATA_MANAGED>
+    </PropertyGroup>
     <ItemGroup>
+        <Reference Include="Assembly-CSharp">
+          <HintPath>$(KSP_DATA_MANAGED)/Assembly-CSharp.dll</HintPath>
+          <Private>false</Private>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>
@@ -41,10 +51,20 @@
         <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb">
             <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
         </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+          <HintPath>$(KSP_DATA_MANAGED)/UnityEngine.CoreModule.dll</HintPath>
+          <Private>false</Private>
+        </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Tests.cs"/>
+        <Compile Include="ConfigNodeExtensionsTests.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\OrbitPOInts\OrbitPOInts.csproj">
+        <Project>{9d1cc832-41a1-4fc7-be0e-185bd71dc8fb}</Project>
+        <Name>OrbitPOInts</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
