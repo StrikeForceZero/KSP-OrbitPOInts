@@ -115,7 +115,7 @@ namespace OrbitPOInts.Data
         public static POI DefaultFrom(PoiType type)
         {
             Settings.DefaultPoiColors.TryGetValue(type, out var color);
-            return new POI(type) { Color = color };
+            return new POI(type) { Color = color, Enabled = GetDefaultEnabledForType(type) };
         }
 
         public static POI DefaultFrom(CelestialBody body, PoiType type)
@@ -144,6 +144,21 @@ namespace OrbitPOInts.Data
                 PoiType.MinimumOrbit => body.minOrbitalDistance + body.Radius,
                 PoiType.MaxTerrainAltitude => Lib.GetApproxTerrainMaxHeight(body),
                 PoiType.Custom => throw new NotSupportedException("Custom does not have a predefined radius."),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
+
+        public static bool GetDefaultEnabledForType(PoiType type)
+        {
+            return type switch
+            {
+                PoiType.None => false,
+                PoiType.HillSphere => false,
+                PoiType.SphereOfInfluence => true,
+                PoiType.Atmosphere => true,
+                PoiType.MinimumOrbit => true,
+                PoiType.MaxTerrainAltitude => true,
+                PoiType.Custom => true,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
