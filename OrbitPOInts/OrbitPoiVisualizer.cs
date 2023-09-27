@@ -32,9 +32,9 @@ namespace OrbitPOInts
         private static double _standardLineWidthDistance;
         
         private static CustomPOI[] _customPois = {
-            new() { PoiType = PoiType.Custom1, Enabled = () => Settings.CustomPOI1Enabled, Diameter = () => Settings.CustomPOI1 },
-            new() { PoiType = PoiType.Custom2, Enabled = () => Settings.CustomPOI2Enabled, Diameter = () => Settings.CustomPOI2 },
-            new() { PoiType = PoiType.Custom3, Enabled = () => Settings.CustomPOI3Enabled, Diameter = () => Settings.CustomPOI3 },
+            new() { Enabled = () => Settings.CustomPOI1Enabled, Diameter = () => Settings.CustomPOI1 },
+            new() { Enabled = () => Settings.CustomPOI2Enabled, Diameter = () => Settings.CustomPOI2 },
+            new() { Enabled = () => Settings.CustomPOI3Enabled, Diameter = () => Settings.CustomPOI3 },
         };
 
         private static void LogDebug(string message)
@@ -438,29 +438,29 @@ namespace OrbitPOInts
             {
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
-                CreateWireSphere(body, Settings.PoiColors[PoiType.MaxAlt], (float)maxAlt, .1f, 55);
+                CreateWireSphere(body, Settings.PoiColors[PoiType.MaxTerrainAltitude], (float)maxAlt, .1f, 55);
             }
 
             if (Settings.EnablePOI_SOI)
             {
-                CreateWireSphere(body, Settings.PoiColors[PoiType.SOI], (float)body.sphereOfInfluence, .05f, 50);
+                CreateWireSphere(body, Settings.PoiColors[PoiType.SphereOfInfluence], (float)body.sphereOfInfluence, .05f, 50);
             }
 
             if (Settings.EnablePOI_MinOrbit)
             {
-                CreateWireSphere(body, Settings.PoiColors[PoiType.MinOrbit], (float)body.minOrbitalDistance, 0.1f, 50);
+                CreateWireSphere(body, Settings.PoiColors[PoiType.MinimumOrbit], (float)body.minOrbitalDistance, 0.1f, 50);
             }
 
             if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
-                CreateWireSphere(body, Settings.PoiColors[PoiType.Atmo], (float)atmoDist, 0.1f, 40);
+                CreateWireSphere(body, Settings.PoiColors[PoiType.Atmosphere], (float)atmoDist, 0.1f, 40);
             }
             
-            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
+            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled && poi.Radius > 0))
             {
                 // TODO: custom color and specific body
-                CreateWireSphere(body, Settings.PoiColors[customPoi.PoiType], (float)GetCustomPoiRadius(body, customPoi.Diameter()), .1f);
+                CreateWireSphere(body, Settings.PoiColors[customPoi.Type], (float)GetCustomPoiRadius(body, customPoi.Radius), .1f);
             }
         }
 
@@ -526,29 +526,29 @@ namespace OrbitPOInts
             {
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
-                CreateCircle(body, Settings.PoiColors[PoiType.MaxAlt], (float)maxAlt, 1f);
+                CreateCircle(body, Settings.PoiColors[PoiType.MaxTerrainAltitude], (float)maxAlt, 1f);
             }
 
             if (Settings.EnablePOI_SOI)
             {
-                CreateCircle(body, Settings.PoiColors[PoiType.SOI], (float)body.sphereOfInfluence, 1f);
+                CreateCircle(body, Settings.PoiColors[PoiType.SphereOfInfluence], (float)body.sphereOfInfluence, 1f);
             }
 
             if (Settings.EnablePOI_MinOrbit)
             {
-                CreateCircle(body, Settings.PoiColors[PoiType.MinOrbit], (float)body.minOrbitalDistance, 1f);
+                CreateCircle(body, Settings.PoiColors[PoiType.MinimumOrbit], (float)body.minOrbitalDistance, 1f);
             }
 
             if (body.atmosphere && Settings.EnablePOI_Atmo)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
-                CreateCircle(body, Settings.PoiColors[PoiType.Atmo], (float)atmoDist, 1f);
+                CreateCircle(body, Settings.PoiColors[PoiType.Atmosphere], (float)atmoDist, 1f);
             }
 
-            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
+            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled && poi.Diameter > 0))
             {
                 // TODO: custom color and specific body
-                CreateCircle(body, Settings.PoiColors[customPoi.PoiType], (float)GetCustomPoiRadius(body, customPoi.Diameter()), 1f);
+                CreateCircle(body, Settings.PoiColors[customPoi.Type], (float)GetCustomPoiRadius(body, customPoi.Diameter), 1f);
             }
         }
 

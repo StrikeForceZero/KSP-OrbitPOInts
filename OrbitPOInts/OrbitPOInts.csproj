@@ -68,9 +68,16 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Data\ConfigNodeDto.cs" />
+        <Compile Include="Data\ConfigNodeValueExtractor.cs" />
         <Compile Include="Data\POI.cs" />
+        <Compile Include="Data\PoiDto.cs" />
+        <Compile Include="Data\PoiType.cs" />
+        <Compile Include="Extensions\CelestialBodyExtensions.cs" />
         <Compile Include="Extensions\ColorExtensions.cs" />
         <Compile Include="Extensions\ConfigNodeExtensions.cs" />
+        <Compile Include="Extensions\DictionaryExtensions.cs" />
+        <Compile Include="Extensions\ListExtensions.cs" />
         <Compile Include="ModScenerio.cs" />
         <Compile Include="Data\CustomPOI.cs" />
         <Compile Include="Extensions\DoubleExtensions.cs" />

@@ -1,11 +1,11 @@
 using System;
 using System.Globalization;
 using KSP.UI.Screens;
+using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
-using OrbitPOInts.UI;
 using UnityEngine;
 
-namespace OrbitPOInts
+namespace OrbitPOInts.UI
 {
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class ToolbarUI : MonoBehaviour
@@ -213,7 +213,7 @@ namespace OrbitPOInts
             GUILayout.Space(10);
 
             PoiContainer(
-                PoiType.Custom1,
+                PoiType.Custom,
                 () =>
                 {
                     CustomPoiHandler(
@@ -224,40 +224,8 @@ namespace OrbitPOInts
                         "Custom POI 1:"
                     );
                 },
-                Settings.PoiColors[PoiType.Custom1],
-                AssignPoiColorFactory(PoiType.Custom1)
-            );
-
-            PoiContainer(
-                PoiType.Custom2,
-                () =>
-                {
-                    CustomPoiHandler(
-                        () => Settings.CustomPOI2,
-                        radius => Settings.CustomPOI2 = radius,
-                        () => Settings.CustomPOI2Enabled,
-                        enabled => Settings.CustomPOI2Enabled = enabled,
-                        "Custom POI 2:"
-                    );
-                },
-                Settings.PoiColors[PoiType.Custom2],
-                AssignPoiColorFactory(PoiType.Custom2)
-            );
-
-            PoiContainer(
-                PoiType.Custom3,
-                () =>
-                {
-                    CustomPoiHandler(
-                        () => Settings.CustomPOI3,
-                        radius => Settings.CustomPOI3 = radius,
-                        () => Settings.CustomPOI3Enabled,
-                        enabled => Settings.CustomPOI3Enabled = enabled,
-                        "Custom POI 3:"
-                    );
-                },
-                Settings.PoiColors[PoiType.Custom3],
-                AssignPoiColorFactory(PoiType.Custom3)
+                Settings.PoiColors[PoiType.Custom],
+                AssignPoiColorFactory(PoiType.Custom)
             );
         }
 
@@ -362,28 +330,28 @@ namespace OrbitPOInts
                     AssignPoiColorFactory(PoiType.HillSphere)
                 );
                 PoiContainer(
-                    PoiType.SOI,
+                    PoiType.SphereOfInfluence,
                     () => { Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.SOI],
-                    AssignPoiColorFactory(PoiType.SOI)
+                    Settings.PoiColors[PoiType.SphereOfInfluence],
+                    AssignPoiColorFactory(PoiType.SphereOfInfluence)
                 );
                 PoiContainer(
-                    PoiType.Atmo,
+                    PoiType.Atmosphere,
                     () => { Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.Atmo],
-                    AssignPoiColorFactory(PoiType.Atmo)
+                    Settings.PoiColors[PoiType.Atmosphere],
+                    AssignPoiColorFactory(PoiType.Atmosphere)
                 );
                 PoiContainer(
-                    PoiType.MinOrbit,
+                    PoiType.MinimumOrbit,
                     () => { Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.MinOrbit],
-                    AssignPoiColorFactory(PoiType.MinOrbit)
+                    Settings.PoiColors[PoiType.MinimumOrbit],
+                    AssignPoiColorFactory(PoiType.MinimumOrbit)
                 );
                 PoiContainer(
-                    PoiType.MaxAlt,
+                    PoiType.MaxTerrainAltitude,
                     () => { Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.PoiColors[PoiType.MaxAlt],
-                    AssignPoiColorFactory(PoiType.MaxAlt)
+                    Settings.PoiColors[PoiType.MaxTerrainAltitude],
+                    AssignPoiColorFactory(PoiType.MaxTerrainAltitude)
                 );
                 
                     GUILayout.BeginHorizontal();

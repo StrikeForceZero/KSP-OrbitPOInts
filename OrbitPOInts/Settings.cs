@@ -1,9 +1,16 @@
+using System;
 using System.Collections.Generic;
+using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
+using UniLinq;
 using UnityEngine;
 
 namespace OrbitPOInts
 {
+    using PoiTypePoiListDictionary = Dictionary<PoiType, List<POI>>; // can't use aliases of the same level
+    using PoiConfig = Dictionary<string, Dictionary<PoiType, List<POI>>>;
+    using PoiConfigEntry = KeyValuePair<string, Dictionary<PoiType, List<POI>>>;
+
     // TODO: this is lazy, come up with a better way later
     public static class Settings
     {
@@ -236,17 +243,129 @@ namespace OrbitPOInts
 
         public static bool LogDebugEnabled { get; set; }
 
-        // TODO: need to encapsulate
-        public static Dictionary<PoiType, Color> PoiColors = new()
+        public static readonly Dictionary<PoiType, Color> DefaultPoiColors = new()
         {
             { PoiType.HillSphere, Color.white },
-            { PoiType.SOI, Color.magenta },
-            { PoiType.Atmo, Color.cyan },
-            { PoiType.MinOrbit, Color.green },
-            { PoiType.MaxAlt, Color.red },
-            { PoiType.Custom1, Color.white },
-            { PoiType.Custom2, Color.white },
-            { PoiType.Custom3, Color.white },
+            { PoiType.SphereOfInfluence, Color.magenta },
+            { PoiType.Atmosphere, Color.cyan },
+            { PoiType.MinimumOrbit, Color.green },
+            { PoiType.MaxTerrainAltitude, Color.red },
+            { PoiType.Custom, Color.white },
         };
+
+        public static PoiTypePoiListDictionary CreatePoiDictionary(params POI[] pois)
+        {
+            var dict = new Dictionary<PoiType, List<POI>>();
+            foreach(var poi in pois)
+            {
+                if(!dict.ContainsKey(poi.Type))
+                {
+                    dict[poi.Type] = new List<POI>();
+                }
+                dict[poi.Type].Add(poi);
+            }
+            return dict;
+        }
+
+        public static PoiTypePoiListDictionary DefaultPoiListDictionary =>
+            CreatePoiDictionary(
+                POI.DefaultFrom(PoiType.HillSphere),
+                POI.DefaultFrom(PoiType.SphereOfInfluence),
+                POI.DefaultFrom(PoiType.Atmosphere),
+                POI.DefaultFrom(PoiType.MinimumOrbit),
+                POI.DefaultFrom(PoiType.MaxTerrainAltitude)
+            );
+        public const string GlobalSettingsKey = "__GLOBAL__";
+        public static PoiConfig PoiConfig = LoadDefault(
+            new PoiConfigEntry(
+                GlobalSettingsKey,
+                DefaultPoiListDictionary
+            )
+        );
+
+        private static PoiConfig LoadDefault(PoiConfigEntry defaultGlobalEntry)
+        {
+            PoiConfig poiConfig = new();
+            poiConfig.AddKeyValuePair(defaultGlobalEntry);
+
+            foreach (var body in FlightGlobals.Bodies)
+            {
+                // Clone the default PoiListDictionary for the current body
+                var bodyPoiDictionary = DefaultPoiListDictionary.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Select(poi => poi.CloneWith(body)).ToList()
+                );
+
+                // Serialize the body and add the PoiListDictionary to the config
+                poiConfig.Add(body.Serialize()!, bodyPoiDictionary);
+            }
+
+            return poiConfig;
+        }
+    }
+
+    class PoiTypePoiListDictionaryDto : ConfigNodeDto<PoiTypePoiListDictionaryDto>
+    {
+        public PoiTypePoiListDictionary Dictionary { get; set; }
+
+        public override ConfigNode Save()
+        {
+            var dictionaryNode = new ConfigNode("Dictionary");
+            foreach (var kvp in Dictionary)
+            {
+                var listNode = new ConfigNode("List");
+                foreach (var poi in kvp.Value)
+                {
+                    listNode.AddNode(PoiDTO.FromPoi(poi).Save());
+                }
+                dictionaryNode.AddNode(kvp.Key.ToString(), listNode);
+            }
+            return dictionaryNode;
+        }
+
+        private void IteratePoiList(ConfigNode[] pois, Action<ConfigNode> onEachPoi = null, Action<ConfigNode, ConfigNode.Value> onEachValue = null)
+        {
+            if (onEachPoi == null && onEachValue == null) return;
+            foreach (var poi in pois)
+            {
+                onEachPoi?.Invoke(poi);
+                if (onEachValue == null) continue;
+                foreach (ConfigNode.Value value in poi.values)
+                {
+                    onEachValue?.Invoke(poi, value);
+                }
+            }
+        }
+
+        protected override void Hydrate(ConfigNode dictionaryNode)
+        {
+            Dictionary = new PoiTypePoiListDictionary();
+
+            foreach (var listNode in dictionaryNode.GetNodes())
+            {
+                var pois = listNode.GetNodes();
+                if (Enum.TryParse(listNode.name, true, out PoiType type))
+                {
+                    Logger.LogError($"Failed to parse POI type {listNode.name}");
+                    IteratePoiList(pois, poi =>
+                        {
+                            Logger.Log($"failed to load: {poi.name} ");
+                        },
+                        (poi, value) =>
+                        {
+                            Logger.Log($"{value.name}.{value.value}");
+                        }
+                    );
+                    Logger.Log($"");
+                    continue;
+                }
+                var list = new List<POI>();
+                IteratePoiList(pois, poi =>
+                {
+                    list.Add(PoiDTO.Load(poi).ToPoi());
+                });
+                Dictionary.Add(type, list);
+            }
+        }
     }
 }

@@ -61,5 +61,10 @@ namespace OrbitPOInts.Extensions
                 ? $"{r},{g},{b}"
                 : $"{r},{g},{b},{a}";
         }
+
+        public static Color Clone(this Color source)
+        {
+            return new Color(source.r, source.g, source.b, source.a);
+        }
     }
 }

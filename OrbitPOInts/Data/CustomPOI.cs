@@ -2,10 +2,12 @@ using System;
 
 namespace OrbitPOInts.Data
 {
-    sealed class CustomPOI
+    // TODO: not sure theres much benefit for having a separate CustomPOI class
+    sealed class CustomPOI : POI
     {
-        public Func<bool> Enabled { get; set; }
-        public Func<double> Diameter { get; set; }
-        public PoiType PoiType { get; set; }
+        public CustomPOI(CelestialBody body = null) : base(PoiType.Custom, body)
+        {
+
+        }
     }
 }

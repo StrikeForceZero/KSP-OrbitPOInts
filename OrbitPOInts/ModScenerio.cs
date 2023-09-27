@@ -1,4 +1,5 @@
 using System;
+using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
 using UnityEngine;
 
@@ -114,7 +115,7 @@ namespace OrbitPOInts
 
             foreach (var entry in Settings.PoiColors)
             {
-                node.AddValue(GetKey(SettingsDictionary.PoiColors) + "_" + entry.Key, entry.Value.Serialize());
+                node.AddValue($"{GetKey(SettingsDictionary.PoiColors)}_{entry.Key}", entry.Value.Serialize());
             }
             Log("[OnSave] saving complete");
         }
