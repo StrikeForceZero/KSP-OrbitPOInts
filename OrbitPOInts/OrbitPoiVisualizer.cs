@@ -423,7 +423,7 @@ namespace OrbitPOInts
             LogDebug($"[CreateBodySphere]: Generating spheres around {body.name}");
             if (Settings.GetStandardPoi(body, PoiType.HillSphere).Enabled)
             {
-                CreateWireSphere(body, Settings.GetStandardPoi(body, PoiType.HillSphere).Color, (float)Settings.GetStandardPoi(body, PoiType.HillSphere).Radius, Settings.GetStandardPoi(body, PoiType.HillSphere).LineWidth, 50);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.HillSphere), 50);
             }
 
             var shouldShowMaxAlt =
@@ -431,29 +431,34 @@ namespace OrbitPOInts
             if (shouldShowMaxAlt)
             {
                 // TODO: scale sampleRes based on body.Radius
-                CreateWireSphere(body, Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).Color, (float)Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).Radius, Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).LineWidth, 55);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude), 55);
             }
 
             if (Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).Enabled)
             {
-                CreateWireSphere(body, Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).Color, (float)Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).Radius, Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).LineWidth, 50);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.SphereOfInfluence), 50);
             }
 
             if (Settings.GetStandardPoi(body, PoiType.MinimumOrbit).Enabled)
             {
-                CreateWireSphere(body, Settings.GetStandardPoi(body, PoiType.MinimumOrbit).Color, (float)Settings.GetStandardPoi(body, PoiType.MinimumOrbit).Radius, Settings.GetStandardPoi(body, PoiType.MinimumOrbit).LineWidth, 50);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.MinimumOrbit), 50);
             }
 
             if (body.atmosphere && Settings.GetStandardPoi(body, PoiType.Atmosphere).Enabled)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
-                CreateWireSphere(body, Settings.GetStandardPoi(body, PoiType.Atmosphere).Color, (float)Settings.GetStandardPoi(body, PoiType.Atmosphere).Radius, Settings.GetStandardPoi(body, PoiType.Atmosphere).LineWidth, 40);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.Atmosphere), 40);
             }
             
             foreach (var customPoi in Enumerable.Where(Settings.GetPoisForPoiType(body, PoiType.Custom), poi => poi.Enabled && poi.Radius > 0))
             {
-                CreateWireSphere(body, customPoi.Color, (float)customPoi.Radius, customPoi.LineWidth);
+                CreateWireSphereFromPoi(customPoi);
             }
+        }
+
+        private WireSphereRenderer CreateWireSphereFromPoi(POI poi, int resolution = 50)
+        {
+            return CreateWireSphere(poi.Body, poi.Color, (float)poi.Radius, poi.LineWidth, resolution);
         }
 
         private WireSphereRenderer CreateWireSphere(
@@ -509,7 +514,7 @@ namespace OrbitPOInts
             LogDebug($"[CreateBodyCircle]: Generating circles around {body.name}");
             if (Settings.GetStandardPoi(body, PoiType.HillSphere).Enabled)
             {
-                CreateCircle(body, Settings.GetStandardPoi(body, PoiType.HillSphere).Color, (float)Settings.GetStandardPoi(body, PoiType.HillSphere).Radius, Settings.GetStandardPoi(body, PoiType.HillSphere).LineWidth);
+                CreateCircleFromPoi(Settings.GetStandardPoi(body, PoiType.HillSphere));
             }
 
             var shouldShowMaxAlt =
@@ -518,30 +523,35 @@ namespace OrbitPOInts
             {
                 // TODO: scale sampleRes based on body.Radius
                 var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
-                CreateCircle(body, Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).Color, (float)Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).Radius, Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).LineWidth);
+                CreateCircleFromPoi(Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude));
             }
 
             if (Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).Enabled)
             {
-                CreateCircle(body, Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).Color, (float)Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).Radius, Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).LineWidth);
+                CreateCircleFromPoi(Settings.GetStandardPoi(body, PoiType.SphereOfInfluence));
             }
 
             if (Settings.GetStandardPoi(body, PoiType.MinimumOrbit).Enabled)
             {
-                CreateCircle(body, Settings.GetStandardPoi(body, PoiType.MinimumOrbit).Color, (float)Settings.GetStandardPoi(body, PoiType.MinimumOrbit).Radius, Settings.GetStandardPoi(body, PoiType.MinimumOrbit).LineWidth);
+                CreateCircleFromPoi(Settings.GetStandardPoi(body, PoiType.MinimumOrbit));
             }
 
             if (body.atmosphere && Settings.GetStandardPoi(body, PoiType.Atmosphere).Enabled)
             {
                 var atmoDist = body.atmosphereDepth + body.Radius;
-                CreateCircle(body, Settings.GetStandardPoi(body, PoiType.Atmosphere).Color, (float)Settings.GetStandardPoi(body, PoiType.Atmosphere).Radius, Settings.GetStandardPoi(body, PoiType.Atmosphere).LineWidth);
+                CreateCircleFromPoi(Settings.GetStandardPoi(body, PoiType.Atmosphere));
             }
 
             foreach (var customPoi in Enumerable.Where(Settings.GetPoisForPoiType(body, PoiType.Custom), poi => poi.Enabled && poi.Diameter > 0))
             {
                 // TODO: custom color and specific body
-                CreateCircle(body, customPoi.Color, (float)customPoi.Radius, customPoi.LineWidth);
+                CreateCircleFromPoi(customPoi);
             }
+        }
+
+        private CircleRenderer CreateCircleFromPoi(POI poi)
+        {
+            return CreateCircle(poi.Body, poi.Color, (float)poi.Radius, poi.LineWidth);
         }
 
         private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
