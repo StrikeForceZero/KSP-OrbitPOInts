@@ -33,6 +33,9 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+      <OutputPath>bin\Test\</OutputPath>
+    </PropertyGroup>
     <PropertyGroup>
         <HOME_DIR>../../..</HOME_DIR>
     </PropertyGroup>

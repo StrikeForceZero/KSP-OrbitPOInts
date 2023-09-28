@@ -12,23 +12,32 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Test|Any CPU = Test|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9D1CC832-41A1-4FC7-BE0E-185BD71DC8FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9D1CC832-41A1-4FC7-BE0E-185BD71DC8FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D1CC832-41A1-4FC7-BE0E-185BD71DC8FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D1CC832-41A1-4FC7-BE0E-185BD71DC8FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D1CC832-41A1-4FC7-BE0E-185BD71DC8FB}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{9D1CC832-41A1-4FC7-BE0E-185BD71DC8FB}.Test|Any CPU.Build.0 = Test|Any CPU
 		{C0E09669-6909-4BA9-B628-21740381DEDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C0E09669-6909-4BA9-B628-21740381DEDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0E09669-6909-4BA9-B628-21740381DEDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0E09669-6909-4BA9-B628-21740381DEDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0E09669-6909-4BA9-B628-21740381DEDB}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{C0E09669-6909-4BA9-B628-21740381DEDB}.Test|Any CPU.Build.0 = Test|Any CPU
 		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Test|Any CPU.Build.0 = Test|Any CPU
 		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Test|Any CPU.ActiveCfg = Test|Any CPU
+		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Test|Any CPU.Build.0 = Test|Any CPU
 	EndGlobalSection
 EndGlobal
