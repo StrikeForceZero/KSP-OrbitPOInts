@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrbitPOInts", "OrbitPOInts\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrbitPOInts.Tests", "OrbitPOInts.Tests\OrbitPOInts.Tests.csproj", "{C0E09669-6909-4BA9-B628-21740381DEDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityEngineMock", "UnityEngineMock\UnityEngineMock.csproj", "{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KSPMock", "KSPMock\KSPMock.csproj", "{E8F0721D-DF2E-41CD-9495-C72C101986C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{C0E09669-6909-4BA9-B628-21740381DEDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0E09669-6909-4BA9-B628-21740381DEDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0E09669-6909-4BA9-B628-21740381DEDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8F0721D-DF2E-41CD-9495-C72C101986C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
