@@ -90,7 +90,7 @@ namespace OrbitPOInts.UI
 
         private void FixState()
         {
-            if (_selectableBodyNames.Count == 0)
+            if (_selectableBodyNames.Count == 1)
             {
                 foreach (var body in FlightGlobals.Bodies)
                 {
@@ -333,8 +333,8 @@ namespace OrbitPOInts.UI
                 
                 GUILayout.Space(10);
 
-
-                _selectedBodyIndex = GUILayout.SelectionGrid(_selectedBodyIndex, _selectableBodyNames.ToArray(), 1);
+                // TODO: make a dropdown
+                _selectedBodyIndex = GUILayout.SelectionGrid(_selectedBodyIndex, _selectableBodyNames.ToArray(), 6);
 
                 if (_selectedBodyIndex > 0)
                 {
