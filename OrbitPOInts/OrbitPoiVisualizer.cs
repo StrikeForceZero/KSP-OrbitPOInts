@@ -409,7 +409,7 @@ namespace OrbitPOInts
                 var poi = Settings.GetStandardPoiFor(body, poiType);
                 switch (poiType)
                 {
-                    case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.ShowPOI_MaxAlt_OnAtmoBodies:
+                    case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
                     case PoiType.Atmosphere when !body.atmosphere:
                         continue;
                     default:

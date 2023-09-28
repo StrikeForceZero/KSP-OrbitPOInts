@@ -17,26 +17,10 @@ namespace OrbitPOInts
             EnableSpheres,
             AlignSpheres,
             EnableCircles,
-            EnablePOI_HillSphere,
-            EnablePOI_SOI,
-            EnablePOI_Atmo,
-            EnablePOI_MinOrbit,
-            EnablePOI_MaxAlt,
-            ShowPOI_MaxAlt_OnAtmoBodies ,
-            CustomPOI1Enabled,
-            CustomPOI2Enabled,
-            CustomPOI3Enabled,
-            CustomPOiFromCenter,
+            ShowPoiMaxTerrainAltitudeOnAtmosphericBodies,
             LogDebugEnabled,
         }
 
-        private enum SettingsDouble
-        {
-            CustomPOI1,
-            CustomPOI2,
-            CustomPOI3,
-        }
-        
         private enum SettingsDictionary
         {
             PoiColors,
@@ -69,7 +53,7 @@ namespace OrbitPOInts
             Settings.AlignSpheres = node.GetBool(GetKey(SettingsBool.AlignSpheres), false);
             Settings.EnableCircles = node.GetBool(GetKey(SettingsBool.EnableCircles), true);
             Settings.LogDebugEnabled = node.GetBool(GetKey(SettingsBool.LogDebugEnabled), false);
-            Settings.ShowPOI_MaxAlt_OnAtmoBodies = node.GetBool(GetKey(SettingsBool.ShowPOI_MaxAlt_OnAtmoBodies), false);
+            Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = node.GetBool(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), false);
 
             foreach (PoiType poiType in Enum.GetValues(typeof(PoiType)))
             {
@@ -92,7 +76,7 @@ namespace OrbitPOInts
             node.AddValue(GetKey(SettingsBool.EnableSpheres), Settings.EnableSpheres);
             node.AddValue(GetKey(SettingsBool.AlignSpheres), Settings.AlignSpheres);
             node.AddValue(GetKey(SettingsBool.EnableCircles), Settings.EnableCircles);
-            node.AddValue(GetKey(SettingsBool.ShowPOI_MaxAlt_OnAtmoBodies), Settings.ShowPOI_MaxAlt_OnAtmoBodies);
+            node.AddValue(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies);
             node.AddValue(GetKey(SettingsBool.LogDebugEnabled), Settings.LogDebugEnabled);
 
             foreach (var entry in Settings.FakePoiColors)

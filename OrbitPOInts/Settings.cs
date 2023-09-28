@@ -20,7 +20,7 @@ namespace OrbitPOInts
         private static bool _alignSpheres;
         private static bool _enableCircles = true;
 
-        private static bool _showPoiMaxAltOnAtmoBodies;
+        private static bool _showPoiMaxTerrainAltitudeOnAtmosphericBodies;
 
         public static bool GlobalEnable
         {
@@ -83,13 +83,13 @@ namespace OrbitPOInts
             }
         }
 
-        public static bool ShowPOI_MaxAlt_OnAtmoBodies
+        public static bool ShowPoiMaxTerrainAltitudeOnAtmosphericBodies
         {
-            get => _showPoiMaxAltOnAtmoBodies;
+            get => _showPoiMaxTerrainAltitudeOnAtmosphericBodies;
             set
             {
-                if (_showPoiMaxAltOnAtmoBodies == value) return;
-                _showPoiMaxAltOnAtmoBodies = value;
+                if (_showPoiMaxTerrainAltitudeOnAtmosphericBodies == value) return;
+                _showPoiMaxTerrainAltitudeOnAtmosphericBodies = value;
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }

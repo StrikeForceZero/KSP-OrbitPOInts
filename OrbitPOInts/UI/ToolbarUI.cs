@@ -356,7 +356,7 @@ namespace OrbitPOInts.UI
                 
                     GUILayout.BeginHorizontal();
                         GUILayout.Space(20);
-                        Settings.ShowPOI_MaxAlt_OnAtmoBodies = GUILayout.Toggle(Settings.ShowPOI_MaxAlt_OnAtmoBodies,
+                        Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies,
                             "Show POI Max Altitude On Atmosphere Bodies");
                     GUILayout.EndHorizontal();
 
