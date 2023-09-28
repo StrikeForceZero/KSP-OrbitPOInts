@@ -14,7 +14,7 @@ namespace OrbitPOInts
 
         private static bool _globalEnable = true;
 
-        private static bool _activeBodyOnly = true;
+        private static bool _focusedBodyOnly = true;
 
         private static bool _enableSpheres = true;
         private static bool _alignSpheres;
@@ -34,13 +34,13 @@ namespace OrbitPOInts
             }
         }
 
-        public static bool ActiveBodyOnly
+        public static bool FocusedBodyOnly
         {
-            get => _activeBodyOnly;
+            get => _focusedBodyOnly;
             set
             {
-                if (_activeBodyOnly == value) return;
-                _activeBodyOnly = value;
+                if (_focusedBodyOnly == value) return;
+                _focusedBodyOnly = value;
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }

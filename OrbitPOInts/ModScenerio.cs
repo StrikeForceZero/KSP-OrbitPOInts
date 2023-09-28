@@ -13,7 +13,7 @@ namespace OrbitPOInts
         private enum SettingsBool
         {
             GlobalEnable,
-            ActiveBodyOnly,
+            FocusedBodyOnly,
             EnableSpheres,
             AlignSpheres,
             EnableCircles,
@@ -48,7 +48,7 @@ namespace OrbitPOInts
                 // TODO: converters
             }
             Settings.GlobalEnable = node.GetBool(GetKey(SettingsBool.GlobalEnable), true);
-            Settings.ActiveBodyOnly = node.GetBool(GetKey(SettingsBool.ActiveBodyOnly), true);
+            Settings.FocusedBodyOnly = node.GetBool(GetKey(SettingsBool.FocusedBodyOnly), true);
             Settings.EnableSpheres = node.GetBool(GetKey(SettingsBool.EnableSpheres), true);
             Settings.AlignSpheres = node.GetBool(GetKey(SettingsBool.AlignSpheres), false);
             Settings.EnableCircles = node.GetBool(GetKey(SettingsBool.EnableCircles), true);
@@ -72,7 +72,7 @@ namespace OrbitPOInts
             base.OnSave(node);
             node.AddValue(nameof(Settings.VERSION), Settings.VERSION);
             node.AddValue(GetKey(SettingsBool.GlobalEnable), Settings.GlobalEnable);
-            node.AddValue(GetKey(SettingsBool.ActiveBodyOnly), Settings.ActiveBodyOnly);
+            node.AddValue(GetKey(SettingsBool.FocusedBodyOnly), Settings.FocusedBodyOnly);
             node.AddValue(GetKey(SettingsBool.EnableSpheres), Settings.EnableSpheres);
             node.AddValue(GetKey(SettingsBool.AlignSpheres), Settings.AlignSpheres);
             node.AddValue(GetKey(SettingsBool.EnableCircles), Settings.EnableCircles);

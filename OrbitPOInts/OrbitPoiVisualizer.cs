@@ -276,7 +276,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            if (Settings.ActiveBodyOnly)
+            if (Settings.FocusedBodyOnly)
             {
                 DestroyAndRecreateBodySpheres(body);
                 DestroyAndRecreateBodyCircles(body);

@@ -310,7 +310,7 @@ namespace OrbitPOInts.UI
                 GUILayout.Space(10);
 
                 GUILayout.BeginVertical();
-                    Settings.ActiveBodyOnly = GUILayout.Toggle(Settings.ActiveBodyOnly, "Active Body Only");
+                    Settings.FocusedBodyOnly = GUILayout.Toggle(Settings.FocusedBodyOnly, "Active Body Only");
                     GUILayout.Label("(turning this off can have major performance impacts)");
                 GUILayout.EndVertical();
 
