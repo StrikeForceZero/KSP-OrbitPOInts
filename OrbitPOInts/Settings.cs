@@ -169,7 +169,8 @@ namespace OrbitPOInts
         public static IEnumerable<POI> GetStandardPoisFor(CelestialBody body)
         {
             return GetConfiguredPoisFor(body) // configured body
-                .Union(GetDefaultPoisFor(body), PoiCustomEqualityComparer.FilterByType); // default
+                .Union(GetDefaultPoisFor(body), PoiCustomEqualityComparer.FilterByType)  // default
+                .Where(poi => poi.Type != PoiType.Custom); // custom is not standard poi
             // priority: configured > default
         }
 
