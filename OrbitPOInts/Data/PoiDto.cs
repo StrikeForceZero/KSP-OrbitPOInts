@@ -11,6 +11,9 @@ namespace OrbitPOInts.Data
         public Color Color { get; set; }
         public PoiType Type { get; set; }
         public CelestialBody Body { get; set; }
+        public bool AddPlanetRadius { get; set; }
+        public float LineWidth { get; set; }
+        public int Resolution { get; set; }
 
         private const string ConfigNodeKey = "POI";
 
@@ -23,6 +26,9 @@ namespace OrbitPOInts.Data
             AddValue(node, () => Color);
             AddValue(node, () => Type);
             AddValue(node, () => Body);
+            AddValue(node, () => AddPlanetRadius);
+            AddValue(node, () => LineWidth);
+            AddValue(node, () => Resolution);
             return node;
         }
 
@@ -34,6 +40,9 @@ namespace OrbitPOInts.Data
             ConfigNodeValueExtractor.LoadNamedValueFromNode(configNode, () => Color, this);
             ConfigNodeValueExtractor.LoadNamedValueFromNode(configNode, () => Type, this);
             ConfigNodeValueExtractor.LoadNamedValueFromNode(configNode, () => Body, this);
+            ConfigNodeValueExtractor.LoadNamedValueFromNode(configNode, () => AddPlanetRadius, this);
+            ConfigNodeValueExtractor.LoadNamedValueFromNode(configNode, () => LineWidth, this);
+            ConfigNodeValueExtractor.LoadNamedValueFromNode(configNode, () => Resolution, this);
         }
 
         public POI ToPoi()
@@ -49,6 +58,9 @@ namespace OrbitPOInts.Data
             poi.Enabled = dto.Enabled;
             poi.Radius = dto.Radius;
             poi.Color = dto.Color;
+            poi.AddPlanetRadius = dto.AddPlanetRadius;
+            poi.LineWidth = dto.LineWidth;
+            poi.Resolution = dto.Resolution;
 
             return poi;
         }
@@ -63,6 +75,9 @@ namespace OrbitPOInts.Data
                 Color = poi.Color,
                 Type = poi.Type,
                 Body = poi.Body,
+                AddPlanetRadius = poi.AddPlanetRadius,
+                LineWidth = poi.LineWidth,
+                Resolution = poi.Resolution,
             };
         }
     }
