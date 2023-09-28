@@ -452,7 +452,7 @@ namespace OrbitPOInts
             
             foreach (var customPoi in Enumerable.Where(Settings.GetPoisForPoiType(body, PoiType.Custom), poi => poi.Enabled && poi.Radius > 0))
             {
-                CreateWireSphere(body, customPoi.Color, (float)GetCustomPoiRadius(body, customPoi.Radius), .1f);
+                CreateWireSphere(body, customPoi.Color, (float)customPoi.Radius, .1f);
             }
         }
 
@@ -540,7 +540,7 @@ namespace OrbitPOInts
             foreach (var customPoi in Enumerable.Where(Settings.GetPoisForPoiType(body, PoiType.Custom), poi => poi.Enabled && poi.Diameter > 0))
             {
                 // TODO: custom color and specific body
-                CreateCircle(body, customPoi.Color, (float)GetCustomPoiRadius(body, customPoi.Diameter), 1f);
+                CreateCircle(body, customPoi.Color, (float)customPoi.Radius, 1f);
             }
         }
 
@@ -594,16 +594,6 @@ namespace OrbitPOInts
             }
 
             return false;
-        }
-
-        private double GetCustomPoiRadius(CelestialBody body, double poiRadius)
-        {
-            if (Settings.CustomPOiFromCenter)
-            {
-                return poiRadius;
-            }
-
-            return body.Radius + poiRadius;
         }
 
         private static void LoadStandardLineWidthDistance()

@@ -25,7 +25,6 @@ namespace OrbitPOInts
         private static bool _enableCircles = true;
 
         private static bool _showPoiMaxAltOnAtmoBodies;
-        private static bool _customPoisFromCenter;
 
         public static bool GlobalEnable
         {
@@ -95,18 +94,6 @@ namespace OrbitPOInts
             {
                 if (_showPoiMaxAltOnAtmoBodies == value) return;
                 _showPoiMaxAltOnAtmoBodies = value;
-                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
-            }
-        }
-
-        [Obsolete]
-        public static bool CustomPOiFromCenter
-        {
-            get => _customPoisFromCenter;
-            set
-            {
-                if (_customPoisFromCenter == value) return;
-                _customPoisFromCenter = value;
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             }
         }
