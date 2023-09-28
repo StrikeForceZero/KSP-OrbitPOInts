@@ -24,7 +24,7 @@ namespace OrbitPOInts.Data
 
         private string _resolveLabel()
         {
-            if (_label == "" && Type != PoiType.None)
+            if (_label is null or "" && Type != PoiType.None)
             {
                 return Enum.GetName(typeof(PoiType), Type);
             }
