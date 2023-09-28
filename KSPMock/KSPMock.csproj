@@ -58,6 +58,7 @@
         <Compile Include="ScaledSpace.cs" />
         <Compile Include="ScenarioCreationOptions.cs" />
         <Compile Include="ScenarioModule.cs" />
+        <Compile Include="UI\Screens\ApplicationLauncher.cs" />
         <Compile Include="UI\Screens\ApplicationLauncherButton.cs" />
         <Compile Include="Vector3d.cs" />
         <Compile Include="Vessel.cs" />

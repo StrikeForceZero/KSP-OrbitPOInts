@@ -1,7 +1,7 @@
-namespace UnityEngineMock.IMGUIModule
+namespace UnityEngineMock
 {
     public class GUI
     {
-        
+
     }
 }

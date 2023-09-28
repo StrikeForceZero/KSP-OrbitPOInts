@@ -1,7 +1,7 @@
 namespace UnityEngineMock
 {
-    public class GUILayout
+    public class Time
     {
-
+        
     }
 }

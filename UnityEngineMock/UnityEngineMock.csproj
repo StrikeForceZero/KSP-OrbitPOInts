@@ -45,10 +45,16 @@
     <ItemGroup>
         <Compile Include="CoreEngineModule\Color.cs" />
         <Compile Include="CoreEngineModule\Debug.cs" />
+        <Compile Include="CoreEngineModule\Events\UnityAction.cs" />
         <Compile Include="CoreEngineModule\GameObject.cs" />
         <Compile Include="CoreEngineModule\LineRenderer.cs" />
+        <Compile Include="CoreEngineModule\Mathf.cs" />
         <Compile Include="CoreEngineModule\MonoBehavior.cs" />
         <Compile Include="CoreEngineModule\Quaternion.cs" />
+        <Compile Include="CoreEngineModule\Rect.cs" />
+        <Compile Include="CoreEngineModule\RequireComponent.cs" />
+        <Compile Include="CoreEngineModule\Screen.cs" />
+        <Compile Include="CoreEngineModule\Time.cs" />
         <Compile Include="CoreEngineModule\Transform.cs" />
         <Compile Include="CoreEngineModule\Vector3.cs" />
         <Compile Include="IMGUIModule\GUI.cs" />
