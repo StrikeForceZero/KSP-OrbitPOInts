@@ -1,5 +1,10 @@
+#if TEST
+using UnityEngineMock;
+using System.Linq;
+#else
+using UniLinq;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
+#endif
 
 namespace OrbitPOInts
 {

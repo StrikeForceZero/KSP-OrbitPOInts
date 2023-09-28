@@ -1,6 +1,15 @@
 using JetBrains.Annotations;
 using OrbitPOInts.Wrappers;
 
+#if TEST
+using CelestialBody = KSPMock.CelestialBody;
+using UnityEngineMock;
+using System.Linq;
+#else
+using UniLinq;
+using UnityEngine;
+#endif
+
 namespace OrbitPOInts.Extensions
 {
     public static class CelestialBodyExtensions

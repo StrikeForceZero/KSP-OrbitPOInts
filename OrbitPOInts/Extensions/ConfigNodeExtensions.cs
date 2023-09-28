@@ -1,7 +1,16 @@
 using System;
 using JetBrains.Annotations;
 using OrbitPOInts.Data;
+
+#if TEST
+using UnityEngineMock;
+using CelestialBody = KSPMock.CelestialBody;
+using ConfigNode = KSPMock.ConfigNode;
+using System.Linq;
+#else
+using UniLinq;
 using UnityEngine;
+#endif
 
 namespace OrbitPOInts.Extensions
 {

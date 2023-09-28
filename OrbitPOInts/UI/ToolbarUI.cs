@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using KSP.UI.Screens;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
+
+#if TEST
+using KSPMock.UI.Screens;
+using UnityEngineMock;
+using System.Linq;
+#else
+using KSP.UI.Screens;
 using UniLinq;
 using UnityEngine;
+#endif
 
 namespace OrbitPOInts.UI
 {
