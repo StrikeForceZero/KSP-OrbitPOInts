@@ -1,9 +1,22 @@
 using System.Collections.Generic;
+
+#if TEST
+using UnityEngineMock;
+using System.Linq;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using KSP_FlightGlobals = KSPMock.FlightGlobals;
+#else
 using UniLinq;
 using UnityEngine;
+using KSP_CelestialBody = CelestialBody;
+using KSP_FlightGlobals = FlightGlobals;
+#endif
 
 namespace OrbitPOInts.Wrappers
 {
+    using CelestialBody = KSP_CelestialBody;
+    using FlightGlobals = KSP_FlightGlobals;
+
     public interface IFlightGlobals
     {
         List<CelestialBody> Bodies { get; }

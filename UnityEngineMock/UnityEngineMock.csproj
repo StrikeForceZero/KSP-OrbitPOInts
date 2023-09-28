@@ -43,22 +43,39 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="CoreEngineModule\Behaviour.cs" />
         <Compile Include="CoreEngineModule\Color.cs" />
+        <Compile Include="CoreEngineModule\Component.cs" />
+        <Compile Include="CoreEngineModule\Coroutine.cs" />
         <Compile Include="CoreEngineModule\Debug.cs" />
         <Compile Include="CoreEngineModule\Events\UnityAction.cs" />
         <Compile Include="CoreEngineModule\GameObject.cs" />
         <Compile Include="CoreEngineModule\LineRenderer.cs" />
+        <Compile Include="CoreEngineModule\Material.cs" />
         <Compile Include="CoreEngineModule\Mathf.cs" />
         <Compile Include="CoreEngineModule\MonoBehavior.cs" />
+        <Compile Include="CoreEngineModule\Object.cs" />
+        <Compile Include="CoreEngineModule\PrimitiveType.cs" />
         <Compile Include="CoreEngineModule\Quaternion.cs" />
         <Compile Include="CoreEngineModule\Rect.cs" />
+        <Compile Include="CoreEngineModule\Renderer.cs" />
         <Compile Include="CoreEngineModule\RequireComponent.cs" />
         <Compile Include="CoreEngineModule\Screen.cs" />
+        <Compile Include="CoreEngineModule\Texture.cs" />
+        <Compile Include="CoreEngineModule\Texture2D.cs" />
         <Compile Include="CoreEngineModule\Time.cs" />
         <Compile Include="CoreEngineModule\Transform.cs" />
+        <Compile Include="CoreEngineModule\Vector2.cs" />
         <Compile Include="CoreEngineModule\Vector3.cs" />
+        <Compile Include="CoreEngineModule\YieldInstruction.cs" />
+        <Compile Include="IMGUIModule\Event.cs" />
+        <Compile Include="IMGUIModule\EventType.cs" />
         <Compile Include="IMGUIModule\GUI.cs" />
         <Compile Include="IMGUIModule\GUILayout.cs" />
+        <Compile Include="IMGUIModule\GUILayoutOption.cs" />
+        <Compile Include="IMGUIModule\GUISkin.cs" />
+        <Compile Include="IMGUIModule\GUIStyle.cs" />
+        <Compile Include="IMGUIModule\GUIStyleState.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

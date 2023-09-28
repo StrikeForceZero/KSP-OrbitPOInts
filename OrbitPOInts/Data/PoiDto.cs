@@ -1,7 +1,21 @@
+#if TEST
+using UnityEngineMock;
+using KSP_ConfigNode = KSPMock.ConfigNode;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using System.Linq;
+#else
+using UniLinq;
 using UnityEngine;
+using KSP_ConfigNode = ConfigNode;
+using KSP_CelestialBody = CelestialBody;
+#endif
+
 
 namespace OrbitPOInts.Data
 {
+    using CelestialBody = KSP_CelestialBody;
+    using ConfigNode = KSP_ConfigNode;
+
     // TODO: use reflection and attributes to handle all props instead of writing out each one
     public sealed class PoiDTO : ConfigNodeDto<PoiDTO>
     {

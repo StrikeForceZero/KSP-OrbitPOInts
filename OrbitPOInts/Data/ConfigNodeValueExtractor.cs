@@ -4,10 +4,24 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using OrbitPOInts.Extensions;
+
+#if TEST
+using UnityEngineMock;
+using KSP_ConfigNode = KSPMock.ConfigNode;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using System.Linq;
+#else
+using UniLinq;
 using UnityEngine;
+using KSP_ConfigNode = ConfigNode;
+using KSP_CelestialBody = CelestialBody;
+#endif
 
 namespace OrbitPOInts.Data
 {
+    using ConfigNode = KSP_ConfigNode;
+    using CelestialBody = KSP_CelestialBody;
+
     public static class ConfigNodeValueExtractor
     {
         private delegate T ExtractorDelegate<T>(ConfigNode node, string key, T defaultValue);

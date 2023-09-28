@@ -4,16 +4,21 @@ using OrbitPOInts.Data;
 
 #if TEST
 using UnityEngineMock;
-using CelestialBody = KSPMock.CelestialBody;
-using ConfigNode = KSPMock.ConfigNode;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using KSP_ConfigNode = KSPMock.ConfigNode;
 using System.Linq;
 #else
 using UniLinq;
 using UnityEngine;
+using KSP_CelestialBody = CelestialBody;
+using KSP_ConfigNode = ConfigNode;
 #endif
 
 namespace OrbitPOInts.Extensions
 {
+    using CelestialBody = KSP_CelestialBody;
+    using ConfigNode = KSP_ConfigNode;
+
     public static class ConfigNodeExtensions
     {
         public static string GetString(this ConfigNode configNode, string key, string defaultValue = "")

@@ -6,13 +6,18 @@ using OrbitPOInts.Data;
 #if TEST
 using UnityEngineMock;
 using System.Linq;
+using KSP_CelestialBody = KSPMock.CelestialBody;
 #else
 using UniLinq;
 using UnityEngine;
+using KSP_CelestialBody = CelestialBody;
 #endif
 
 namespace OrbitPOInts
 {
+
+    using CelestialBody = KSP_CelestialBody;
+
     // TODO: this is lazy, come up with a better way later
     public static class Settings
     {

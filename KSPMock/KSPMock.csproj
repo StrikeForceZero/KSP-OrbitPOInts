@@ -43,16 +43,23 @@
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="BaseGameEvent.cs" />
+        <Compile Include="Callback.cs" />
         <Compile Include="CelestialBody.cs" />
         <Compile Include="ConfigNode.cs" />
+        <Compile Include="EventData.cs" />
+        <Compile Include="EventVoid.cs" />
         <Compile Include="FlightGlobals.cs" />
+        <Compile Include="GameDatabase.cs" />
         <Compile Include="GameEvents.cs" />
+        <Compile Include="GameEventsBase.cs" />
         <Compile Include="GameScenes.cs" />
         <Compile Include="HighLogic.cs" />
         <Compile Include="KSPAddon.cs" />
         <Compile Include="KSPScenario.cs" />
         <Compile Include="MapObject.cs" />
         <Compile Include="MapView.cs" />
+        <Compile Include="Orbit.cs" />
         <Compile Include="PlanetariumCamera.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="ScaledSpace.cs" />
@@ -62,6 +69,12 @@
         <Compile Include="UI\Screens\ApplicationLauncherButton.cs" />
         <Compile Include="Vector3d.cs" />
         <Compile Include="Vessel.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\UnityEngineMock\UnityEngineMock.csproj">
+        <Project>{f3ba9bdb-370e-4d48-bff8-c90ea02e0fd0}</Project>
+        <Name>UnityEngineMock</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

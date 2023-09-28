@@ -5,14 +5,30 @@ using Smooth.Collections;
 
 #if TEST
 using UnityEngineMock;
+using KSP_KSPScenario = KSPMock.KSPScenario;
+using KSP_ScenarioModule = KSPMock.ScenarioModule;
+using KSP_ScenarioCreationOptions = KSPMock.ScenarioCreationOptions;
+using KSP_GameScenes = KSPMock.GameScenes;
+using KSP_ConfigNode = KSPMock.ConfigNode;
 using System.Linq;
 #else
 using UniLinq;
 using UnityEngine;
+using KSP_KSPScenario = KSPScenario;
+using KSP_ScenarioModule = ScenarioModule;
+using KSP_ScenarioCreationOptions = ScenarioCreationOptions;
+using KSP_GameScenes = GameScenes;
+using KSP_ConfigNode = ConfigNode;
 #endif
 
 namespace OrbitPOInts
 {
+    using KSPScenario = KSP_KSPScenario;
+    using ScenarioModule = KSP_ScenarioModule;
+    using ScenarioCreationOptions = KSP_ScenarioCreationOptions;
+    using GameScenes = KSP_GameScenes;
+    using ConfigNode = KSP_ConfigNode;
+
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.SPACECENTER, GameScenes.FLIGHT, GameScenes.TRACKSTATION)]
     public class ModScenario : ScenarioModule
     {

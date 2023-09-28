@@ -3,13 +3,23 @@ using System;
 #if TEST
 using UnityEngineMock;
 using System.Linq;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using KSP_MapObject = KSPMock.MapObject;
+using KSP_Vessel = KSPMock.Vessel;
 #else
 using UniLinq;
 using UnityEngine;
+using KSP_CelestialBody = CelestialBody;
+using KSP_MapObject = MapObject;
+using KSP_Vessel = Vessel;
 #endif
 
 namespace OrbitPOInts
 {
+    using CelestialBody = KSP_CelestialBody;
+    using MapObject = KSP_MapObject;
+    using Vessel = KSP_Vessel;
+
     public static class MapObjectHelper
     {
         public static string GetTargetName(MapObject target)

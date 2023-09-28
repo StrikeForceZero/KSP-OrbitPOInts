@@ -1,7 +1,4 @@
 namespace UnityEngineMock.Events
 {
-    public class UnityAction
-    {
-        
-    }
+    public delegate void UnityAction<T>(T type);
 }

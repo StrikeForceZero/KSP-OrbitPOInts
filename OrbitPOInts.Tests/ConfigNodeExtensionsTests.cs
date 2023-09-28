@@ -2,7 +2,10 @@ using NUnit.Framework;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
 using OrbitPOInts.Wrappers;
-using UnityEngine;
+
+using KSPMock;
+using UnityEngineMock;
+using System.Linq;
 
 namespace OrbitPOInts.Tests
 {

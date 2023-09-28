@@ -2,8 +2,20 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
+#if TEST
+using UnityEngineMock;
+using KSP_ConfigNode = KSPMock.ConfigNode;
+using System.Linq;
+#else
+using UniLinq;
+using UnityEngine;
+using KSP_ConfigNode = ConfigNode;
+#endif
+
 namespace OrbitPOInts.Data
 {
+    using ConfigNode = KSP_ConfigNode;
+
     [AttributeUsage(AttributeTargets.Property)]
     public class DeserializationMethodAttribute : Attribute
     {

@@ -7,13 +7,44 @@ using Smooth.Collections;
 #if TEST
 using UnityEngineMock;
 using System.Linq;
+using KSP_KSPAddon = KSPMock.KSPAddon;
+using KSP_HighLogic = KSPMock.HighLogic;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using KSP_Vector3d = KSPMock.Vector3d;
+using KSP_Vessel = KSPMock.Vessel;
+using KSP_FlightGlobals = KSPMock.FlightGlobals;
+using KSP_GameEvents = KSPMock.GameEvents;
+using KSP_PlanetariumCamera = KSPMock.PlanetariumCamera;
+using KSP_MapObject = KSPMock.MapObject;
+using KSP_GameScenes = KSPMock.GameScenes;
 #else
 using UniLinq;
 using UnityEngine;
+using KSP_KSPAddon = KSPAddon;
+using KSP_HighLogic = HighLogic;
+using KSP_CelestialBody = CelestialBody;
+using KSP_Vector3d = Vector3d;
+using KSP_Vessel = Vessel;
+using KSP_FlightGlobals = FlightGlobals;
+using KSP_GameEvents = GameEvents;
+using KSP_PlanetariumCamera = PlanetariumCamera;
+using KSP_MapObject = MapObject;
+using KSP_GameScenes = GameScenes;
 #endif
 
 namespace OrbitPOInts
 {
+    using KSPAddon = KSP_KSPAddon;
+    using HighLogic = KSP_HighLogic;
+    using Vessel = KSP_Vessel;
+    using Vector3d = KSP_Vector3d;
+    using CelestialBody = KSP_CelestialBody;
+    using FlightGlobals = KSP_FlightGlobals;
+    using GameEvents = KSP_GameEvents;
+    using PlanetariumCamera = KSP_PlanetariumCamera;
+    using MapObject = KSP_MapObject;
+    using GameScenes = KSP_GameScenes;
+
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class OrbitPoiVisualizer : MonoBehaviour
     {

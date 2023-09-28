@@ -1,16 +1,20 @@
 #if TEST
 using UnityEngineMock;
 using UnityEngineMock.Events;
+using KSP_HighLogic = KSPMock.HighLogic;
 using System.Linq;
 #else
 using UniLinq;
 using UnityEngine;
 using UnityEngine.Events;
+using KSP_HighLogic = HighLogic;
 #endif
 
 
 namespace OrbitPOInts.UI
 {
+    using HighLogic = KSP_HighLogic;
+
     // using instance and calling OnGUI()
     // [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class SimpleColorPicker : MonoBehaviour

@@ -7,15 +7,37 @@ using OrbitPOInts.Extensions;
 #if TEST
 using KSPMock.UI.Screens;
 using UnityEngineMock;
+using KSP_GameDatabase = KSPMock.GameDatabase;
+using KSP_KSPAddon = KSPMock.KSPAddon;
+using KSP_GameEvents = KSPMock.GameEvents;
+using KSP_HighLogic = KSPMock.HighLogic;
+using KSP_GameScenes = KSPMock.GameScenes;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using KSP_FlightGlobals = KSPMock.FlightGlobals;
 using System.Linq;
 #else
 using KSP.UI.Screens;
 using UniLinq;
 using UnityEngine;
+using KSP_GameDatabase = GameDatabase;
+using KSP_KSPAddon = KSPAddon;
+using KSP_GameEvents = GameEvents;
+using KSP_HighLogic = HighLogic;
+using KSP_GameScenes = GameScenes;
+using KSP_CelestialBody = CelestialBody;
+using KSP_FlightGlobals = FlightGlobals;
 #endif
 
 namespace OrbitPOInts.UI
 {
+    using GameDatabase = KSP_GameDatabase;
+    using KSPAddon = KSP_KSPAddon;
+    using GameEvents = KSP_GameEvents;
+    using HighLogic = KSP_HighLogic;
+    using GameScenes = KSP_GameScenes;
+    using CelestialBody = KSP_CelestialBody;
+    using FlightGlobals = KSP_FlightGlobals;
+
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class ToolbarUI : MonoBehaviour
     {

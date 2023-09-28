@@ -2,16 +2,18 @@ using JetBrains.Annotations;
 using OrbitPOInts.Wrappers;
 
 #if TEST
-using CelestialBody = KSPMock.CelestialBody;
+using KSP_CelestialBody = KSPMock.CelestialBody;
 using UnityEngineMock;
 using System.Linq;
 #else
 using UniLinq;
 using UnityEngine;
+using KSP_CelestialBody = CelestialBody;
 #endif
 
 namespace OrbitPOInts.Extensions
 {
+    using CelestialBody = KSP_CelestialBody;
     public static class CelestialBodyExtensions
     {
         public static bool TryDeserialize(string input, [CanBeNull] out CelestialBody result)
