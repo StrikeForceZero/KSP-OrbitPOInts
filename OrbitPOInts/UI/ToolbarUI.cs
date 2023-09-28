@@ -206,11 +206,12 @@ namespace OrbitPOInts.UI
             var poiChanged = !newPoiRadius.AreRelativelyEqual(oldPoiRadius);
             poi.Enabled = newPoiRadius > 0 && (poiChanged || customPoiRadiusInput.Enabled);
             customPoiRadiusInput.Text = newPoiRadius.ToString("N", CultureInfo.CurrentCulture);
+
+            // TODO: add remove button
         }
 
         private void CustomPoiGUI(POI poi)
         {
-
             PoiContainer(
                 poi,
                 () =>
@@ -349,6 +350,11 @@ namespace OrbitPOInts.UI
                         foreach (var poi in Settings.GetCustomPoisFor(body))
                         {
                             CustomPoiGUI(poi);
+                        }
+
+                        if (GUILayout.Button("+"))
+                        {
+                            Settings.AddPoi(POI.DefaultFrom(body, PoiType.Custom));
                         }
 
                     }

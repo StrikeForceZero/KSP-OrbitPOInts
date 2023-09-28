@@ -143,6 +143,11 @@ namespace OrbitPOInts
             _configuredPois = pois;
         }
 
+        internal static void AddPoi(POI poi)
+        {
+            _configuredPois.Add(poi);
+        }
+
         public static IEnumerable<POI> GetConfiguredPoisFor(CelestialBody body)
         {
             return ConfiguredPois.Where(poi => poi.Body == body);
