@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
 using Smooth.Collections;
+using UniLinq;
 using UnityEngine;
-using Enumerable = UniLinq.Enumerable;
 
 namespace OrbitPOInts
 {
@@ -405,10 +404,9 @@ namespace OrbitPOInts
             foreach (PoiType poiType in Enum.GetValues(typeof(PoiType)))
             {
                 if (poiType is PoiType.None or PoiType.Custom) continue;
-                var poi = Settings.GetStandardPoi(body, poiType);
-                if (!poi.Enabled) continue;
                 // check to make sure its not disabled in the global config
-                if (!Settings.GetGlobalPoiConfigEnabledByPoiType(poiType)) continue;
+                if (!Settings.GetGlobalEnableFor(body, poiType)) continue;
+                var poi = Settings.GetStandardPoiFor(body, poiType);
                 switch (poiType)
                 {
                     case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.ShowPOI_MaxAlt_OnAtmoBodies:
@@ -420,8 +418,8 @@ namespace OrbitPOInts
                 }
             }
 
-            var customPois = Settings.GetPoisForPoiType(body, PoiType.Custom);
-            foreach (var customPoi in Enumerable.Where(customPois, poi => poi.Enabled && poi.Radius > 0))
+            var customPois = Settings.GetCustomPoisFor(body);
+            foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.Radius > 0))
             {
                 onCreatePoi.Invoke(customPoi);
             }
