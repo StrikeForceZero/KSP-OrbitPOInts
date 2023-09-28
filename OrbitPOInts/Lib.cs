@@ -6,6 +6,7 @@ namespace OrbitPOInts
 {
     public static class Lib
     {
+        // TODO: scale sampleRes based on body.Radius
         public static double GetApproxTerrainMaxHeight(CelestialBody body, int sampleResolution = 100)
         {
             var maxAltitude = Double.NegativeInfinity;

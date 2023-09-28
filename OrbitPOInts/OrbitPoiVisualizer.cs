@@ -430,7 +430,6 @@ namespace OrbitPOInts
                 Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).Enabled && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
             if (shouldShowMaxAlt)
             {
-                // TODO: scale sampleRes based on body.Radius
                 CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude), 55);
             }
 
@@ -446,7 +445,6 @@ namespace OrbitPOInts
 
             if (body.atmosphere && Settings.GetStandardPoi(body, PoiType.Atmosphere).Enabled)
             {
-                var atmoDist = body.atmosphereDepth + body.Radius;
                 CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.Atmosphere), 40);
             }
             
@@ -521,8 +519,6 @@ namespace OrbitPOInts
                 Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).Enabled && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
             if (shouldShowMaxAlt)
             {
-                // TODO: scale sampleRes based on body.Radius
-                var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
                 CreateCircleFromPoi(Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude));
             }
 
