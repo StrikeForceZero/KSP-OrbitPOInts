@@ -103,6 +103,16 @@
         <Compile Include="UI\ToolbarUI.cs" />
         <Compile Include="Wrappers\FlightGlobalsWrapper.cs" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\KSPMock\KSPMock.csproj">
+        <Project>{e8f0721d-df2e-41cd-9495-c72c101986c3}</Project>
+        <Name>KSPMock</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\UnityEngineMock\UnityEngineMock.csproj">
+        <Project>{f3ba9bdb-370e-4d48-bff8-c90ea02e0fd0}</Project>
+        <Name>UnityEngineMock</Name>
+      </ProjectReference>
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
