@@ -161,6 +161,13 @@ namespace OrbitPOInts
                 .AsReadOnly(); // priority: configured > default
         }
 
+        public static IEnumerable<POI> GetStandardPoisFor(CelestialBody body)
+        {
+            return GetConfiguredPoisFor(body) // configured body
+                .Union(GetDefaultPoisFor(body), PoiCustomEqualityComparer.FilterByType); // default
+            // priority: configured > default
+        }
+
         public static POI GetStandardPoiFor(CelestialBody body, PoiType poiType)
         {
             return GetConfiguredPoisFor(body) // configured body
