@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using KSP.UI.Screens;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
+using UniLinq;
 using UnityEngine;
 
 namespace OrbitPOInts.UI
@@ -15,6 +17,10 @@ namespace OrbitPOInts.UI
         private Rect windowRect = new Rect(0, 0, 400, 200); // Initial size for the window
         private bool _useTopRightCloseButton = false;
         private bool _eventsRegistered;
+
+        private const string GlobalConfigKey = "Global";
+        private IList<string> _selectableBodyNames = new List<string> { GlobalConfigKey };
+        private int _selectedBodyIndex = 0;
 
         private SimpleColorPicker _colorPicker = new SimpleColorPicker();
 
@@ -84,6 +90,14 @@ namespace OrbitPOInts.UI
 
         private void FixState()
         {
+            if (_selectableBodyNames.Count == 0)
+            {
+                foreach (var body in FlightGlobals.Bodies)
+                {
+                    _selectableBodyNames.Add(body.name);
+                }
+            }
+
             LogDebug($"[FixState] ViewingMapOrTrackingStation: {Lib.ViewingMapOrTrackingStation} scene: {Enum.GetName(typeof(GameScenes), HighLogic.LoadedScene)}");
             if (!Lib.ViewingMapOrTrackingStation)
             {
@@ -178,54 +192,31 @@ namespace OrbitPOInts.UI
             }
         }
 
-        private delegate double GetCustomPoiRadiusAction();
-        private delegate void SetCustomPoiRadiusAction(double radius);
-
-        private delegate bool GetCustomPoiEnabledAction();
-        private delegate void SetCustomPoiEnabledAction(bool enabled);
-
         // TODO: needs moar abstraction!
-        private void CustomPoiHandler(
-            GetCustomPoiRadiusAction getCustomPoiRadiusAction,
-            SetCustomPoiRadiusAction setCustomPoiRadiusAction,
-            GetCustomPoiEnabledAction getCustomPoiEnabledAction,
-            SetCustomPoiEnabledAction setCustomPoiEnabledAction,
-            string label
-        )
+        private void CustomPoiHandler(POI poi)
         {
             // save the old values for checking later
-            var oldPoi = getCustomPoiRadiusAction.Invoke();
-            var customPoiInput = TextFieldWithToggle(getCustomPoiEnabledAction.Invoke(), label, oldPoi.ToString("N", CultureInfo.CurrentCulture));
-            var result1 = double.TryParse(customPoiInput.Text, out var newPoi);
+            var oldPoiRadius = poi.Radius;
+            var customPoiRadiusInput = TextFieldWithToggle(poi.Enabled, poi.Label, oldPoiRadius.ToString("N", CultureInfo.CurrentCulture));
+            var result1 = double.TryParse(customPoiRadiusInput.Text, out var newPoiRadius);
             // ensure value is always positive
-            if (result1) setCustomPoiRadiusAction(Math.Abs(newPoi));
-            newPoi = getCustomPoiRadiusAction.Invoke();
+            if (result1) poi.Radius = Math.Abs(newPoiRadius);
+            newPoiRadius = poi.Radius;
             // check if the values were changed
-            var poiChanged = !newPoi.AreRelativelyEqual(oldPoi);
-            setCustomPoiEnabledAction(newPoi > 0 && (poiChanged || customPoiInput.Enabled));
-            customPoiInput.Text = newPoi.ToString("N", CultureInfo.CurrentCulture);
+            var poiChanged = !newPoiRadius.AreRelativelyEqual(oldPoiRadius);
+            poi.Enabled = newPoiRadius > 0 && (poiChanged || customPoiRadiusInput.Enabled);
+            customPoiRadiusInput.Text = newPoiRadius.ToString("N", CultureInfo.CurrentCulture);
         }
 
-        private void CustomPoiGUI()
+        private void CustomPoiGUI(POI poi)
         {
-            GUILayout.Space(10);
-            Settings.CustomPOiFromCenter = GUILayout.Toggle(Settings.CustomPOiFromCenter, "Draw Custom POIs from body center");
-            GUILayout.Space(10);
 
             PoiContainer(
-                PoiType.Custom,
+                poi,
                 () =>
                 {
-                    CustomPoiHandler(
-                        () => Settings.CustomPOI1,
-                        radius => Settings.CustomPOI1 = radius,
-                        () => Settings.CustomPOI1Enabled,
-                        enabled => Settings.CustomPOI1Enabled = enabled,
-                        "Custom POI 1:"
-                    );
-                },
-                Settings.FakePoiColors[PoiType.Custom],
-                AssignPoiColorFactory(PoiType.Custom)
+                    CustomPoiHandler(poi);
+                }
             );
         }
 
@@ -250,16 +241,16 @@ namespace OrbitPOInts.UI
         }
 
         private delegate void OnColorChangedAction(Color color);
-        private void CustomColorButton(PoiType type, Color initialColor, OnColorChangedAction onColorChangedAction)
+        private void CustomColorButton(string name, Color initialColor, OnColorChangedAction onColorChangedAction)
         {
             var customColorButtonClicked = GUILayout.Button("Color", GUILayout.ExpandWidth(false));
             if (customColorButtonClicked)
             {
-                LogDebug($"customColorButtonClicked {type} {initialColor}");
-                _colorPicker.OpenColorPicker(initialColor, $"Edit {Enum.GetName(typeof(PoiType), type)} color");
+                LogDebug($"customColorButtonClicked {initialColor}");
+                _colorPicker.OpenColorPicker(initialColor, $"Edit {name} color");
                 _colorPicker.OnColorPickerClosed += color =>
                 {
-                    LogDebug($"color picker closed {type} {initialColor} -> {color}");
+                    LogDebug($"color picker closed {initialColor} -> {color}");
                     if (color == initialColor) return;
                     onColorChangedAction.Invoke(color);
                 };
@@ -267,12 +258,12 @@ namespace OrbitPOInts.UI
         }
 
         private delegate void Children();
-        private void PoiContainer(PoiType type, Children children, Color initialColor, OnColorChangedAction onColorChangedAction)
+        private void PoiContainer(POI poi, Children children)
         {
             GUILayout.BeginHorizontal();
             children.Invoke();
             GUILayout.FlexibleSpace();
-            CustomColorButton(type, initialColor, onColorChangedAction);
+            CustomColorButton(poi.Label, poi.Color, color => poi.Color = color);
             GUILayout.EndHorizontal();
         }
 
@@ -284,6 +275,19 @@ namespace OrbitPOInts.UI
                 Settings.FakePoiColors[type] = color;
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             };
+        }
+
+        private void DrawStandardPoi(CelestialBody body)
+        {
+            foreach (var poi in Settings.GetStandardPoisFor(body))
+            {
+                PoiContainer(poi, () =>
+                    {
+                        poi.Enabled = GUILayout.Toggle(poi.Enabled, poi.Label, GUILayout.ExpandWidth(false));
+                        GUILayout.FlexibleSpace();
+                    }
+                );
+            }
         }
 
         private void DrawUI(int windowID)
@@ -319,48 +323,41 @@ namespace OrbitPOInts.UI
                 Settings.EnableSpheres = GUILayout.Toggle(Settings.EnableSpheres, "Draw Spheres");
                 Settings.AlignSpheres = GUILayout.Toggle(Settings.AlignSpheres, "Align Spheres");
                 Settings.EnableCircles = GUILayout.Toggle(Settings.EnableCircles, "Draw Circles");
+
+                GUILayout.BeginHorizontal();
+                    GUILayout.Space(20);
+                    Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies,
+                    "Show POI Max Terrain Altitude On Atmospheric Bodies");
+                GUILayout.EndHorizontal();
                 
                 GUILayout.Space(10);
 
-                // TODO: abstract even more
-                PoiContainer(
-                    PoiType.HillSphere,
-                    () => { Settings.EnablePOI_HillSphere = GUILayout.Toggle(Settings.EnablePOI_HillSphere, "POI HillSphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.FakePoiColors[PoiType.HillSphere],
-                    AssignPoiColorFactory(PoiType.HillSphere)
-                );
-                PoiContainer(
-                    PoiType.SphereOfInfluence,
-                    () => { Settings.EnablePOI_SOI = GUILayout.Toggle(Settings.EnablePOI_SOI, "POI SOI", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.FakePoiColors[PoiType.SphereOfInfluence],
-                    AssignPoiColorFactory(PoiType.SphereOfInfluence)
-                );
-                PoiContainer(
-                    PoiType.Atmosphere,
-                    () => { Settings.EnablePOI_Atmo = GUILayout.Toggle(Settings.EnablePOI_Atmo, "POI Atmosphere", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.FakePoiColors[PoiType.Atmosphere],
-                    AssignPoiColorFactory(PoiType.Atmosphere)
-                );
-                PoiContainer(
-                    PoiType.MinimumOrbit,
-                    () => { Settings.EnablePOI_MinOrbit = GUILayout.Toggle(Settings.EnablePOI_MinOrbit, "POI Minimum Orbit", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.FakePoiColors[PoiType.MinimumOrbit],
-                    AssignPoiColorFactory(PoiType.MinimumOrbit)
-                );
-                PoiContainer(
-                    PoiType.MaxTerrainAltitude,
-                    () => { Settings.EnablePOI_MaxAlt = GUILayout.Toggle(Settings.EnablePOI_MaxAlt, "POI MaxAlt", GUILayout.ExpandWidth(false)); GUILayout.FlexibleSpace(); },
-                    Settings.FakePoiColors[PoiType.MaxTerrainAltitude],
-                    AssignPoiColorFactory(PoiType.MaxTerrainAltitude)
-                );
-                
-                    GUILayout.BeginHorizontal();
-                        GUILayout.Space(20);
-                        Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies,
-                            "Show POI Max Altitude On Atmosphere Bodies");
-                    GUILayout.EndHorizontal();
 
-                CustomPoiGUI();
+                _selectedBodyIndex = GUILayout.SelectionGrid(_selectedBodyIndex, _selectableBodyNames.ToArray(), 1);
+
+                if (_selectedBodyIndex > 0)
+                {
+                    foreach (var body in FlightGlobals.Bodies)
+                    {
+                        if (_selectableBodyNames[_selectedBodyIndex] != body.name) continue;
+
+                        DrawStandardPoi(body);
+
+                        GUILayout.Space(10);
+
+                        // TODO: plus sign to add more
+                        foreach (var poi in Settings.GetCustomPoisFor(body))
+                        {
+                            CustomPoiGUI(poi);
+                        }
+
+                    }
+                }
+                else
+                {
+                    // global
+                    DrawStandardPoi(null);
+                }
 
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20);
