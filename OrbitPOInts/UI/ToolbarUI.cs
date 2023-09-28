@@ -325,11 +325,7 @@ namespace OrbitPOInts.UI
                 Settings.AlignSpheres = GUILayout.Toggle(Settings.AlignSpheres, "Align Spheres");
                 Settings.EnableCircles = GUILayout.Toggle(Settings.EnableCircles, "Draw Circles");
 
-                GUILayout.BeginHorizontal();
-                    GUILayout.Space(20);
-                    Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies,
-                    "Show POI Max Terrain Altitude On Atmospheric Bodies");
-                GUILayout.EndHorizontal();
+                Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, "Show POI Max Terrain Altitude On Atmospheric Bodies");
                 
                 GUILayout.Space(10);
 
