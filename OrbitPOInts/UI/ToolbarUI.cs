@@ -207,6 +207,8 @@ namespace OrbitPOInts.UI
             poi.Enabled = newPoiRadius > 0 && (poiChanged || customPoiRadiusInput.Enabled);
             customPoiRadiusInput.Text = newPoiRadius.ToString("N", CultureInfo.CurrentCulture);
 
+            // TODO: handle POI.AddPlanetRadius
+
             // TODO: add remove button
         }
 
