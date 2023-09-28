@@ -407,6 +407,8 @@ namespace OrbitPOInts
                 if (poiType is PoiType.None or PoiType.Custom) continue;
                 var poi = Settings.GetStandardPoi(body, poiType);
                 if (!poi.Enabled) continue;
+                // check to make sure its not disabled in the global config
+                if (!Settings.GetGlobalPoiConfigEnabledByPoiType(poiType)) continue;
                 switch (poiType)
                 {
                     case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.ShowPOI_MaxAlt_OnAtmoBodies:

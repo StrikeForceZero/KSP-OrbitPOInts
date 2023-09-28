@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
 using UniLinq;
 using UnityEngine;
+using Enumerable = System.Linq.Enumerable;
 
 namespace OrbitPOInts
 {
@@ -151,6 +153,19 @@ namespace OrbitPOInts
                 DefaultPoiListDictionary
             )
         );
+
+        public static IReadOnlyDictionary<PoiType, List<POI>> GetGlobalPoiConfig()
+        {
+            return PoiConfig[GlobalSettingsKey];
+        }
+
+        public static bool GetGlobalPoiConfigEnabledByPoiType(PoiType type)
+        {
+            var hasType = GetGlobalPoiConfig().TryGetValue(type, out var pois);
+            if (!hasType) throw new ArgumentException($"{type} is not in global config!");
+            if (pois == null || pois.Count == 0) throw new InvalidOperationException($"{type} does not have any entries! (list is null or empty)");
+            return Enumerable.First(pois).Enabled;
+        }
 
         private static PoiConfig LoadDefault(PoiConfigEntry defaultGlobalEntry)
         {
