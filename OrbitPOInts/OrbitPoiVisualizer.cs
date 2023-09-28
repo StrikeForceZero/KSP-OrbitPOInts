@@ -423,29 +423,29 @@ namespace OrbitPOInts
             LogDebug($"[CreateBodySphere]: Generating spheres around {body.name}");
             if (Settings.GetStandardPoi(body, PoiType.HillSphere).Enabled)
             {
-                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.HillSphere), 50);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.HillSphere));
             }
 
             var shouldShowMaxAlt =
                 Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude).Enabled && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
             if (shouldShowMaxAlt)
             {
-                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude), 55);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.MaxTerrainAltitude));
             }
 
             if (Settings.GetStandardPoi(body, PoiType.SphereOfInfluence).Enabled)
             {
-                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.SphereOfInfluence), 50);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.SphereOfInfluence));
             }
 
             if (Settings.GetStandardPoi(body, PoiType.MinimumOrbit).Enabled)
             {
-                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.MinimumOrbit), 50);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.MinimumOrbit));
             }
 
             if (body.atmosphere && Settings.GetStandardPoi(body, PoiType.Atmosphere).Enabled)
             {
-                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.Atmosphere), 40);
+                CreateWireSphereFromPoi(Settings.GetStandardPoi(body, PoiType.Atmosphere));
             }
             
             foreach (var customPoi in Enumerable.Where(Settings.GetPoisForPoiType(body, PoiType.Custom), poi => poi.Enabled && poi.Radius > 0))
@@ -454,9 +454,9 @@ namespace OrbitPOInts
             }
         }
 
-        private WireSphereRenderer CreateWireSphereFromPoi(POI poi, int resolution = 50)
+        private WireSphereRenderer CreateWireSphereFromPoi(POI poi)
         {
-            return CreateWireSphere(poi.Body, poi.Color, (float)poi.Radius, poi.LineWidth, resolution);
+            return CreateWireSphere(poi.Body, poi.Color, (float)poi.Radius, poi.LineWidth, poi.Resolution);
         }
 
         private WireSphereRenderer CreateWireSphere(

@@ -17,6 +17,7 @@ namespace OrbitPOInts.Data
         private CelestialBody _body;
         private bool _addPlanetRadius;
         private float _lineWidth;
+        private int _resolution;
 
         public PoiType Type { get; private set; }
 
@@ -127,6 +128,17 @@ namespace OrbitPOInts.Data
             }
         }
 
+        public int Resolution
+        {
+            get => _resolution;
+            set
+            {
+                if (_resolution == value) return;
+                _resolution = value;
+                OnPropertyChanged(nameof(Resolution));
+            }
+        }
+
         public POI(PoiType type, CelestialBody body = null)
         {
             Type = type;
@@ -147,7 +159,12 @@ namespace OrbitPOInts.Data
         public static POI DefaultFrom(PoiType type)
         {
             Settings.DefaultPoiColors.TryGetValue(type, out var color);
-            return new POI(type) { Color = color, Enabled = GetDefaultEnabledForType(type) };
+            return new POI(type)
+            {
+                Color = color,
+                Enabled = GetDefaultEnabledForType(type),
+                Resolution = GetDefaultResolutionForType(type)
+            };
         }
 
         public static POI DefaultFrom(CelestialBody body, PoiType type)
@@ -191,6 +208,21 @@ namespace OrbitPOInts.Data
                 PoiType.MinimumOrbit => true,
                 PoiType.MaxTerrainAltitude => true,
                 PoiType.Custom => true,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
+
+        public static int GetDefaultResolutionForType(PoiType type)
+        {
+            return type switch
+            {
+                PoiType.None => 0,
+                PoiType.HillSphere => 50,
+                PoiType.SphereOfInfluence => 50,
+                PoiType.Atmosphere => 40,
+                PoiType.MinimumOrbit => 50,
+                PoiType.MaxTerrainAltitude => 55,
+                PoiType.Custom => 50,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
