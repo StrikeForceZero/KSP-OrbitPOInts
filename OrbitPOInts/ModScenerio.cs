@@ -1,6 +1,8 @@
 using System;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
+using Smooth.Collections;
+using UniLinq;
 using UnityEngine;
 
 namespace OrbitPOInts
@@ -21,11 +23,6 @@ namespace OrbitPOInts
             LogDebugEnabled,
         }
 
-        private enum SettingsDictionary
-        {
-            PoiColors,
-        }
-
         private static string GetKey<TEnum>(TEnum key) where TEnum : Enum
         {
             return Enum.GetName(typeof(TEnum), key);
@@ -35,6 +32,8 @@ namespace OrbitPOInts
         {
             Logger.Log($"[ModScenario] {message}");
         }
+
+        private const string PoiConfigKey = "POI";
 
         public override void OnLoad(ConfigNode node)
         {
@@ -55,14 +54,8 @@ namespace OrbitPOInts
             Settings.LogDebugEnabled = node.GetBool(GetKey(SettingsBool.LogDebugEnabled), false);
             Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = node.GetBool(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), false);
 
-            foreach (PoiType poiType in Enum.GetValues(typeof(PoiType)))
-            {
-                var serializedColor = node.GetString(GetKey(SettingsDictionary.PoiColors) + "_" + poiType, null);
-                if (serializedColor != null && ColorExtensions.TryDeserialize(serializedColor, out var color))
-                {
-                    Settings.FakePoiColors[poiType] = color;
-                }
-            }
+            var poiNodes  = node.GetNodes(PoiConfigKey);
+            Settings.UpdateConfiguredPois(poiNodes.Select(poiNode => PoiDTO.Load(poiNode).ToPoi()).ToList());
             Log("[OnLoad] load complete");
         }
 
@@ -79,9 +72,9 @@ namespace OrbitPOInts
             node.AddValue(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies);
             node.AddValue(GetKey(SettingsBool.LogDebugEnabled), Settings.LogDebugEnabled);
 
-            foreach (var entry in Settings.FakePoiColors)
+            foreach (var poiConfigNode in Settings.ConfiguredPois.Select(poi => PoiDTO.FromPoi(poi).Save()))
             {
-                node.AddValue($"{GetKey(SettingsDictionary.PoiColors)}_{entry.Key}", entry.Value.Serialize());
+                node.AddNode(PoiConfigKey, poiConfigNode);
             }
             Log("[OnSave] saving complete");
         }

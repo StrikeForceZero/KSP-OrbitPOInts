@@ -135,7 +135,13 @@ namespace OrbitPOInts
         );
 
         // user configured
-        public static readonly IList<POI> ConfiguredPois = new List<POI>();
+        private static IList<POI> _configuredPois = new List<POI>();
+        public static IReadOnlyList<POI> ConfiguredPois => _configuredPois.ToList().AsReadOnly();
+
+        internal static void UpdateConfiguredPois(IList<POI> pois)
+        {
+            _configuredPois = pois;
+        }
 
         public static IEnumerable<POI> GetConfiguredPoisFor(CelestialBody body)
         {
