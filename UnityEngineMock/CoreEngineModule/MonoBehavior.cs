@@ -1,7 +1,7 @@
 namespace UnityEngineMock
 {
-    public class MonoBehavior
+    public class MonoBehaviour
     {
-        
+
     }
 }
