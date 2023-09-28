@@ -15,6 +15,8 @@ namespace OrbitPOInts.Data
         private double _radius;
         private Color _color;
         private CelestialBody _body;
+        private bool _addPlanetRadius;
+        private float _lineWidth;
 
         public PoiType Type { get; private set; }
 
@@ -50,11 +52,18 @@ namespace OrbitPOInts.Data
             }
         }
 
-        public double Diameter => _radius * 2;
+        public double Diameter => Radius * 2;
 
         public double Radius
         {
-            get => _radius;
+            get
+            {
+                if (AddPlanetRadius)
+                {
+                    return _radius + Body.Radius;
+                }
+                return _radius;
+            }
             set
             {
                 if (_radius.AreRelativelyEqual(value)) return;
@@ -92,6 +101,29 @@ namespace OrbitPOInts.Data
                     Radius = DefaultRadius(Body);
                 }
                 OnPropertyChanged(nameof(Body));
+            }
+        }
+
+        // TODO: should this be part of CustomPOI? problem would be subscribing to property changes
+        public bool AddPlanetRadius
+        {
+            get => _addPlanetRadius;
+            set
+            {
+                if (_addPlanetRadius == value) return;
+                _addPlanetRadius = value;
+                OnPropertyChanged(nameof(AddPlanetRadius));
+            }
+        }
+
+        public float LineWidth
+        {
+            get => _lineWidth;
+            set
+            {
+                if (_lineWidth.AreRelativelyEqual(value)) return;
+                _lineWidth = value;
+                OnPropertyChanged(nameof(LineWidth));
             }
         }
 
