@@ -60,7 +60,12 @@ namespace UnityEngineMock
 
         public static Color operator /(Color a, float b) => new Color(a.r / b, a.g / b, a.b / b, a.a / b);
 
-        public static bool operator ==(Color lhs, Color rhs) => ((Vector4) lhs).Equals((Vector4) rhs);
+        public static bool operator ==(Color lhs, Color rhs) {
+            if (ReferenceEquals(lhs, rhs)) return true; // Both are null or same reference.
+            if (ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null)) return false; // One of them is null.
+
+            return ((Vector4) lhs).Equals((Vector4) rhs);
+        }
 
         public static bool operator !=(Color lhs, Color rhs) => !(lhs == rhs);
 
