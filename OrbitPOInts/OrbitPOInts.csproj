@@ -101,7 +101,6 @@
         <Compile Include="UI\SimpleColorPicker.cs" />
         <Compile Include="UI\ToggleTextfieldResult.cs" />
         <Compile Include="UI\ToolbarUI.cs" />
-        <Compile Include="Wrappers\FlightGlobalsWrapper.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\KSPMock\KSPMock.csproj">

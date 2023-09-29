@@ -1,5 +1,4 @@
 using JetBrains.Annotations;
-using OrbitPOInts.Wrappers;
 
 #if TEST
 using KSP_CelestialBody = KSPMock.CelestialBody;
@@ -20,7 +19,7 @@ namespace OrbitPOInts.Extensions
         {
             result = null;
             // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (var body in FlightGlobalsWrapper.Instance.Bodies)
+            foreach (var body in FlightGlobals.Bodies)
             {
                 if (body.Serialize() != input) continue;
                 result = body;

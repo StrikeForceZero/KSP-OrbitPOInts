@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
-using OrbitPOInts.Wrappers;
 
 using KSPMock;
 using UnityEngineMock;
@@ -20,7 +19,7 @@ namespace OrbitPOInts.Tests
         [SetUp]
         public void SetUp()
         {
-            foreach (var body in FakeFlightGlobalsWrapper.Instance.Bodies)
+            foreach (var body in FlightGlobals.Bodies)
             {
                 _celestialBodyReference = body;
             }
