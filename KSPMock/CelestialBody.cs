@@ -4,7 +4,7 @@ namespace KSPMock
 {
     public class CelestialBody
     {
-        public string name;
+        public new string name => this.bodyName;
         public double Radius;
         public bool atmosphere;
         public double minOrbitalDistance;
