@@ -8,6 +8,7 @@ using System.Linq;
 
 namespace OrbitPOInts.Tests
 {
+#if TEST
     [TestFixture]
     public class ConfigNodeExtensionsTests
     {
@@ -99,4 +100,5 @@ namespace OrbitPOInts.Tests
             Assert.AreEqual(_celestialBodyReference, result);
         }
     }
+#endif
 }
