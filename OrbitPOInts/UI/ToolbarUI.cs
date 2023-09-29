@@ -14,6 +14,7 @@ using KSP_HighLogic = KSPMock.HighLogic;
 using KSP_GameScenes = KSPMock.GameScenes;
 using KSP_CelestialBody = KSPMock.CelestialBody;
 using KSP_FlightGlobals = KSPMock.FlightGlobals;
+using KSP_MapView = KSPMock.MapView;
 using System.Linq;
 #else
 using KSP.UI.Screens;
@@ -26,6 +27,7 @@ using KSP_HighLogic = HighLogic;
 using KSP_GameScenes = GameScenes;
 using KSP_CelestialBody = CelestialBody;
 using KSP_FlightGlobals = FlightGlobals;
+using KSP_MapView = MapView;
 #endif
 
 namespace OrbitPOInts.UI
@@ -37,6 +39,7 @@ namespace OrbitPOInts.UI
     using GameScenes = KSP_GameScenes;
     using CelestialBody = KSP_CelestialBody;
     using FlightGlobals = KSP_FlightGlobals;
+    using MapView = KSP_MapView;
 
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class ToolbarUI : MonoBehaviour

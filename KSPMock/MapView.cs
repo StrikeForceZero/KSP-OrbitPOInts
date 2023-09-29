@@ -6,5 +6,6 @@ namespace KSPMock
     {
         public Material orbitLinesMaterial;
         public static MapView fetch => new MapView();
+        public static bool MapIsEnabled;
     }
 }

@@ -16,6 +16,7 @@ using KSP_GameEvents = KSPMock.GameEvents;
 using KSP_PlanetariumCamera = KSPMock.PlanetariumCamera;
 using KSP_MapObject = KSPMock.MapObject;
 using KSP_GameScenes = KSPMock.GameScenes;
+using KSP_ScaledSpace = KSPMock.ScaledSpace;
 #else
 using UniLinq;
 using UnityEngine;
@@ -29,6 +30,7 @@ using KSP_GameEvents = GameEvents;
 using KSP_PlanetariumCamera = PlanetariumCamera;
 using KSP_MapObject = MapObject;
 using KSP_GameScenes = GameScenes;
+using KSP_ScaledSpace = ScaledSpace;
 #endif
 
 namespace OrbitPOInts
@@ -43,6 +45,7 @@ namespace OrbitPOInts
     using PlanetariumCamera = KSP_PlanetariumCamera;
     using MapObject = KSP_MapObject;
     using GameScenes = KSP_GameScenes;
+    using ScaledSpace = KSP_ScaledSpace;
 
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class OrbitPoiVisualizer : MonoBehaviour
