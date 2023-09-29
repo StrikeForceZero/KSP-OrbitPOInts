@@ -55,6 +55,9 @@
         <Compile Include="GameEventsBase.cs" />
         <Compile Include="GameScenes.cs" />
         <Compile Include="HighLogic.cs" />
+        <Compile Include="IConfigNode.cs" />
+        <Compile Include="IDiscoverable.cs" />
+        <Compile Include="ITargetable.cs" />
         <Compile Include="KSPAddon.cs" />
         <Compile Include="KSPScenario.cs" />
         <Compile Include="MapObject.cs" />
@@ -69,6 +72,7 @@
         <Compile Include="UI\Screens\ApplicationLauncherButton.cs" />
         <Compile Include="Vector3d.cs" />
         <Compile Include="Vessel.cs" />
+        <Compile Include="VesselTargetModes.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\UnityEngineMock\UnityEngineMock.csproj">
