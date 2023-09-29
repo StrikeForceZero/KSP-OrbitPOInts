@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
-using Smooth.Collections;
 
 #if TEST
 using UnityEngineMock;
@@ -691,12 +690,12 @@ namespace OrbitPOInts
         private GameObject GetOrCreateBodyComponentHolder(CelestialBody body, ComponentHolderType type)
         {
             var componentHolder = _bodyComponentHolders.TryGet(GetComponentHolderKey(body, type));
-            if (componentHolder.isSome && componentHolder.value.IsAlive())
+            if (componentHolder.IsSome && componentHolder.Value.IsAlive())
             {
                 LogDebug($"[GetOrCreateBodyComponentHolder] Reusing component holder {type} for {body.name}");
-                return componentHolder.value;
+                return componentHolder.Value;
             }
-            if (componentHolder.isSome && !componentHolder.value.IsAlive())
+            if (componentHolder.IsSome && !componentHolder.Value.IsAlive())
             {
                 LogDebug($"[GetOrCreateBodyComponentHolder] Skipping dead component holder for {body.name}");
             }
@@ -751,8 +750,8 @@ namespace OrbitPOInts
         private void PurgeAllCirclesByBody(CelestialBody body)
         {
             var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
-            if (bodyComponentHolder.isNone) return;
-            var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
+            if (bodyComponentHolder.IsNone) return;
+            var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>();
             LogDebug($"[PurgeAllCirclesByBody] {body.name} - {components.Length}");
             foreach (var component in components)
             {
@@ -763,8 +762,8 @@ namespace OrbitPOInts
         private void PurgeAllSpheresByBody(CelestialBody body)
         {
             var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
-            if (bodyComponentHolder.isNone) return;
-            var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
+            if (bodyComponentHolder.IsNone) return;
+            var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>();
             LogDebug($"[PurgeAllSpheresByBody] {body.name} - {components.Length}");
             foreach (var component in components)
             {
