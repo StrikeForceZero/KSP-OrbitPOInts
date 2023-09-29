@@ -5,12 +5,6 @@ namespace UnityEngineMock
 {
     public class MonoBehaviour : Behaviour
     {
-        public virtual void Awake() { }
-        public virtual void Start() { }
-        public virtual void OnEnable() { }
-        public virtual void OnDisable() { }
-        public virtual void OnDestroy() { }
-
         public Coroutine StartCoroutine(IEnumerator routine)
         {
             if (routine == null)
