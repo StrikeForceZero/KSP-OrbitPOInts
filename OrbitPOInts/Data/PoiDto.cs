@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using OrbitPOInts.Extensions;
+
 #if TEST
 using UnityEngineMock;
 using KSP_ConfigNode = KSPMock.ConfigNode;
@@ -95,4 +98,54 @@ namespace OrbitPOInts.Data
             };
         }
     }
+
+    public class PoiDTOComparer : IEqualityComparer<PoiDTO>
+    {
+
+        public bool Equals(PoiDTO x, PoiDTO y)
+        {
+            return StaticEquals(x, y);
+        }
+
+        public int GetHashCode(PoiDTO obj)
+        {
+            return StaticGetHashCode(obj);
+        }
+
+        public static bool StaticEquals(PoiDTO x, PoiDTO y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+
+            if (x == null || y == null) return false;
+
+            return x.Label == y.Label &&
+                   x.Enabled == y.Enabled &&
+                   x.Radius.AreRelativelyEqual(y.Radius) &&
+                   x.Color.Equals(y.Color) &&
+                   x.Type == y.Type &&
+                   ReferenceEquals(x.Body, y.Body) &&
+                   x.AddPlanetRadius == y.AddPlanetRadius &&
+                   x.LineWidth.AreRelativelyEqual(y.LineWidth) &&
+                   x.Resolution == y.Resolution;
+        }
+
+        public static int StaticGetHashCode(PoiDTO obj)
+        {
+            if (obj == null) return 0;
+
+            var hash = 17; // Prime number to start with.
+            hash = hash * 31 + (obj.Label?.GetHashCode() ?? 0);
+            hash = hash * 31 + obj.Enabled.GetHashCode();
+            hash = hash * 31 + obj.Radius.GetHashCode();
+            hash = hash * 31 + obj.Color.GetHashCode();
+            hash = hash * 31 + obj.Type.GetHashCode();
+            hash = hash * 31 + (obj.Body?.GetHashCode() ?? 0);
+            hash = hash * 31 + obj.AddPlanetRadius.GetHashCode();
+            hash = hash * 31 + obj.LineWidth.GetHashCode();
+            hash = hash * 31 + obj.Resolution.GetHashCode();
+
+            return hash;
+        }
+    }
+
 }
