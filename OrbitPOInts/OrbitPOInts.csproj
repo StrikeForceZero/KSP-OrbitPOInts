@@ -82,7 +82,7 @@
         <Compile Include="Extensions\CelestialBodyExtensions.cs" />
         <Compile Include="Extensions\ColorExtensions.cs" />
         <Compile Include="Extensions\ConfigNodeExtensions.cs" />
-        <Compile Include="Extensions\DictionaryExtensions.cs" />
+        <Compile Include="Extensions\IDictionaryExtensions.cs" />
         <Compile Include="Extensions\FloatExtensions.cs" />
         <Compile Include="Extensions\ListExtensions.cs" />
         <Compile Include="ModScenerio.cs" />
