@@ -25,7 +25,7 @@ namespace OrbitPOInts.Tests
             {
                 new CelestialBody()
                 {
-                    name = "TestBody"
+                    bodyName = "TestBody"
                 }
             };
             _celestialBodyReference = FlightGlobals.Bodies[0];
