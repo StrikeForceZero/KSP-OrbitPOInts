@@ -42,6 +42,17 @@ namespace OrbitPOInts
             }
         }
 
+#if TEST
+        public static void ResetInstance()
+        {
+            lock (Padlock)
+            {
+                _instance = null;
+            }
+        }
+#endif
+
+
         private bool _globalEnable = true;
 
         private bool _focusedBodyOnly = true;
