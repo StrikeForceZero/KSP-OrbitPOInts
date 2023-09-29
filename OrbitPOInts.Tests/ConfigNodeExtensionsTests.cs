@@ -34,7 +34,7 @@ namespace OrbitPOInts.Tests
             _configNode.SetValue("intKey", "123");
             _configNode.SetValue("uintKey", "456");
             _configNode.SetValue("doubleKey", "789.123");
-            _configNode.SetValue("floatKey", "321.123f");
+            _configNode.SetValue("floatKey", "321.123");
             _configNode.SetValue("colorKey", Color.white.Serialize());
             _configNode.SetValue("poiTypeKey", PoiType.Custom.ToString());
             _configNode.SetValue("celestialBodyKey", _celestialBodyReference.Serialize());
