@@ -26,8 +26,4 @@ jobs:
       run: msbuild /p:Configuration=Test
 
     - name: Test
-      run: |
-        # Install NUnit Console
-        apt-get install -y nunit-console
-        # Run Tests
-        nunit-console ./OrbitPOInts.Tests/bin/Test/OrbitPOInts.Tests.dll
+      run: mono ./packages/NUnit.ConsoleRunner.3.16.3/tools/nunit3-console.exe ./OrbitPOInts.Tests/bin/Test/OrbitPOInts.Tests.dll
