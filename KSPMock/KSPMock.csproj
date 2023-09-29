@@ -57,12 +57,14 @@
         <Compile Include="HighLogic.cs" />
         <Compile Include="IConfigNode.cs" />
         <Compile Include="IDiscoverable.cs" />
+        <Compile Include="IShipconstruct.cs" />
         <Compile Include="ITargetable.cs" />
         <Compile Include="KSPAddon.cs" />
         <Compile Include="KSPScenario.cs" />
         <Compile Include="MapObject.cs" />
         <Compile Include="MapView.cs" />
         <Compile Include="Orbit.cs" />
+        <Compile Include="Part.cs" />
         <Compile Include="PlanetariumCamera.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="ScaledSpace.cs" />
