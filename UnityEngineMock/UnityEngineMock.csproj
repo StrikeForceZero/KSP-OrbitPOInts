@@ -67,6 +67,7 @@
         <Compile Include="CoreEngineModule\Transform.cs" />
         <Compile Include="CoreEngineModule\Vector2.cs" />
         <Compile Include="CoreEngineModule\Vector3.cs" />
+        <Compile Include="CoreEngineModule\Vector4.cs" />
         <Compile Include="CoreEngineModule\YieldInstruction.cs" />
         <Compile Include="IMGUIModule\Event.cs" />
         <Compile Include="IMGUIModule\EventType.cs" />
