@@ -46,7 +46,7 @@
         <KSP_DATA_MANAGED>$(HOME_DIR)/.local/share/Steam/steamapps/common/Kerbal Space Program/KSP_Data/Managed</KSP_DATA_MANAGED>
     </PropertyGroup>
     <PropertyGroup>
-        <PostBuildEvent>bash "$(SolutionDir)Scripts/post_build.sh" --solution_dir="$(SolutionDir)" --config="$(Configuration)"</PostBuildEvent>
+        <PostBuildEvent>if [ "$(Configuration)" != "Test" ]; then bash "$(SolutionDir)Scripts/post_build.sh" --solution_dir="$(SolutionDir)" --config="$(Configuration)"; fi</PostBuildEvent>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="Assembly-CSharp">
