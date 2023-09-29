@@ -9,19 +9,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: mono:latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup Environment
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gnupg ca-certificates
-        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-        echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | sudo tee /etc/apt/sources.list.d/mono-official-stable.list
-        sudo apt-get update
-        sudo apt-get install -y mono-complete nuget msbuild nunit-console
+    - name: Setup NuGet
+      run: apt-get update && apt-get install -y nuget
 
     - name: Restore NuGet packages
       run: nuget restore
