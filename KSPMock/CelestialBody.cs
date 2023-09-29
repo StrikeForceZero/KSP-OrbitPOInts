@@ -11,6 +11,7 @@ namespace KSPMock
         public double minOrbitalDistance;
         public double hillSphere;
         public double atmosphereDepth;
+        public double sphereOfInfluence;
         public bool isHomeWorld;
         public string bodyName;
         public string bodyDisplayName;
