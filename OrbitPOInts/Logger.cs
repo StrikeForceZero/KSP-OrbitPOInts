@@ -14,7 +14,7 @@ namespace OrbitPOInts
 
         public static void LogDebug(string str)
         {
-            if (!Settings.LogDebugEnabled) return;
+            if (!Settings.Instance.LogDebugEnabled) return;
             Debug.Log($"{TAG}[{Time.frameCount}][DEBUG] {str}");
         }
 

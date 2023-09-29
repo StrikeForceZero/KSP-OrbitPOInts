@@ -18,22 +18,41 @@ namespace OrbitPOInts
 
     using CelestialBody = KSP_CelestialBody;
 
-    // TODO: this is lazy, come up with a better way later
-    public static class Settings
+    public class Settings
     {
         public const uint VERSION = 0;
 
-        private static bool _globalEnable = true;
+        private static Settings _instance;
+        private static readonly object Padlock = new();
 
-        private static bool _focusedBodyOnly = true;
+        private Settings()
+        {
+        }
 
-        private static bool _enableSpheres = true;
-        private static bool _alignSpheres;
-        private static bool _enableCircles = true;
+        public static Settings Instance
+        {
+            get
+            {
+                if (_instance != null) return _instance;
+                lock (Padlock)
+                {
+                    _instance ??= new Settings();
+                }
+                return _instance;
+            }
+        }
 
-        private static bool _showPoiMaxTerrainAltitudeOnAtmosphericBodies;
+        private bool _globalEnable = true;
 
-        public static bool GlobalEnable
+        private bool _focusedBodyOnly = true;
+
+        private bool _enableSpheres = true;
+        private bool _alignSpheres;
+        private bool _enableCircles = true;
+
+        private bool _showPoiMaxTerrainAltitudeOnAtmosphericBodies;
+
+        public bool GlobalEnable
         {
             get => _globalEnable;
             set
@@ -45,7 +64,7 @@ namespace OrbitPOInts
             }
         }
 
-        public static bool FocusedBodyOnly
+        public bool FocusedBodyOnly
         {
             get => _focusedBodyOnly;
             set
@@ -56,7 +75,7 @@ namespace OrbitPOInts
             }
         }
 
-        public static bool EnableSpheres
+        public bool EnableSpheres
         {
             get => _enableSpheres;
             set
@@ -69,7 +88,7 @@ namespace OrbitPOInts
             }
         }
 
-        public static bool AlignSpheres
+        public bool AlignSpheres
         {
             get => _alignSpheres;
             set
@@ -81,7 +100,7 @@ namespace OrbitPOInts
             }
         }
 
-        public static bool EnableCircles
+        public bool EnableCircles
         {
             get => _enableCircles;
             set
@@ -94,7 +113,7 @@ namespace OrbitPOInts
             }
         }
 
-        public static bool ShowPoiMaxTerrainAltitudeOnAtmosphericBodies
+        public bool ShowPoiMaxTerrainAltitudeOnAtmosphericBodies
         {
             get => _showPoiMaxTerrainAltitudeOnAtmosphericBodies;
             set
@@ -106,10 +125,10 @@ namespace OrbitPOInts
         }
 
 
-        public static bool LogDebugEnabled { get; set; }
+        public bool LogDebugEnabled { get; set; }
 
         [Obsolete]
-        public static readonly IDictionary<PoiType, Color> FakePoiColors = new Dictionary<PoiType, Color>
+        public readonly IDictionary<PoiType, Color> FakePoiColors = new Dictionary<PoiType, Color>
         {
             { PoiType.HillSphere, Color.white },
             { PoiType.SphereOfInfluence, Color.magenta },
@@ -146,30 +165,30 @@ namespace OrbitPOInts
         );
 
         // user configured
-        private static IList<POI> _configuredPois = new List<POI>();
-        public static IReadOnlyList<POI> ConfiguredPois => _configuredPois.ToList().AsReadOnly();
+        private IList<POI> _configuredPois = new List<POI>();
+        public IReadOnlyList<POI> ConfiguredPois => _configuredPois.ToList().AsReadOnly();
 
-        internal static void UpdateConfiguredPois(IList<POI> pois)
+        internal void UpdateConfiguredPois(IList<POI> pois)
         {
             _configuredPois = pois;
         }
 
-        internal static void AddPoi(POI poi)
+        internal void AddPoi(POI poi)
         {
             _configuredPois.Add(poi);
         }
 
-        public static IEnumerable<POI> GetConfiguredPoisFor(CelestialBody body)
+        public IEnumerable<POI> GetConfiguredPoisFor(CelestialBody body)
         {
             return ConfiguredPois.Where(poi => poi.Body == body);
         }
 
-        private static IEnumerable<POI> GetDefaultPoisFor(CelestialBody body)
+        private IEnumerable<POI> GetDefaultPoisFor(CelestialBody body)
         {
             return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body));
         }
 
-        public static IReadOnlyList<POI> GetCustomPoisFor(CelestialBody body)
+        public IReadOnlyList<POI> GetCustomPoisFor(CelestialBody body)
         {
             return GetConfiguredPoisFor(body) // configured body
                 .Where(poi => poi.Type == PoiType.Custom)
@@ -177,7 +196,7 @@ namespace OrbitPOInts
                 .AsReadOnly(); // priority: configured > default
         }
 
-        public static IEnumerable<POI> GetStandardPoisFor(CelestialBody body)
+        public IEnumerable<POI> GetStandardPoisFor(CelestialBody body)
         {
             return GetConfiguredPoisFor(body) // configured body
                 .Union(GetDefaultPoisFor(body), PoiCustomEqualityComparer.FilterByType)  // default
@@ -185,14 +204,14 @@ namespace OrbitPOInts
             // priority: configured > default
         }
 
-        public static POI GetStandardPoiFor(CelestialBody body, PoiType poiType)
+        public POI GetStandardPoiFor(CelestialBody body, PoiType poiType)
         {
             return GetConfiguredPoisFor(body) // configured body
                 .Concat(GetDefaultPoisFor(body)) // defaults
                 .FirstOrDefault(poi => poi.Type == poiType); // priority: configured > default
         }
         
-        public static bool GetGlobalEnableFor(CelestialBody body, PoiType poiType)
+        public bool GetGlobalEnableFor(CelestialBody body, PoiType poiType)
         {
             return GetConfiguredPoisFor(null) // configured globals
                 .Concat(GetConfiguredPoisFor(body)) // configured body

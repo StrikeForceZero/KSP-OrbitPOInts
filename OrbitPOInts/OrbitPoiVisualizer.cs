@@ -56,9 +56,9 @@ namespace OrbitPOInts
         private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
         private readonly HashSet<CircleRenderer> _drawnCircles = new();
 
-        public bool DrawSpheres = Settings.EnableSpheres;
-        public bool DrawCircles = Settings.EnableCircles;
-        public bool AlignSpheres = Settings.AlignSpheres;
+        public bool DrawSpheres = Settings.Instance.EnableSpheres;
+        public bool DrawCircles = Settings.Instance.EnableCircles;
+        public bool AlignSpheres = Settings.Instance.AlignSpheres;
 
 
         private bool _eventsRegistered;
@@ -315,7 +315,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            if (Settings.FocusedBodyOnly)
+            if (Settings.Instance.FocusedBodyOnly)
             {
                 DestroyAndRecreateBodySpheres(body);
                 DestroyAndRecreateBodyCircles(body);
@@ -444,11 +444,11 @@ namespace OrbitPOInts
             {
                 if (poiType is PoiType.None or PoiType.Custom) continue;
                 // check to make sure its not disabled in the global config
-                if (!Settings.GetGlobalEnableFor(body, poiType)) continue;
-                var poi = Settings.GetStandardPoiFor(body, poiType);
+                if (!Settings.Instance.GetGlobalEnableFor(body, poiType)) continue;
+                var poi = Settings.Instance.GetStandardPoiFor(body, poiType);
                 switch (poiType)
                 {
-                    case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
+                    case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
                     case PoiType.Atmosphere when !body.atmosphere:
                         continue;
                     default:
@@ -457,7 +457,7 @@ namespace OrbitPOInts
                 }
             }
 
-            var customPois = Settings.GetCustomPoisFor(body);
+            var customPois = Settings.Instance.GetCustomPoisFor(body);
             foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.Radius > 0))
             {
                 onCreatePoi.Invoke(customPoi);
@@ -578,8 +578,8 @@ namespace OrbitPOInts
         #region MISC
         private void CheckEnabled()
         {
-            enabled = Settings.GlobalEnable;
-            LogDebug($"[CheckEnabled] enable: {Settings.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
+            enabled = Settings.Instance.GlobalEnable;
+            LogDebug($"[CheckEnabled] enable: {Settings.Instance.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
             // check to make sure we still enabled after loading settings
             if (!enabled)
             {

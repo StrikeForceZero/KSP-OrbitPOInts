@@ -307,14 +307,14 @@ namespace OrbitPOInts.UI
             return color =>
             {
                 LogDebug($"OnColorChangedAction {Enum.GetName(typeof(PoiType), type)}: {color}");
-                Settings.FakePoiColors[type] = color;
+                Settings.Instance.FakePoiColors[type] = color;
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             };
         }
 
         private void DrawStandardPoi(CelestialBody body)
         {
-            foreach (var poi in Settings.GetStandardPoisFor(body))
+            foreach (var poi in Settings.Instance.GetStandardPoisFor(body))
             {
                 PoiContainer(poi, () =>
                     {
@@ -344,22 +344,22 @@ namespace OrbitPOInts.UI
                     GUILayout.EndHorizontal();
                 }
 
-                Settings.GlobalEnable = GUILayout.Toggle(Settings.GlobalEnable, "Enabled");
+                Settings.Instance.GlobalEnable = GUILayout.Toggle(Settings.Instance.GlobalEnable, "Enabled");
 
                 GUILayout.Space(10);
 
                 GUILayout.BeginVertical();
-                    Settings.FocusedBodyOnly = GUILayout.Toggle(Settings.FocusedBodyOnly, "Focused Body Only");
+                    Settings.Instance.FocusedBodyOnly = GUILayout.Toggle(Settings.Instance.FocusedBodyOnly, "Focused Body Only");
                     GUILayout.Label("(turning this off can have major performance impacts)");
                 GUILayout.EndVertical();
 
                 GUILayout.Space(10);
 
-                Settings.EnableSpheres = GUILayout.Toggle(Settings.EnableSpheres, "Draw Spheres");
-                Settings.AlignSpheres = GUILayout.Toggle(Settings.AlignSpheres, "Align Spheres");
-                Settings.EnableCircles = GUILayout.Toggle(Settings.EnableCircles, "Draw Circles");
+                Settings.Instance.EnableSpheres = GUILayout.Toggle(Settings.Instance.EnableSpheres, "Draw Spheres");
+                Settings.Instance.AlignSpheres = GUILayout.Toggle(Settings.Instance.AlignSpheres, "Align Spheres");
+                Settings.Instance.EnableCircles = GUILayout.Toggle(Settings.Instance.EnableCircles, "Draw Circles");
 
-                Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, "Show POI Max Terrain Altitude On Atmospheric Bodies");
+                Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, "Show POI Max Terrain Altitude On Atmospheric Bodies");
                 
                 GUILayout.Space(10);
 
@@ -377,14 +377,14 @@ namespace OrbitPOInts.UI
                         GUILayout.Space(10);
 
                         // TODO: plus sign to add more
-                        foreach (var poi in Settings.GetCustomPoisFor(body))
+                        foreach (var poi in Settings.Instance.GetCustomPoisFor(body))
                         {
                             CustomPoiGUI(poi);
                         }
 
                         if (GUILayout.Button("+"))
                         {
-                            Settings.AddPoi(POI.DefaultFrom(body, PoiType.Custom));
+                            Settings.Instance.AddPoi(POI.DefaultFrom(body, PoiType.Custom));
                         }
 
                     }
@@ -398,7 +398,7 @@ namespace OrbitPOInts.UI
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20);
 
-                Settings.LogDebugEnabled = GUILayout.Toggle(Settings.LogDebugEnabled, "Enable Debug Level Logging");
+                Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
             
             GUILayout.EndVertical();
 

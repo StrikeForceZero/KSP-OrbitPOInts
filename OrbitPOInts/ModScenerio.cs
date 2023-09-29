@@ -58,42 +58,42 @@ namespace OrbitPOInts
 
         public override void OnLoad(ConfigNode node)
         {
-            Log("[OnLoad] loading settings");
+            Log("[OnLoad] loading Settings.Instance");
             base.OnLoad(node);
             // TODO: finish
             var loadedVersion = node.GetUInt(nameof(Settings.VERSION));
             if (loadedVersion < Settings.VERSION)
             {
-                Logger.LogError("Older settings version!");
+                Logger.LogError("Older Settings.Instance version!");
                 // TODO: converters
             }
-            Settings.GlobalEnable = node.GetBool(GetKey(SettingsBool.GlobalEnable), true);
-            Settings.FocusedBodyOnly = node.GetBool(GetKey(SettingsBool.FocusedBodyOnly), true);
-            Settings.EnableSpheres = node.GetBool(GetKey(SettingsBool.EnableSpheres), true);
-            Settings.AlignSpheres = node.GetBool(GetKey(SettingsBool.AlignSpheres), false);
-            Settings.EnableCircles = node.GetBool(GetKey(SettingsBool.EnableCircles), true);
-            Settings.LogDebugEnabled = node.GetBool(GetKey(SettingsBool.LogDebugEnabled), false);
-            Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = node.GetBool(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), false);
+            Settings.Instance.GlobalEnable = node.GetBool(GetKey(SettingsBool.GlobalEnable), true);
+            Settings.Instance.FocusedBodyOnly = node.GetBool(GetKey(SettingsBool.FocusedBodyOnly), true);
+            Settings.Instance.EnableSpheres = node.GetBool(GetKey(SettingsBool.EnableSpheres), true);
+            Settings.Instance.AlignSpheres = node.GetBool(GetKey(SettingsBool.AlignSpheres), false);
+            Settings.Instance.EnableCircles = node.GetBool(GetKey(SettingsBool.EnableCircles), true);
+            Settings.Instance.LogDebugEnabled = node.GetBool(GetKey(SettingsBool.LogDebugEnabled), false);
+            Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = node.GetBool(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), false);
 
             var poiNodes  = node.GetNodes(PoiConfigKey);
-            Settings.UpdateConfiguredPois(poiNodes.Select(poiNode => PoiDTO.Load(poiNode).ToPoi()).ToList());
+            Settings.Instance.UpdateConfiguredPois(poiNodes.Select(poiNode => PoiDTO.Load(poiNode).ToPoi()).ToList());
             Log("[OnLoad] load complete");
         }
 
         public override void OnSave(ConfigNode node)
         {
-            Log("[OnSave] saving settings");
+            Log("[OnSave] saving Settings.Instance");
             base.OnSave(node);
             node.AddValue(nameof(Settings.VERSION), Settings.VERSION);
-            node.AddValue(GetKey(SettingsBool.GlobalEnable), Settings.GlobalEnable);
-            node.AddValue(GetKey(SettingsBool.FocusedBodyOnly), Settings.FocusedBodyOnly);
-            node.AddValue(GetKey(SettingsBool.EnableSpheres), Settings.EnableSpheres);
-            node.AddValue(GetKey(SettingsBool.AlignSpheres), Settings.AlignSpheres);
-            node.AddValue(GetKey(SettingsBool.EnableCircles), Settings.EnableCircles);
-            node.AddValue(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), Settings.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies);
-            node.AddValue(GetKey(SettingsBool.LogDebugEnabled), Settings.LogDebugEnabled);
+            node.AddValue(GetKey(SettingsBool.GlobalEnable), Settings.Instance.GlobalEnable);
+            node.AddValue(GetKey(SettingsBool.FocusedBodyOnly), Settings.Instance.FocusedBodyOnly);
+            node.AddValue(GetKey(SettingsBool.EnableSpheres), Settings.Instance.EnableSpheres);
+            node.AddValue(GetKey(SettingsBool.AlignSpheres), Settings.Instance.AlignSpheres);
+            node.AddValue(GetKey(SettingsBool.EnableCircles), Settings.Instance.EnableCircles);
+            node.AddValue(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies);
+            node.AddValue(GetKey(SettingsBool.LogDebugEnabled), Settings.Instance.LogDebugEnabled);
 
-            foreach (var poiConfigNode in Settings.ConfiguredPois.Select(poi => PoiDTO.FromPoi(poi).Save()))
+            foreach (var poiConfigNode in Settings.Instance.ConfiguredPois.Select(poi => PoiDTO.FromPoi(poi).Save()))
             {
                 node.AddNode(PoiConfigKey, poiConfigNode);
             }
