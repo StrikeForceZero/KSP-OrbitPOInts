@@ -1,12 +1,12 @@
-using JetBrains.Annotations;
-
 #if TEST
 using UnityEngineMock;
+using UnityEngineMock.JetBrains.Annotations;
 using System.Linq;
 using KSP_CelestialBody = KSPMock.CelestialBody;
 using KSP_FlightGlobals = KSPMock.FlightGlobals;
 #else
 using UnityEngine;
+using JetBrains.Annotations;
 using UniLinq;
 using KSP_CelestialBody = CelestialBody;
 using KSP_FlightGlobals = FlightGlobals;
@@ -16,6 +16,7 @@ namespace OrbitPOInts.Extensions
 {
     using CelestialBody = KSP_CelestialBody;
     using FlightGlobals = KSP_FlightGlobals;
+
     public static class CelestialBodyExtensions
     {
         public static bool TryDeserialize(string input, [CanBeNull] out CelestialBody result)

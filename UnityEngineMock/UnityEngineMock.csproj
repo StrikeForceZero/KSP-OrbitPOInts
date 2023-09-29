@@ -50,6 +50,7 @@
         <Compile Include="CoreEngineModule\Debug.cs" />
         <Compile Include="CoreEngineModule\Events\UnityAction.cs" />
         <Compile Include="CoreEngineModule\GameObject.cs" />
+        <Compile Include="CoreEngineModule\JetBrains\Annotations.cs" />
         <Compile Include="CoreEngineModule\LineRenderer.cs" />
         <Compile Include="CoreEngineModule\Material.cs" />
         <Compile Include="CoreEngineModule\Mathf.cs" />

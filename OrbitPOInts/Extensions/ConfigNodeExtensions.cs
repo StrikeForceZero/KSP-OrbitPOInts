@@ -1,15 +1,16 @@
 using System;
-using JetBrains.Annotations;
 using OrbitPOInts.Data;
 
 #if TEST
 using UnityEngineMock;
+using UnityEngineMock.JetBrains.Annotations;
 using KSP_CelestialBody = KSPMock.CelestialBody;
 using KSP_ConfigNode = KSPMock.ConfigNode;
 using System.Linq;
 #else
 using UniLinq;
 using UnityEngine;
+using JetBrains.Annotations;
 using KSP_CelestialBody = CelestialBody;
 using KSP_ConfigNode = ConfigNode;
 #endif
