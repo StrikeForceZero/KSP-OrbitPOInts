@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
@@ -20,10 +21,14 @@ namespace OrbitPOInts.Tests
         [SetUp]
         public void SetUp()
         {
-            foreach (var body in FlightGlobals.Bodies)
+            FlightGlobals.Bodies = new List<CelestialBody>()
             {
-                _celestialBodyReference = body;
-            }
+                new CelestialBody()
+                {
+                    name = "TestBody"
+                }
+            };
+            _celestialBodyReference = FlightGlobals.Bodies[0];
             _configNode = new ConfigNode();
             _configNode.SetValue("boolKey", "true");
             _configNode.SetValue("intKey", "123");
