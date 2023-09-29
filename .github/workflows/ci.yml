@@ -28,6 +28,6 @@ jobs:
     - name: Test
       run: |
         # Install NUnit Console
-        sudo apt-get install -y nunit-console
+        apt-get install -y nunit-console
         # Run Tests
         nunit-console ./OrbitPOInts.Tests/bin/Test/OrbitPOInts.Tests.dll
