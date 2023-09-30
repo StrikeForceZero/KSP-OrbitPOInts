@@ -187,6 +187,10 @@ namespace OrbitPOInts.Data
         public POI CloneWith(CelestialBody newBody)
         {
             var dto = PoiDTO.FromPoi(this);
+            if (dto.Type != PoiType.Custom && dto.Body)
+            {
+                dto.Radius = GetRadiusForType(newBody, dto.Type);
+            }
             dto.Color = dto.Color.Clone();
             dto.Body = newBody;
             return dto.ToPoi();
