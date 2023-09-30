@@ -118,6 +118,7 @@ namespace OrbitPOInts.Data
             get => _addPlanetRadius;
             set
             {
+                if (Type != PoiType.Custom && value) throw new ArgumentException("AddPlanetRadius can only be set to true when Type=PoiType.Custom");
                 if (_addPlanetRadius == value) return;
                 _addPlanetRadius = value;
                 OnPropertyChanged(nameof(AddPlanetRadius));
