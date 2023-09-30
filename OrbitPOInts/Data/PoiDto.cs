@@ -34,6 +34,16 @@ namespace OrbitPOInts.Data
 
         private const string ConfigNodeKey = "POI";
 
+        public PoiDTO() : base()
+        {
+
+        }
+
+        public PoiDTO(ConfigNode node) : base(node)
+        {
+
+        }
+
         public override ConfigNode Save()
         {
             var node = new ConfigNode(ConfigNodeKey);
