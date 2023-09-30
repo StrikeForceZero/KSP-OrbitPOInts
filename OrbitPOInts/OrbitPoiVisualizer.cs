@@ -5,6 +5,7 @@ using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
 using OrbitPOInts.Extensions.Unity;
+using OrbitPOInts.Helpers;
 using OrbitPOInts.Utils;
 
 #if TEST
@@ -438,7 +439,7 @@ namespace OrbitPOInts
             {
                 return;
             }
-            Lib.AlignTransformToNormal(transform, normal);
+            OrbitHelpers.AlignTransformToNormal(transform, normal);
         }
         #endregion
 

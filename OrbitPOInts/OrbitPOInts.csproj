@@ -92,6 +92,7 @@
         <Compile Include="Extensions\Unity\ColorExtensions.cs" />
         <Compile Include="Extensions\Unity\GameObjectExtensions.cs" />
         <Compile Include="Extensions\Unity\MonoBehaviourExtensions.cs" />
+        <Compile Include="Helpers\OrbitHelpers.cs" />
         <Compile Include="ModScenerio.cs" />
         <Compile Include="Extensions\DoubleExtensions.cs" />
         <Compile Include="Lib.cs" />

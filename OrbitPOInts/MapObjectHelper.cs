@@ -1,4 +1,5 @@
 using System;
+using OrbitPOInts.Helpers;
 
 #if TEST
 using UnityEngineMock;
@@ -69,7 +70,7 @@ namespace OrbitPOInts
 
         public static Vector3 GetVesselOrbitNormal(Vessel vessel)
         {
-            return vessel != null ? Lib.GetCorrectedOrbitalNormal(vessel) : Vector3.zero;
+            return vessel != null ? OrbitHelpers.GetCorrectedOrbitalNormal(vessel) : Vector3.zero;
         }
     }
 }
