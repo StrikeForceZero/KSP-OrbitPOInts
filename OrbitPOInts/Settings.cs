@@ -199,12 +199,10 @@ namespace OrbitPOInts
             return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body));
         }
 
-        public IReadOnlyList<POI> GetCustomPoisFor(CelestialBody body)
+        public IEnumerable<POI> GetCustomPoisFor(CelestialBody body)
         {
             return GetConfiguredPoisFor(body) // configured body
-                .Where(poi => poi.Type == PoiType.Custom)
-                .ToList()
-                .AsReadOnly(); // priority: configured > default
+                .Where(poi => poi.Type == PoiType.Custom); // priority: configured only
         }
 
         public IEnumerable<POI> GetStandardPoisFor(CelestialBody body)
