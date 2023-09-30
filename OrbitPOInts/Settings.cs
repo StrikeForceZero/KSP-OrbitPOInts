@@ -171,7 +171,8 @@ namespace OrbitPOInts
 
         internal void UpdateConfiguredPois(IList<POI> pois)
         {
-            _configuredPois = pois;
+            // we need to make sure we weren't passed a ReadOnly or fixed-size collection
+            _configuredPois = pois != null ? new List<POI>(pois) : new List<POI>();
         }
 
         internal bool HasConfiguredPoi(POI poi)
