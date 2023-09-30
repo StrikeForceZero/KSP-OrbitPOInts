@@ -7,8 +7,8 @@ namespace KSPMock
     public class ConfigNode
     {
         public string name;
-        private readonly Dictionary<string, string> _values = new();
-        private readonly Dictionary<string, List<ConfigNode>> _nodes = new();
+        protected readonly Dictionary<string, string> _values = new();
+        protected readonly Dictionary<string, List<ConfigNode>> _nodes = new();
 
         public ConfigNode()
         {
@@ -60,6 +60,23 @@ namespace KSPMock
         public ConfigNode[] GetNodes(string key)
         {
             return _nodes.TryGetValue(key, out var nodeList) ? nodeList.ToArray() : Array.Empty<ConfigNode>();
+        }
+
+        // does not exist, just for tests
+        [Obsolete]
+        public IReadOnlyDictionary<string, string> __GetValueDictionary()
+        {
+            return this._values;
+        }
+
+        // does not exist, just for tests
+        [Obsolete]
+        public IReadOnlyDictionary<string, IReadOnlyList<ConfigNode>> __GetNodeDictionary()
+        {
+            return this._nodes.ToDictionary(
+                kvp => kvp.Key,
+                kvp => (IReadOnlyList<ConfigNode>)kvp.Value
+            );
         }
     }
 }
