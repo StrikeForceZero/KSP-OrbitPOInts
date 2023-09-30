@@ -151,6 +151,8 @@ namespace OrbitPOInts.Data
             hash = hash * 31 + obj.Radius.GetHashCode();
             hash = hash * 31 + obj.Color.GetHashCode();
             hash = hash * 31 + obj.Type.GetHashCode();
+            // CelestialBody will probably outlive the lifetime of the mod
+            // ReSharper disable once Unity.NoNullPropagation
             hash = hash * 31 + (obj.Body?.GetHashCode() ?? 0);
             hash = hash * 31 + obj.AddPlanetRadius.GetHashCode();
             hash = hash * 31 + obj.LineWidth.GetHashCode();
@@ -211,6 +213,8 @@ namespace OrbitPOInts.Data
             }
             // hash = hash * 31 + obj.Color.GetHashCode();
             hash = hash * 31 + obj.Type.GetHashCode();
+            // CelestialBody will probably outlive the lifetime of the mod
+            // ReSharper disable once Unity.NoNullPropagation
             hash = hash * 31 + (obj.Body?.GetHashCode() ?? 0);
             // hash = hash * 31 + obj.AddPlanetRadius.GetHashCode();
             // hash = hash * 31 + obj.LineWidth.GetHashCode();
