@@ -298,16 +298,16 @@ namespace OrbitPOInts.UI
             GUILayout.BeginHorizontal();
             children.Invoke();
             GUILayout.FlexibleSpace();
-            CustomColorButton(poi.Label, poi.Color, color => poi.Color = color);
+            CustomColorButton(poi.Label, poi.Color, AssignPoiColorFactory(poi));
             GUILayout.EndHorizontal();
         }
 
-        private OnColorChangedAction AssignPoiColorFactory(PoiType type)
+        private OnColorChangedAction AssignPoiColorFactory(POI poi)
         {
             return color =>
             {
-                LogDebug($"OnColorChangedAction {Enum.GetName(typeof(PoiType), type)}: {color}");
-                Settings.Instance.FakePoiColors[type] = color;
+                LogDebug($"OnColorChangedAction body:{poi.Body.Serialize()}, type:{Enum.GetName(typeof(PoiType), poi.Type)}, color:{color.Serialize()}");
+                poi.Color = color;
                 OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             };
         }
