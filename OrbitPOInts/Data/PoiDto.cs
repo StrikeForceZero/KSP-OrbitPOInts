@@ -124,19 +124,21 @@ namespace OrbitPOInts.Data
 
         public static bool StaticEquals(PoiDTO x, PoiDTO y)
         {
-            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, y)) return true; // Fast reference equality check.
 
-            if (x == null || y == null) return false;
+            if (x == null || y == null) return false; // Quick null check.
 
-            return x.Label == y.Label &&
+            // The conditions are ordered by the likelihood of them being different and
+            // their computational cost, from least to most expensive.
+            return x.Type == y.Type && // Simple enum comparison, most likely to be different.
+                   ReferenceEquals(x.Body, y.Body) && // Reference comparison, likely to be different.
+                   x.Radius.AreRelativelyEqual(y.Radius) && // ~7 operations, likely to be different.
                    x.Enabled == y.Enabled &&
-                   x.Radius.AreRelativelyEqual(y.Radius) &&
-                   x.Color.Equals(y.Color) &&
-                   x.Type == y.Type &&
-                   ReferenceEquals(x.Body, y.Body) &&
+                   x.Label == y.Label &&
+                   x.Color.Equals(y.Color) && // 4 float comparisons.
                    x.AddPlanetRadius == y.AddPlanetRadius &&
-                   x.LineWidth.AreRelativelyEqual(y.LineWidth) &&
-                   x.Resolution == y.Resolution;
+                   x.Resolution == y.Resolution &&
+                   x.LineWidth.AreRelativelyEqual(y.LineWidth); // ~7 operations.
         }
 
         public static int StaticGetHashCode(PoiDTO obj)
