@@ -72,6 +72,8 @@
     <ItemGroup>
         <Compile Include="ConfigNodeExtensionsTests.cs" />
         <Compile Include="CustomAsserts\CollectionAssert.cs" />
+        <Compile Include="Data\PoiDtoTests.cs" />
+        <Compile Include="Data\PoiTests.cs" />
         <Compile Include="Mocks\MockCelestialBody.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
