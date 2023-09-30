@@ -1,31 +1,19 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-
 #if TEST
 using UnityEngineMock;
 using KSP_ConfigNode = KSPMock.ConfigNode;
-using System.Linq;
+
 #else
 using UniLinq;
 using UnityEngine;
 using KSP_ConfigNode = ConfigNode;
 #endif
 
-namespace OrbitPOInts.Data
+namespace OrbitPOInts.Data.ConfigNode
 {
     using ConfigNode = KSP_ConfigNode;
-
-    [AttributeUsage(AttributeTargets.Property)]
-    public class DeserializationMethodAttribute : Attribute
-    {
-        public string MethodName { get; }
-
-        public DeserializationMethodAttribute(string methodName)
-        {
-            MethodName = methodName;
-        }
-    }
 
     public abstract class ConfigNodeDto<T> where T : ConfigNodeDto<T>, new()
     {

@@ -4,13 +4,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
-
+using UnityEngineMock.JetBrains.Annotations;
 #if TEST
 using UnityEngineMock;
 using KSP_ConfigNode = KSPMock.ConfigNode;
 using KSP_CelestialBody = KSPMock.CelestialBody;
-using UnityEngineMock.JetBrains.Annotations;
-using System.Linq;
+
 #else
 using UniLinq;
 using UnityEngine;
@@ -19,7 +18,7 @@ using KSP_CelestialBody = CelestialBody;
 using JetBrains.Annotations;
 #endif
 
-namespace OrbitPOInts.Data
+namespace OrbitPOInts.Data.ConfigNode
 {
     using ConfigNode = KSP_ConfigNode;
     using CelestialBody = KSP_CelestialBody;
