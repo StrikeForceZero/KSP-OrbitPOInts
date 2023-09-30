@@ -136,6 +136,33 @@ namespace OrbitPOInts.Tests
         }
 
         [Test]
+        public void ConfiguredPois_GetGlobalEnableFor_Default_ReturnsCorrectValue()
+        {
+            Assert.IsTrue(Settings.Instance.GetGlobalEnableFor(testBody, PoiType.Atmosphere));
+        }
+
+        [Test]
+        public void ConfiguredPois_GetGlobalEnableFor_BodyType_ReturnsCorrectValue()
+        {
+            Assert.IsTrue(Settings.Instance.GetGlobalEnableFor(testBody, PoiType.Atmosphere));
+            var pois = ConfiguredPoiSetup(
+                POI.DefaultFrom(PoiType.Atmosphere)
+            );
+            pois.First().Enabled = false;
+            Assert.IsFalse(Settings.Instance.GetGlobalEnableFor(testBody, PoiType.Atmosphere));
+        }
+
+        [Test]
+        public void ConfiguredPois_GetGlobalEnableFor_GlobalAndBodyType_ReturnsCorrectValue()
+        {
+            ConfiguredPoiSetup(
+                new POI(PoiType.Atmosphere) { Enabled = false},
+                new POI(PoiType.Atmosphere, testBody) { Enabled = true}
+            );
+            Assert.IsFalse(Settings.Instance.GetGlobalEnableFor(testBody, PoiType.Atmosphere));
+        }
+
+        [Test]
         public void ConfiguredPois_GetStandardPoisFor_Body_ReturnsCorrectValue()
         {
             var newPois = ConfiguredPoiSetup(
