@@ -452,6 +452,7 @@ namespace OrbitPOInts
                     case PoiType.Atmosphere when !body.atmosphere:
                         continue;
                     default:
+                        LogDebug($"[CreatePoisForBody] {poi.Body.bodyName} {poi.Type} {poi.RadiusForRendering()}");
                         onCreatePoi.Invoke(poi);
                         break;
                 }
@@ -460,6 +461,7 @@ namespace OrbitPOInts
             var customPois = Settings.Instance.GetCustomPoisFor(body);
             foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.RadiusForRendering() > 0))
             {
+                LogDebug($"[CreatePoisForBody] {customPoi.Body.bodyName} {customPoi.Type} {customPoi.RadiusForRendering()}");
                 onCreatePoi.Invoke(customPoi);
             }
         }
