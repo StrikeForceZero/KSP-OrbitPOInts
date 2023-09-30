@@ -187,6 +187,13 @@ namespace OrbitPOInts.Data.POI
             return poi;
         }
 
+        public POI Clone()
+        {
+            var dto = PoiDTO.FromPoi(this);
+            dto.Color = dto.Color.Clone();
+            return dto.ToPoi();
+        }
+
         public POI CloneWith(CelestialBody newBody)
         {
             var dto = PoiDTO.FromPoi(this);
