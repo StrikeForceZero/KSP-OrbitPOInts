@@ -32,6 +32,8 @@ namespace OrbitPOInts
     using GameScenes = KSP_GameScenes;
     using ConfigNode = KSP_ConfigNode;
 
+    using Logger = Utils.Logger;
+
     [KSPScenario(ScenarioCreationOptions.AddToAllGames, GameScenes.SPACECENTER, GameScenes.FLIGHT, GameScenes.TRACKSTATION)]
     public class ModScenario : ScenarioModule
     {

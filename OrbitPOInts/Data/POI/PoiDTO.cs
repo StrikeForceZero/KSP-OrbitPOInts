@@ -1,8 +1,25 @@
+using OrbitPOInts.Data.ConfigNode;
 using OrbitPOInts.Extensions;
+using OrbitPOInts.Extensions.KSP;
+using OrbitPOInts.Extensions.Unity;
+
+#if TEST
 using UnityEngineMock;
+using KSP_ConfigNode = KSPMock.ConfigNode;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using System.Linq;
+#else
+using UniLinq;
+using UnityEngine;
+using KSP_ConfigNode = ConfigNode;
+using KSP_CelestialBody = CelestialBody;
+#endif
+
 
 namespace OrbitPOInts.Data.POI
 {
+    using CelestialBody = KSP_CelestialBody;
+    using ConfigNode = KSP_ConfigNode;
     public sealed class PoiDTO : ConfigNodeDto<PoiDTO>
     {
         public string Label { get; set; }
@@ -10,7 +27,7 @@ namespace OrbitPOInts.Data.POI
         public double Radius { get; set; }
         public Color Color { get; set; }
         public PoiType Type { get; set; }
-        public KSPMock.CelestialBody Body { get; set; }
+        public CelestialBody Body { get; set; }
         public bool AddPlanetRadius { get; set; }
         public float LineWidth { get; set; }
         public int Resolution { get; set; }
@@ -22,14 +39,14 @@ namespace OrbitPOInts.Data.POI
 
         }
 
-        public PoiDTO(KSPMock.ConfigNode node) : base(node)
+        public PoiDTO(ConfigNode node) : base(node)
         {
 
         }
 
-        public override KSPMock.ConfigNode Save()
+        public override ConfigNode Save()
         {
-            var node = new KSPMock.ConfigNode(ConfigNodeKey);
+            var node = new ConfigNode(ConfigNodeKey);
             AddValue(node, () => Label);
             AddValue(node, () => Enabled);
             AddValue(node, () => Radius);
@@ -42,7 +59,7 @@ namespace OrbitPOInts.Data.POI
             return node;
         }
 
-        protected override void Hydrate(KSPMock.ConfigNode configNode)
+        protected override void Hydrate(ConfigNode configNode)
         {
             ConfigNodeValueExtractor.LoadNamedValueFromNode(configNode, () => Label, this);
             ConfigNodeValueExtractor.LoadNamedValueFromNode(configNode, () => Enabled, this);

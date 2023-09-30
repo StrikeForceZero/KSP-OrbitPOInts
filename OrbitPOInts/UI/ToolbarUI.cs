@@ -45,6 +45,8 @@ namespace OrbitPOInts.UI
     using FlightGlobals = KSP_FlightGlobals;
     using MapView = KSP_MapView;
 
+    using Logger = Utils.Logger;
+
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class ToolbarUI : MonoBehaviour
     {

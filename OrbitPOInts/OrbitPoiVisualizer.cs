@@ -52,6 +52,8 @@ namespace OrbitPOInts
     using GameScenes = KSP_GameScenes;
     using ScaledSpace = KSP_ScaledSpace;
 
+    using Logger = Utils.Logger;
+
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class OrbitPoiVisualizer : MonoBehaviour
     {

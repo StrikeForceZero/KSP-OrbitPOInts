@@ -1,21 +1,22 @@
-
 using System;
-using UnityEngineMock.JetBrains.Annotations;
+
 #if TEST
 using KSP_CelestialBody = KSPMock.CelestialBody;
 using KSP_FlightGlobals = KSPMock.FlightGlobals;
+using JB_Annotations = UnityEngineMock.JetBrains.Annotations;
 #else
 using UnityEngine;
-using JetBrains.Annotations;
 using UniLinq;
 using KSP_CelestialBody = CelestialBody;
 using KSP_FlightGlobals = FlightGlobals;
+using JB_Annotations = JetBrains.Annotations;
 #endif
 
 namespace OrbitPOInts.Extensions.KSP
 {
     using CelestialBody = KSP_CelestialBody;
     using FlightGlobals = KSP_FlightGlobals;
+    using CanBeNull = JB_Annotations.CanBeNullAttribute;
 
     public static class CelestialBodyExtensions
     {

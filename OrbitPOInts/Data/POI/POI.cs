@@ -1,10 +1,27 @@
 using System;
 using System.ComponentModel;
 using OrbitPOInts.Extensions;
+using OrbitPOInts.Extensions.KSP;
+using OrbitPOInts.Extensions.Unity;
+
+#if TEST
 using UnityEngineMock;
+using KSP_ConfigNode = KSPMock.ConfigNode;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using System.Linq;
+#else
+using UniLinq;
+using UnityEngine;
+using KSP_ConfigNode = ConfigNode;
+using KSP_CelestialBody = CelestialBody;
+#endif
+
 
 namespace OrbitPOInts.Data.POI
 {
+    using CelestialBody = KSP_CelestialBody;
+    using ConfigNode = KSP_ConfigNode;
+
     public class POI : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -13,7 +30,7 @@ namespace OrbitPOInts.Data.POI
         private bool _enabled;
         private double _radius;
         private Color _color;
-        private KSPMock.CelestialBody _body;
+        private CelestialBody _body;
         private bool _addPlanetRadius;
         private float _lineWidth;
         private int _resolution;
@@ -78,7 +95,7 @@ namespace OrbitPOInts.Data.POI
             }
         }
 
-        public KSPMock.CelestialBody Body
+        public CelestialBody Body
         {
             get => _body;
             // Body is private set because there’s no current use case to change the Body after creation.
@@ -132,7 +149,7 @@ namespace OrbitPOInts.Data.POI
             }
         }
 
-        public POI(PoiType type, KSPMock.CelestialBody body = null)
+        public POI(PoiType type, CelestialBody body = null)
         {
             Type = type;
             Body = body;
@@ -146,7 +163,7 @@ namespace OrbitPOInts.Data.POI
         public double RadiusForRendering() => AddPlanetRadius ? Radius + Body.Radius : Radius;
 
         // TODO: need to be careful if the type is Custom it will throw
-        public double DefaultRadius(KSPMock.CelestialBody body)
+        public double DefaultRadius(CelestialBody body)
         {
             return GetRadiusForType(body, Type);
         }
@@ -163,14 +180,14 @@ namespace OrbitPOInts.Data.POI
             };
         }
 
-        public static POI DefaultFrom(KSPMock.CelestialBody body, PoiType type)
+        public static POI DefaultFrom(CelestialBody body, PoiType type)
         {
             var poi = DefaultFrom(type);
             poi.Body = body;
             return poi;
         }
 
-        public POI CloneWith(KSPMock.CelestialBody newBody)
+        public POI CloneWith(CelestialBody newBody)
         {
             var dto = PoiDTO.FromPoi(this);
             if (dto.Type is not PoiType.None and not PoiType.Custom)
@@ -182,7 +199,7 @@ namespace OrbitPOInts.Data.POI
             return dto.ToPoi();
         }
 
-        public static double GetRadiusForType(KSPMock.CelestialBody body, PoiType type)
+        public static double GetRadiusForType(CelestialBody body, PoiType type)
         {
             return type switch
             {
@@ -191,7 +208,7 @@ namespace OrbitPOInts.Data.POI
                 PoiType.SphereOfInfluence => body.atmosphereDepth + body.Radius,
                 PoiType.Atmosphere => body.atmosphereDepth + body.Radius,
                 PoiType.MinimumOrbit => body.minOrbitalDistance + body.Radius,
-                PoiType.MaxTerrainAltitude => Lib.GetApproxTerrainMaxHeight(body),
+                PoiType.MaxTerrainAltitude => body.GetApproxTerrainMaxHeight(),
                 PoiType.Custom => throw new NotSupportedException("Custom does not have a predefined radius."),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };

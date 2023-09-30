@@ -7,24 +7,25 @@ using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
 using OrbitPOInts.Extensions.Unity;
-using UnityEngineMock.JetBrains.Annotations;
+
 #if TEST
 using UnityEngineMock;
 using KSP_ConfigNode = KSPMock.ConfigNode;
 using KSP_CelestialBody = KSPMock.CelestialBody;
-
+using JB_Annotations = UnityEngineMock.JetBrains.Annotations;
 #else
 using UniLinq;
 using UnityEngine;
 using KSP_ConfigNode = ConfigNode;
 using KSP_CelestialBody = CelestialBody;
-using JetBrains.Annotations;
+using JB_Annotations = JetBrains.Annotations;
 #endif
 
 namespace OrbitPOInts.Data.ConfigNode
 {
     using ConfigNode = KSP_ConfigNode;
     using CelestialBody = KSP_CelestialBody;
+    using CanBeNull = JB_Annotations.CanBeNullAttribute;
 
     public static class ConfigNodeValueExtractor
     {
