@@ -50,9 +50,9 @@ namespace OrbitPOInts.Data
             AddValue(node, () => Label);
             AddValue(node, () => Enabled);
             AddValue(node, () => Radius);
-            AddValue(node, () => Color);
+            AddValue(node, () => Color, color => color.Serialize());
             AddValue(node, () => Type);
-            AddValue(node, () => Body);
+            AddValue(node, () => Body, body => body.Serialize());
             AddValue(node, () => AddPlanetRadius);
             AddValue(node, () => LineWidth);
             AddValue(node, () => Resolution);
