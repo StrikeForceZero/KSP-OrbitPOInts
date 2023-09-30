@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace OrbitPOInts.Extensions
 {
-    public static class ListExtensions
+    public static class EnumerableExtensions
     {
         public static IEnumerable<(int Index, T Value)> WithIndex<T>(this List<T> list)
         {
