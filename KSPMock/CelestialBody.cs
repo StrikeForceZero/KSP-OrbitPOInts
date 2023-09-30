@@ -22,7 +22,7 @@ namespace KSPMock
 
         public MapObject MapObject;
 
-        public double TerrainAltitude(double latitude, double longitude, bool allowNegative)
+        public virtual double TerrainAltitude(double latitude, double longitude, bool allowNegative)
         {
             throw new NotImplementedException();
         }
