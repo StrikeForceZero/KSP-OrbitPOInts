@@ -173,7 +173,8 @@ namespace OrbitPOInts.Data
             {
                 Color = color,
                 Enabled = GetDefaultEnabledForType(type),
-                Resolution = GetDefaultResolutionForType(type)
+                Resolution = GetDefaultResolutionForType(type),
+                LineWidth = 1f,
             };
         }
 
