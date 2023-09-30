@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using KSPMock;
 using Moq;
@@ -132,13 +133,184 @@ namespace OrbitPOInts.Tests
         }
 
         [Test]
-        public void ConfiguredPois_AddConfiguredPoi_IsSettingCorrectValue()
+        public void ConfiguredPois_AddConfiguredPoi_EmptyState_Insert_IsSettingCorrectValue()
         {
             var newPoi = POI.DefaultFrom(PoiType.Custom);
-            Settings.Instance.AddConfiguredPoi(newPoi);
+            // ReSharper disable once RedundantArgumentDefaultValue
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.Insert);
             CustomAsserts.CollectionAssert.HaveSameElements(
                 Settings.Instance.ConfiguredPois,
                 new []{ newPoi },
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_AddConfiguredPoi_EmptyState_ReplaceFirst_IsSettingCorrectValue()
+        {
+            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.ReplaceFirst);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                new []{ newPoi },
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_AddConfiguredPoi_EmptyState_ReplaceAll_IsSettingCorrectValue()
+        {
+            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.ReplaceAll);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                new []{ newPoi },
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_AddConfiguredPoi_ExistingNotSame_Insert_IsSettingCorrectValue()
+        {
+            var existingPoi = POI.DefaultFrom(PoiType.Atmosphere);
+            Settings.Instance.UpdateConfiguredPois(
+                new []
+                {
+                    existingPoi,
+                }
+            );
+            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            // ReSharper disable once RedundantArgumentDefaultValue
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.Insert);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                new []{ existingPoi, newPoi },
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_AddConfiguredPoi_ExistingNotSame_ReplaceFirst_IsSettingCorrectValue()
+        {
+            var existingPoi = POI.DefaultFrom(PoiType.Atmosphere);
+            Settings.Instance.UpdateConfiguredPois(
+                new []
+                {
+                    existingPoi,
+                }
+            );
+            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            // ReSharper disable once RedundantArgumentDefaultValue
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.ReplaceFirst);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                new []{ existingPoi, newPoi },
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_AddConfiguredPoi_ExistingNotSame_ReplaceAll_IsSettingCorrectValue()
+        {
+            var existingPoi = POI.DefaultFrom(PoiType.Atmosphere);
+            Settings.Instance.UpdateConfiguredPois(
+                new []
+                {
+                    existingPoi,
+                }
+            );
+            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            // ReSharper disable once RedundantArgumentDefaultValue
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.ReplaceAll);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                new []{ existingPoi, newPoi },
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+                [Test]
+        public void ConfiguredPois_AddConfiguredPoi_ExistingIsSame_Insert_IsSettingCorrectValue()
+        {
+            var existingPoi = POI.DefaultFrom(PoiType.Atmosphere);
+            var existingPoi2 = POI.DefaultFrom(PoiType.Custom);
+            var existingPoi3 = POI.DefaultFrom(PoiType.Custom);
+            Settings.Instance.UpdateConfiguredPois(
+                new []
+                {
+                    existingPoi,
+                    existingPoi2,
+                    existingPoi3,
+                }
+            );
+            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            // ReSharper disable once RedundantArgumentDefaultValue
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.Insert);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                new []{ existingPoi, existingPoi2, existingPoi3, newPoi },
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_AddConfiguredPoi_ExistingIsSame_ReplaceFirst_IsSettingCorrectValue()
+        {
+            var existingPoi = POI.DefaultFrom(PoiType.Atmosphere);
+            var existingPoi2 = POI.DefaultFrom(PoiType.Custom);
+            var existingPoi3 = POI.DefaultFrom(PoiType.Custom);
+            existingPoi2.Radius = 2;
+            existingPoi3.Radius = 3;
+            Settings.Instance.UpdateConfiguredPois(
+                new []
+                {
+                    existingPoi,
+                    existingPoi2,
+                    existingPoi3,
+                }
+            );
+            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            newPoi.Radius = 1;
+            // ReSharper disable once RedundantArgumentDefaultValue
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.ReplaceFirst);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                new []{ existingPoi, existingPoi3, newPoi },
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_AddConfiguredPoi_ExistingIsSame_ReplaceAll_IsSettingCorrectValue()
+        {
+            var existingPoi = POI.DefaultFrom(PoiType.Atmosphere);
+            var existingPoi2 = POI.DefaultFrom(PoiType.Custom);
+            var existingPoi3 = POI.DefaultFrom(PoiType.Custom);
+            existingPoi2.Radius = 2;
+            existingPoi3.Radius = 3;
+            Settings.Instance.UpdateConfiguredPois(
+                new []
+                {
+                    existingPoi,
+                    existingPoi2,
+                    existingPoi3,
+                }
+            );
+            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            newPoi.Radius = 1;
+            // ReSharper disable once RedundantArgumentDefaultValue
+            Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.ReplaceAll);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                new []{ existingPoi, newPoi },
                 PoiSerializer,
                 new PoiComparer()
             );
