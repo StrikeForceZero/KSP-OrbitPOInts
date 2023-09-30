@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
 
@@ -19,15 +21,57 @@ namespace OrbitPOInts
 
     using CelestialBody = KSP_CelestialBody;
 
-    public class Settings
+    public interface INotifyConfiguredPoisChanged
+    {
+        event NotifyCollectionChangedEventHandler ConfiguredPoisChanged;
+    }
+
+    public class Settings : INotifyPropertyChanged, INotifyConfiguredPoisChanged, IDisposable
     {
         public const uint VERSION = 0;
 
         private static Settings _instance;
         private static readonly object Padlock = new();
 
+        public static event Action<Settings> InstanceCreated;
+        public static event Action<Settings> InstanceDestroyed;
+        public event PropertyChangedEventHandler PropertyChanged;
+        public event NotifyCollectionChangedEventHandler ConfiguredPoisChanged;
+
         private Settings()
         {
+            _configuredPois.CollectionChanged += NotifyCollectionChanged;
+            InstanceCreated?.Invoke(this);
+        }
+
+        ~Settings()
+        {
+            Dispose();
+        }
+
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            if (_disposed) return;
+
+            _configuredPois.CollectionChanged -= NotifyCollectionChanged;
+            InstanceDestroyed?.Invoke(this);
+            InstanceDestroyed = null;
+
+            _disposed = true;
+        }
+
+        public bool IsDisposed => _disposed;
+
+        protected virtual void NotifyCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+        {
+            OnPropertyChanged(nameof(ConfiguredPois));
+            ConfiguredPoisChanged?.Invoke(sender, args);
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public static Settings Instance
@@ -44,6 +88,7 @@ namespace OrbitPOInts
         }
 
 #if TEST
+        // only for testing as we don't cleanup or notify
         public static void ResetInstance()
         {
             lock (Padlock)
@@ -52,6 +97,18 @@ namespace OrbitPOInts
             }
         }
 #endif
+        // TODO: might be better to just copy the properties from a new object?
+        internal static void ResetToDefaults()
+        {
+            lock (Padlock)
+            {
+                if (_instance == null) return;
+                var oldInstance = _instance;
+                _instance.ClearConfiguredPois();
+                _instance = null;
+                oldInstance.Dispose();
+            }
+        }
 
 
         private bool _globalEnable = true;
@@ -71,8 +128,7 @@ namespace OrbitPOInts
             {
                 if (_globalEnable == value) return;
                 _globalEnable = value;
-                OrbitPoiVisualizer.Instance.enabled = value;
-                if (OrbitPoiVisualizer.Instance.enabled) OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+                OnPropertyChanged(nameof(GlobalEnable));
             }
         }
 
@@ -83,7 +139,7 @@ namespace OrbitPOInts
             {
                 if (_focusedBodyOnly == value) return;
                 _focusedBodyOnly = value;
-                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+                OnPropertyChanged(nameof(FocusedBodyOnly));
             }
         }
 
@@ -94,9 +150,7 @@ namespace OrbitPOInts
             {
                 if (_enableSpheres == value) return;
                 _enableSpheres = value;
-                OrbitPoiVisualizer.Instance.DrawSpheres = value;
-                OrbitPoiVisualizer.Instance.PurgeSpheres();
-                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+                OnPropertyChanged(nameof(EnableSpheres));
             }
         }
 
@@ -107,8 +161,7 @@ namespace OrbitPOInts
             {
                 if (_alignSpheres == value) return;
                 _alignSpheres = value;
-                OrbitPoiVisualizer.Instance.AlignSpheres = value;
-                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+                OnPropertyChanged(nameof(AlignSpheres));
             }
         }
 
@@ -119,9 +172,7 @@ namespace OrbitPOInts
             {
                 if (_enableCircles == value) return;
                 _enableCircles = value;
-                OrbitPoiVisualizer.Instance.DrawCircles = value;
-                OrbitPoiVisualizer.Instance.PurgeCircles();
-                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+                OnPropertyChanged(nameof(EnableCircles));
             }
         }
 
@@ -132,7 +183,7 @@ namespace OrbitPOInts
             {
                 if (_showPoiMaxTerrainAltitudeOnAtmosphericBodies == value) return;
                 _showPoiMaxTerrainAltitudeOnAtmosphericBodies = value;
-                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
+                OnPropertyChanged(nameof(ShowPoiMaxTerrainAltitudeOnAtmosphericBodies));
             }
         }
 
@@ -166,18 +217,33 @@ namespace OrbitPOInts
         );
 
         // user configured
-        private IList<POI> _configuredPois = new List<POI>();
+        private ObservableCollection<POI> _configuredPois = new();
         public IReadOnlyList<POI> ConfiguredPois => _configuredPois.ToList().AsReadOnly();
 
-        internal void UpdateConfiguredPois(IList<POI> pois)
+        internal void ClearConfiguredPois(IEnumerable<POI> pois = null)
         {
-            // we need to make sure we weren't passed a ReadOnly or fixed-size collection
-            _configuredPois = pois != null ? new List<POI>(pois) : new List<POI>();
+            pois ??= Enumerable.Empty<POI>();
+            var oldItems = Enumerable.Empty<POI>();
+
+            if(_configuredPois != null)
+            {
+                _configuredPois.CollectionChanged -= NotifyCollectionChanged;
+                oldItems = _configuredPois.ToList();
+            }
+
+            _configuredPois = new ObservableCollection<POI>(pois);
+            _configuredPois.CollectionChanged += NotifyCollectionChanged;
+            // we are opting to combine Reset + Add into Replace to prevent multiple events for the same action overall
+            NotifyCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, pois, oldItems, 0));
+        }
+
+        internal void UpdateConfiguredPois(IEnumerable<POI> pois)
+        {
+            ClearConfiguredPois(pois);
         }
 
         internal bool HasConfiguredPoi(POI poi)
         {
-            var b = poi;
             return ConfiguredPois.Contains(poi, new PoiSameTargetComparer());
         }
 

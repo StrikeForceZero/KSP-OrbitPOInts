@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
@@ -59,14 +61,15 @@ namespace OrbitPOInts
     {
         public static OrbitPoiVisualizer Instance { get; private set; }
 
+        private Settings _settings;
+
         private readonly Dictionary<string, GameObject> _bodyComponentHolders = new();
         private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
         private readonly HashSet<CircleRenderer> _drawnCircles = new();
 
-        public bool DrawSpheres = Settings.Instance.EnableSpheres;
-        public bool DrawCircles = Settings.Instance.EnableCircles;
-        public bool AlignSpheres = Settings.Instance.AlignSpheres;
-
+        public bool DrawSpheres;
+        public bool DrawCircles;
+        public bool AlignSpheres;
 
         private bool _eventsRegistered;
         private static bool _sceneLoading;
@@ -141,6 +144,7 @@ namespace OrbitPOInts
         private void OnDisable()
         {
             LogDebug("OnDisable");
+            UnregisterSettings();
             RegisterEvents(false);
             PurgeAll();
         }
@@ -148,6 +152,7 @@ namespace OrbitPOInts
         private void OnDestroy()
         {
             LogDebug("OnDestroy");
+            UnregisterSettings();
             RegisterEvents(false);
             PurgeAll();
         }
@@ -206,9 +211,59 @@ namespace OrbitPOInts
             UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
         }
 
+        private void UnregisterSettings()
+        {
+            if (_settings == null) return;
+            Settings.InstanceDestroyed -= OnSettingsDestroyed;
+            Settings.InstanceCreated -= OnSettingsCreated;
+            _settings.PropertyChanged -= OnPropertyChanged;
+            _settings.ConfiguredPoisChanged -= OnConfiguredPoisChanged;
+            _settings = null;
+        }
+
+        private void RegisterSettings()
+        {
+            if (_settings is { IsDisposed: false }) return;
+            Settings.InstanceDestroyed -= OnSettingsDestroyed;
+            Settings.InstanceCreated -= OnSettingsCreated;
+            _settings = Settings.Instance;
+            Settings.InstanceDestroyed += OnSettingsDestroyed;
+            Settings.InstanceCreated += OnSettingsCreated;
+            _settings.PropertyChanged += OnPropertyChanged;
+            // remove and reregister at the end because we want to make sure we at least got the event that the collection was reset
+            _settings.ConfiguredPoisChanged -= OnConfiguredPoisChanged;
+            _settings.ConfiguredPoisChanged += OnConfiguredPoisChanged;
+        }
+
         #endregion
 
         #region EventHandlers
+
+
+        private void OnSettingsDestroyed(Settings settings)
+        {
+            UnregisterSettings();
+        }
+        private void OnSettingsCreated(Settings settings)
+        {
+            RegisterSettings();
+            UpdatePropsFromSettings();
+            // maybe
+            // CurrentTargetRefresh();
+        }
+
+        private void OnPropertyChanged(object settings, PropertyChangedEventArgs args)
+        {
+            if (args.PropertyName == nameof(Settings.ConfiguredPois)) return;
+
+            UpdatePropsFromSettings();
+            CurrentTargetRefresh();
+        }
+
+        private void OnConfiguredPoisChanged(object settings, NotifyCollectionChangedEventArgs args)
+        {
+            CurrentTargetRefresh();
+        }
 
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
@@ -322,7 +377,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            if (Settings.Instance.FocusedBodyOnly)
+            if (_settings.FocusedBodyOnly)
             {
                 DestroyAndRecreateBodySpheres(body);
                 DestroyAndRecreateBodyCircles(body);
@@ -592,9 +647,19 @@ namespace OrbitPOInts
         #endregion
 
         #region MISC
-        private void CheckEnabled()
+
+        private void UpdatePropsFromSettings()
         {
             enabled = Settings.Instance.GlobalEnable;
+            DrawCircles = Settings.Instance.EnableCircles;
+            DrawSpheres = Settings.Instance.EnableSpheres;
+            AlignSpheres = Settings.Instance.AlignSpheres;
+        }
+
+        private void CheckEnabled()
+        {
+            RegisterSettings();
+            UpdatePropsFromSettings();
             LogDebug($"[CheckEnabled] enable: {Settings.Instance.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
             // check to make sure we still enabled after loading settings
             if (!enabled)
