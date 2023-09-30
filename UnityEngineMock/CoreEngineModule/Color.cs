@@ -2,20 +2,19 @@ using System;
 
 namespace UnityEngineMock
 {
-    public class Color
+    public struct Color : IEquatable<Color>
     {
-        public float r = 0f;
-        public float g = 0f;
-        public float b = 0f;
-        public float a = 1f;
-
-        public Color() {}
+        public float r;
+        public float g;
+        public float b;
+        public float a;
 
         public Color(float r, float g, float b)
         {
             this.r = r;
             this.g = g;
             this.b = b;
+            this.a = 1f;
         }
 
         public Color(float r, float g, float b, float a)
