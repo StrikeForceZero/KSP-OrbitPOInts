@@ -8,6 +8,7 @@ using UnityEngineMock;
 
 namespace OrbitPOInts.Tests.Data
 {
+#if TEST
     [TestFixture]
     public class PoiTests
     {
@@ -102,4 +103,5 @@ namespace OrbitPOInts.Tests.Data
             Assert.That(poi, Is.EqualTo(poi3).Using(new PoiComparer()));
         }
     }
+#endif
 }

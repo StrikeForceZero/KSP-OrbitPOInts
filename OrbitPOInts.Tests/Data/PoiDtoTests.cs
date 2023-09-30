@@ -8,6 +8,7 @@ using UnityEngineMock;
 
 namespace OrbitPOInts.Tests.Data
 {
+#if TEST
     [TestFixture]
     public class PoiDtoTests
     {
@@ -63,4 +64,5 @@ namespace OrbitPOInts.Tests.Data
             Assert.IsTrue(poi2.Enabled);
         }
     }
+#endif
 }
