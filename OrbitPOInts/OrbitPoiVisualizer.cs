@@ -5,6 +5,7 @@ using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
 using OrbitPOInts.Extensions.Unity;
+using OrbitPOInts.Utils;
 
 #if TEST
 using UnityEngineMock;

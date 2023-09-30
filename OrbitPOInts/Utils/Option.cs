@@ -1,6 +1,6 @@
 using System;
 
-namespace OrbitPOInts
+namespace OrbitPOInts.Utils
 {
     public struct Option<T>
     {

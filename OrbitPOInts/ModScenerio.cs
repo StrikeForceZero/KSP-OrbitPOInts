@@ -4,6 +4,7 @@ using OrbitPOInts.Data;
 using OrbitPOInts.Data.ConfigNode.Extensions;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
+using OrbitPOInts.Utils;
 
 #if TEST
 using UnityEngineMock;

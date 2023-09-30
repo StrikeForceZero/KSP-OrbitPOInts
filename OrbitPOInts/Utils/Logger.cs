@@ -1,12 +1,12 @@
 #if TEST
 using UnityEngineMock;
-using System.Linq;
+
 #else
 using UniLinq;
 using UnityEngine;
 #endif
 
-namespace OrbitPOInts
+namespace OrbitPOInts.Utils
 {
     public class Logger
     {
