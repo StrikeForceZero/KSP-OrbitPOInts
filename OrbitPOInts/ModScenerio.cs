@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using OrbitPOInts.Data;
 using OrbitPOInts.Extensions;
 
@@ -75,8 +76,8 @@ namespace OrbitPOInts
             Settings.Instance.LogDebugEnabled = node.GetBool(GetKey(SettingsBool.LogDebugEnabled), false);
             Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = node.GetBool(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), false);
 
-            var poiNodes  = node.GetNodes(PoiConfigKey);
-            Settings.Instance.UpdateConfiguredPois(poiNodes.Select(poiNode => PoiDTO.Load(poiNode).ToPoi()).ToList());
+            Settings.Instance.UpdateConfiguredPois(LoadConfiguredPois(node));
+
             Log("[OnLoad] load complete");
         }
 
@@ -93,11 +94,22 @@ namespace OrbitPOInts
             node.AddValue(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies);
             node.AddValue(GetKey(SettingsBool.LogDebugEnabled), Settings.Instance.LogDebugEnabled);
 
-            foreach (var poiConfigNode in Settings.Instance.ConfiguredPois.Select(poi => PoiDTO.FromPoi(poi).Save()))
+            SaveConfiguredPois(node, Settings.Instance.ConfiguredPois);
+
+            Log("[OnSave] saving complete");
+        }
+
+        public static void SaveConfiguredPois(ConfigNode node, IReadOnlyList<POI> configuredPois)
+        {
+            foreach (var poiConfigNode in configuredPois.Select(poi => PoiDTO.FromPoi(poi).Save()))
             {
                 node.AddNode(PoiConfigKey, poiConfigNode);
             }
-            Log("[OnSave] saving complete");
+        }
+
+        public static IList<POI> LoadConfiguredPois(ConfigNode node)
+        {
+            return node.GetNodes(PoiConfigKey).Select(poiNode => PoiDTO.Load(poiNode).ToPoi()).ToList();
         }
 
         public void Start()
