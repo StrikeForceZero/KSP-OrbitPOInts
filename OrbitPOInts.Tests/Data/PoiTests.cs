@@ -103,6 +103,24 @@ namespace OrbitPOInts.Tests.Data
             var poi3 = poi2.CloneWith(testBody);
             Assert.That(poi, Is.EqualTo(poi3).Using(new PoiComparer()));
         }
+
+        [Test]
+        public void POI_Clone_ShouldClone()
+        {
+            var poi = new POI(PoiType.Custom, testBody)
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 1,
+                AddPlanetRadius = true,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            };
+
+            var poi2 = poi.Clone();
+            Assert.That(poi, Is.EqualTo(poi2).Using(new PoiComparer()));
+        }
     }
 #endif
 }
