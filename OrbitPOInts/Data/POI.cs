@@ -104,7 +104,7 @@ namespace OrbitPOInts.Data
                 _body = value;
                 // Automatically updating Radius here when Type is not Custom might be assigning too much responsibility to this property setter.
                 // TODO: Consider refactoring if this leads to issues.
-                if (Type != PoiType.Custom)
+                if (Type is not PoiType.None and not PoiType.Custom)
                 {
                     Radius = DefaultRadius(Body);
                 }
@@ -187,9 +187,9 @@ namespace OrbitPOInts.Data
         public POI CloneWith(CelestialBody newBody)
         {
             var dto = PoiDTO.FromPoi(this);
-            if (dto.Type != PoiType.Custom && dto.Body)
+            if (dto.Type is not PoiType.None and not PoiType.Custom)
             {
-                dto.Radius = GetRadiusForType(newBody, dto.Type);
+                dto.Radius = newBody ? GetRadiusForType(newBody, dto.Type) : 0;
             }
             dto.Color = dto.Color.Clone();
             dto.Body = newBody;
