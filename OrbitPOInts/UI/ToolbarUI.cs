@@ -325,6 +325,23 @@ namespace OrbitPOInts.UI
             }
         }
 
+        private void DrawPoiControls(CelestialBody body)
+        {
+            DrawStandardPoi(body);
+
+            GUILayout.Space(10);
+
+            foreach (var poi in Settings.Instance.GetCustomPoisFor(body))
+            {
+                CustomPoiGUI(poi);
+            }
+
+            if (GUILayout.Button("+"))
+            {
+                Settings.Instance.AddPoi(POI.DefaultFrom(body, PoiType.Custom));
+            }
+        }
+
         private void DrawUI(int windowID)
         {
             const int closeButtonSize = 25;
@@ -372,27 +389,14 @@ namespace OrbitPOInts.UI
                     {
                         if (_selectableBodyNames[_selectedBodyIndex] != body.name) continue;
 
-                        DrawStandardPoi(body);
-
-                        GUILayout.Space(10);
-
-                        // TODO: plus sign to add more
-                        foreach (var poi in Settings.Instance.GetCustomPoisFor(body))
-                        {
-                            CustomPoiGUI(poi);
-                        }
-
-                        if (GUILayout.Button("+"))
-                        {
-                            Settings.Instance.AddPoi(POI.DefaultFrom(body, PoiType.Custom));
-                        }
+                        DrawPoiControls(body);
 
                     }
                 }
                 else
                 {
                     // global
-                    DrawStandardPoi(null);
+                    DrawPoiControls(null);
                 }
 
                 GUILayout.FlexibleSpace();
