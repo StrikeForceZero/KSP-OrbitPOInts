@@ -4,6 +4,7 @@ using KSPMock;
 using Moq;
 using NUnit.Framework;
 using OrbitPOInts.Data;
+using OrbitPOInts.Data.POI;
 using OrbitPOInts.Tests.Mocks;
 
 namespace OrbitPOInts.Tests

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using OrbitPOInts.Data;
+using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 
 #if TEST

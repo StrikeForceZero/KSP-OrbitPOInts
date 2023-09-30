@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using OrbitPOInts.Data;
+using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 
 #if TEST

@@ -1,5 +1,6 @@
 using System;
 using OrbitPOInts.Data;
+using OrbitPOInts.Data.POI;
 
 #if TEST
 using UnityEngineMock;

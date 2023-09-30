@@ -1,4 +1,4 @@
-namespace OrbitPOInts.Data
+namespace OrbitPOInts.Data.POI
 {
     public enum PoiType
     {

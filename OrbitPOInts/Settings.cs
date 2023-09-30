@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using OrbitPOInts.Data;
+using OrbitPOInts.Data.POI;
 
 #if TEST
 using UnityEngineMock;

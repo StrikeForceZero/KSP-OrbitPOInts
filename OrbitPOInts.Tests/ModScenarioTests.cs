@@ -9,6 +9,7 @@ using OrbitPOInts.Tests.Mocks;
 using UnityEngineMock;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 
 namespace OrbitPOInts.Tests
