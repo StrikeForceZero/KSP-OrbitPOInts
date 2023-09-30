@@ -33,26 +33,6 @@ namespace OrbitPOInts
 
     public static class Lib
     {
-        // TODO: scale sampleRes based on body.Radius
-        public static double GetApproxTerrainMaxHeight(CelestialBody body, int sampleResolution = 100)
-        {
-            var maxAltitude = Double.NegativeInfinity;
-
-            for (var i = 0; i <= sampleResolution; i++)
-            {
-                for (var j = 0; j <= sampleResolution; j++)
-                {
-                    var latitude = (i / (double)sampleResolution) * 180 - 90;
-                    var longitude = (j / (double)sampleResolution) * 360 - 180;
-
-                    var altitude = body.TerrainAltitude(latitude, longitude, true);
-                    maxAltitude = Math.Max(maxAltitude, altitude);
-                }
-            }
-
-            return maxAltitude;
-        }
-
         public static Vector3 GetCorrectedOrbitalNormal(Vessel vessel)
         {
             return TransformOrbitToWorld(vessel.orbit.GetOrbitNormal());
