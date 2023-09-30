@@ -6,6 +6,7 @@ using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
 using OrbitPOInts.Extensions.Unity;
+using OrbitPOInts.Helpers;
 using OrbitPOInts.Utils;
 
 #if TEST
@@ -136,8 +137,8 @@ namespace OrbitPOInts.UI
                 }
             }
 
-            LogDebug($"[FixState] ViewingMapOrTrackingStation: {Lib.ViewingMapOrTrackingStation} scene: {Enum.GetName(typeof(GameScenes), HighLogic.LoadedScene)}");
-            if (!Lib.ViewingMapOrTrackingStation)
+            LogDebug($"[FixState] ViewingMapOrTrackingStation: {SceneHelper.ViewingMapOrTrackingStation} scene: {SceneHelper.GetSceneName(HighLogic.LoadedScene)}");
+            if (!SceneHelper.ViewingMapOrTrackingStation)
             {
                 if (RemoveToolbarButton())
                 {
@@ -196,7 +197,7 @@ namespace OrbitPOInts.UI
 
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
-            LogDebug($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
+            LogDebug($"[OnGameSceneLoadRequested] {SceneHelper.GetSceneName(scenes)}");
             if (scenes == GameScenes.TRACKSTATION || scenes == GameScenes.FLIGHT && MapView.MapIsEnabled)
             {
                 CreateToolbarButton();

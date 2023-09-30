@@ -183,7 +183,7 @@ namespace OrbitPOInts
 
         private void Update()
         {
-            if (!Lib.ViewingMapOrTrackingStation)
+            if (!SceneHelper.ViewingMapOrTrackingStation)
             {
                 return;
             }
@@ -213,17 +213,17 @@ namespace OrbitPOInts
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
             _sceneLoading = true;
-            LogDebug($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
+            LogDebug($"[OnGameSceneLoadRequested] {SceneHelper.GetSceneName(scenes)}");
             RemoveAll();
         }
 
         private void OnGameSceneLoadedGUIReady(GameScenes scenes)
         {
-            LogDebug($"[OnGameSceneLoadedGUIReady] {Lib.GetSceneName(scenes)}");
+            LogDebug($"[OnGameSceneLoadedGUIReady] {SceneHelper.GetSceneName(scenes)}");
             // TOD: this might not be the same on all systems
             StartCoroutine(DelayedAction.CreateCoroutine(() =>
                 {
-                    LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {Lib.GetSceneName(scenes)}");
+                    LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {SceneHelper.GetSceneName(scenes)}");
                     _sceneLoading = false;
                     if (PurgeIfNotInMapOrTracking())
                     {
@@ -265,7 +265,7 @@ namespace OrbitPOInts
 
         private void OnVesselChange(Vessel vessel)
         {
-            if (_sceneLoading || !Lib.ViewingMapOrTrackingStation) return;
+            if (_sceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             LogDebug(
                 $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
 
@@ -287,7 +287,7 @@ namespace OrbitPOInts
 
         private void OnMapFocusChange(MapObject focusTarget)
         {
-            if (_sceneLoading || !Lib.ViewingMapOrTrackingStation) return;
+            if (_sceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             LogDebug($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
             // TODO: this gets called when loading a save and we dont want to generate anything unless in map
             if (PurgeIfNotInMapOrTracking())
@@ -311,7 +311,7 @@ namespace OrbitPOInts
                 LogError("[UpdateBody] UpdateBody called when not enabled!");
                 return;
             }
-            if (!Lib.ViewingMapOrTrackingStation)
+            if (!SceneHelper.ViewingMapOrTrackingStation)
             {
                 LogError("[UpdateBody] UpdateBody called not ViewingMapOrTrackingStation!");
                 return;
@@ -384,7 +384,7 @@ namespace OrbitPOInts
         #region Normals
         private void UpdateNormals(Vector3 normal)
         {
-            if (!enabled || _sceneLoading || !Lib.ViewingMapOrTrackingStation)
+            if (!enabled || _sceneLoading || !SceneHelper.ViewingMapOrTrackingStation)
             {
                 return;
             }
@@ -610,7 +610,7 @@ namespace OrbitPOInts
         private bool PurgeIfNotInMapOrTracking()
         {
             // if for some reason we end up here and we arent in the mapview or tracking station we should purge
-            if (!Lib.ViewingMapOrTrackingStation)
+            if (!SceneHelper.ViewingMapOrTrackingStation)
             {
                 LogDebug("[PurgeIfNotInMapOrTracking] Purging");
                 PurgeAll();

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 
 #if TEST
 using UnityEngineMock;
@@ -21,17 +20,21 @@ using KSP_HighLogic = HighLogic;
 using KSP_MapView = MapView;
 #endif
 
-
-namespace OrbitPOInts
+namespace OrbitPOInts.Helpers
 {
-    using Vessel = KSP_Vessel;
-    using Vector3d = KSP_Vector3d;
-    using CelestialBody = KSP_CelestialBody;
     using GameScenes = KSP_GameScenes;
     using HighLogic = KSP_HighLogic;
     using MapView = KSP_MapView;
 
-    public static class Lib
+    public static class SceneHelper
     {
+        // TODO: MapView.MapIsEnabled and HighLogic.LoadedScene == GameScenes.FLIGHT on quicksave load
+        public static bool ViewingMapOrTrackingStation =>
+            MapView.MapIsEnabled || HighLogic.LoadedScene == GameScenes.TRACKSTATION;
+
+        public static string GetSceneName(GameScenes scene)
+        {
+            return Enum.GetName(typeof(GameScenes), scene);
+        }
     }
 }

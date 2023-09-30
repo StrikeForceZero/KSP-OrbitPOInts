@@ -94,6 +94,7 @@
         <Compile Include="Extensions\Unity\MonoBehaviourExtensions.cs" />
         <Compile Include="Helpers\MapObjectHelper.cs" />
         <Compile Include="Helpers\OrbitHelpers.cs" />
+        <Compile Include="Helpers\SceneHelper.cs" />
         <Compile Include="ModScenerio.cs" />
         <Compile Include="Extensions\DoubleExtensions.cs" />
         <Compile Include="Lib.cs" />
