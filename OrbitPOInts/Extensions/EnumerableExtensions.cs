@@ -1,5 +1,11 @@
 using System.Collections.Generic;
 
+#if TEST
+using System.Linq;
+#else
+using UniLinq;
+#endif
+
 namespace OrbitPOInts.Extensions
 {
     public static class EnumerableExtensions
