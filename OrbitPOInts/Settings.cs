@@ -196,8 +196,22 @@ namespace OrbitPOInts
             return new[] { poiToUpdate };
         }
 
-        internal void AddConfiguredPoi(POI poi)
+        public enum AddConfiguredPoiMethod
         {
+            Insert,
+            ReplaceFirst,
+            ReplaceAll,
+        }
+        internal void AddConfiguredPoi(POI poi, AddConfiguredPoiMethod addMethod = AddConfiguredPoiMethod.Insert)
+        {
+            if (addMethod != AddConfiguredPoiMethod.Insert && HasConfiguredPoi(poi))
+            {
+                var poisToRemove = GetPoisToUpdate(poi, addMethod == AddConfiguredPoiMethod.ReplaceFirst);
+                foreach (var poiToRemove in poisToRemove)
+                {
+                    _configuredPois.Remove(poiToRemove);
+                }
+            }
             _configuredPois.Add(poi);
         }
 
