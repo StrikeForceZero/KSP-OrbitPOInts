@@ -64,6 +64,74 @@ namespace OrbitPOInts.Tests
         }
 
         [Test]
+        public void ConfiguredPois_UpdateConfiguredPois_Readonly_IsSettingCorrectValue()
+        {
+            var pois = new List<POI> { POI.DefaultFrom(PoiType.Custom) };
+            Settings.Instance.UpdateConfiguredPois(pois.AsReadOnly());
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                pois,
+                PoiSerializer,
+                new PoiComparer()
+            );
+
+            var poi = POI.DefaultFrom(PoiType.Custom);
+            Settings.Instance.AddConfiguredPoi(poi);
+            pois.Add(poi);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                pois,
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_UpdateConfiguredPois_FixedSize_IsSettingCorrectValue()
+        {
+            var pois = new List<POI> { POI.DefaultFrom(PoiType.Custom) };
+            Settings.Instance.UpdateConfiguredPois(pois.ToArray());
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                pois,
+                PoiSerializer,
+                new PoiComparer()
+            );
+
+            var poi = POI.DefaultFrom(PoiType.Custom);
+            Settings.Instance.AddConfiguredPoi(poi);
+            pois.Add(poi);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                pois,
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_UpdateConfiguredPois_Null_IsSettingCorrectValue()
+        {
+            Settings.Instance.UpdateConfiguredPois(null);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                Enumerable.Empty<POI>(),
+                PoiSerializer,
+                new PoiComparer()
+            );
+
+            var poi = POI.DefaultFrom(PoiType.Custom);
+            var pois = new List<POI> { poi };
+            Settings.Instance.AddConfiguredPoi(poi);
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                pois,
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
         public void ConfiguredPois_AddConfiguredPoi_IsSettingCorrectValue()
         {
             var newPoi = POI.DefaultFrom(PoiType.Custom);
