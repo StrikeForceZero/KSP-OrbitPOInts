@@ -174,6 +174,28 @@ namespace OrbitPOInts
             _configuredPois = pois;
         }
 
+        internal bool HasConfiguredPoi(POI poi)
+        {
+            var b = poi;
+            return ConfiguredPois.Contains(poi, new PoiSameTargetComparer());
+        }
+
+        internal IEnumerable<POI> GetPoisToUpdate(POI updatedPoi, bool updateFirstInstanceOnly = false)
+        {
+            Func<POI, bool> compareFn = a => PoiSameTargetComparer.StaticEquals(a, updatedPoi);
+
+            // Return all matching POIs if not limited to the first instance.
+            if (!updateFirstInstanceOnly) return ConfiguredPois.Where(compareFn);
+
+            var poiToUpdate = ConfiguredPois.FirstOrDefault(compareFn);
+
+            // If no matching POI is found, return an empty enumerable.
+            if (poiToUpdate == null) return Enumerable.Empty<POI>();
+
+            // Return an enumerable containing the first matching POI.
+            return new[] { poiToUpdate };
+        }
+
         internal void AddConfiguredPoi(POI poi)
         {
             _configuredPois.Add(poi);
