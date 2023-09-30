@@ -9,6 +9,7 @@ using System.Linq;
 using OrbitPOInts.Data.ConfigNode.Extensions;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions.KSP;
+using OrbitPOInts.Extensions.Unity;
 
 namespace OrbitPOInts.Tests
 {

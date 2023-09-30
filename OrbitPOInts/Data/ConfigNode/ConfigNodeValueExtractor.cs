@@ -6,6 +6,7 @@ using OrbitPOInts.Data.ConfigNode.Extensions;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
+using OrbitPOInts.Extensions.Unity;
 using UnityEngineMock.JetBrains.Annotations;
 #if TEST
 using UnityEngineMock;

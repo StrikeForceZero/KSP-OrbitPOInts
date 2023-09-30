@@ -12,6 +12,7 @@ using System.Text.Json.Serialization;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
+using OrbitPOInts.Extensions.Unity;
 
 namespace OrbitPOInts.Tests
 {
