@@ -84,6 +84,7 @@
         <Compile Include="Data\POI\PoiDTO.cs" />
         <Compile Include="Data\POI\PoiDTOComparer.cs" />
         <Compile Include="Data\POI\PoiDTOSameTargetComparer.cs" />
+        <Compile Include="Data\POI\PoiSameTargetComparer.cs" />
         <Compile Include="Data\POI\PoiType.cs" />
         <Compile Include="Extensions\IDictionaryExtensions.cs" />
         <Compile Include="Extensions\FloatExtensions.cs" />
