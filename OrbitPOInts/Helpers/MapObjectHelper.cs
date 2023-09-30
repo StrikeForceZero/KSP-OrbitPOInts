@@ -1,5 +1,4 @@
 using System;
-using OrbitPOInts.Helpers;
 
 #if TEST
 using UnityEngineMock;
@@ -15,7 +14,7 @@ using KSP_MapObject = MapObject;
 using KSP_Vessel = Vessel;
 #endif
 
-namespace OrbitPOInts
+namespace OrbitPOInts.Helpers
 {
     using CelestialBody = KSP_CelestialBody;
     using MapObject = KSP_MapObject;
