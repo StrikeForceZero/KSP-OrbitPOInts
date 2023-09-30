@@ -76,6 +76,7 @@
     <ItemGroup>
         <Compile Include="Data\ConfigNode\ConfigNodeDto.cs" />
         <Compile Include="Data\ConfigNode\ConfigNodeValueExtractor.cs" />
+        <Compile Include="Data\ConfigNode\Extensions\ConfigNodeExtensions.cs" />
         <Compile Include="Data\POI\CustomPOI.cs" />
         <Compile Include="Data\POI\POI.cs" />
         <Compile Include="Data\POI\PoiComparer.cs" />
@@ -86,7 +87,6 @@
         <Compile Include="Data\POI\PoiType.cs" />
         <Compile Include="Extensions\CelestialBodyExtensions.cs" />
         <Compile Include="Extensions\ColorExtensions.cs" />
-        <Compile Include="Extensions\ConfigNodeExtensions.cs" />
         <Compile Include="Extensions\IDictionaryExtensions.cs" />
         <Compile Include="Extensions\FloatExtensions.cs" />
         <Compile Include="Extensions\ListExtensions.cs" />

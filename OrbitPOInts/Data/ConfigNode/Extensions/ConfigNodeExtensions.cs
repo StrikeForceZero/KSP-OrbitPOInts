@@ -1,13 +1,12 @@
 using System;
-using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
-
+using OrbitPOInts.Extensions;
+using UnityEngineMock.JetBrains.Annotations;
 #if TEST
 using UnityEngineMock;
-using UnityEngineMock.JetBrains.Annotations;
 using KSP_CelestialBody = KSPMock.CelestialBody;
 using KSP_ConfigNode = KSPMock.ConfigNode;
-using System.Linq;
+
 #else
 using UniLinq;
 using UnityEngine;
@@ -16,7 +15,7 @@ using KSP_CelestialBody = CelestialBody;
 using KSP_ConfigNode = ConfigNode;
 #endif
 
-namespace OrbitPOInts.Extensions
+namespace OrbitPOInts.Data.ConfigNode.Extensions
 {
     using CelestialBody = KSP_CelestialBody;
     using ConfigNode = KSP_ConfigNode;
@@ -76,7 +75,7 @@ namespace OrbitPOInts.Extensions
         }
 
         [CanBeNull]
-        public static POI ToPoi(this ConfigNode configNode, POI defaultValue = default)
+        public static POI.POI ToPoi(this ConfigNode configNode, POI.POI defaultValue = default)
         {
             return configNode.ToPoiDto()?.ToPoi() ?? defaultValue;
         }
@@ -89,7 +88,7 @@ namespace OrbitPOInts.Extensions
         }
 
         [CanBeNull]
-        public static POI GetPoiFromNode(this ConfigNode configNode, string key, POI defaultValue = default)
+        public static POI.POI GetPoiFromNode(this ConfigNode configNode, string key, POI.POI defaultValue = default)
         {
             return configNode.GetPoiDtoFromNode(key)?.ToPoi() ?? defaultValue;
         }

@@ -6,6 +6,7 @@ using OrbitPOInts.Extensions;
 using KSPMock;
 using UnityEngineMock;
 using System.Linq;
+using OrbitPOInts.Data.ConfigNode.Extensions;
 using OrbitPOInts.Data.POI;
 
 namespace OrbitPOInts.Tests
