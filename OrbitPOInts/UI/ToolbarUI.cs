@@ -4,6 +4,7 @@ using System.Globalization;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
+using OrbitPOInts.Extensions.KSP;
 
 #if TEST
 using KSPMock.UI.Screens;

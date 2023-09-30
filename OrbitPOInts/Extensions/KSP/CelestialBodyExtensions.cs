@@ -1,7 +1,6 @@
-#if TEST
-using UnityEngineMock;
+
 using UnityEngineMock.JetBrains.Annotations;
-using System.Linq;
+#if TEST
 using KSP_CelestialBody = KSPMock.CelestialBody;
 using KSP_FlightGlobals = KSPMock.FlightGlobals;
 #else
@@ -12,7 +11,7 @@ using KSP_CelestialBody = CelestialBody;
 using KSP_FlightGlobals = FlightGlobals;
 #endif
 
-namespace OrbitPOInts.Extensions
+namespace OrbitPOInts.Extensions.KSP
 {
     using CelestialBody = KSP_CelestialBody;
     using FlightGlobals = KSP_FlightGlobals;

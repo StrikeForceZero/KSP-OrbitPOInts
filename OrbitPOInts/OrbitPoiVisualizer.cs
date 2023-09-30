@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
+using OrbitPOInts.Extensions.KSP;
 
 #if TEST
 using UnityEngineMock;
