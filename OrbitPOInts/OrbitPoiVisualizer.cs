@@ -218,7 +218,7 @@ namespace OrbitPOInts
         {
             LogDebug($"[OnGameSceneLoadedGUIReady] {Lib.GetSceneName(scenes)}");
             // TOD: this might not be the same on all systems
-            StartCoroutine(Lib.DelayedAction(() =>
+            StartCoroutine(DelayedAction.CreateCoroutine(() =>
                 {
                     LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {Lib.GetSceneName(scenes)}");
                     _sceneLoading = false;
@@ -423,7 +423,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            StartCoroutine(Lib.DelayedAction(() => AlignTransformToNormal(transform, normal), 1));
+            StartCoroutine(DelayedAction.CreateCoroutine(() => AlignTransformToNormal(transform, normal), 1));
         }
 
         private void AlignTransformToNormal(Transform transform, Vector3d normal)
