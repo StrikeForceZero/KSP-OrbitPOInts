@@ -71,14 +71,7 @@ namespace OrbitPOInts.Data
 
         public double Radius
         {
-            get
-            {
-                if (AddPlanetRadius)
-                {
-                    return _radius + Body.Radius;
-                }
-                return _radius;
-            }
+            get => _radius;
             set
             {
                 if (_radius.AreRelativelyEqual(value)) return;
@@ -163,6 +156,8 @@ namespace OrbitPOInts.Data
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public double RadiusForRendering() => AddPlanetRadius ? Radius + Body.Radius : Radius;
 
         // TODO: need to be careful if the type is Custom it will throw
         public double DefaultRadius(CelestialBody body)

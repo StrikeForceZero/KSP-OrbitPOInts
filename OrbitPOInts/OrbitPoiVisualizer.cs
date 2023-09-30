@@ -458,7 +458,7 @@ namespace OrbitPOInts
             }
 
             var customPois = Settings.Instance.GetCustomPoisFor(body);
-            foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.Radius > 0))
+            foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.RadiusForRendering() > 0))
             {
                 onCreatePoi.Invoke(customPoi);
             }
@@ -490,7 +490,7 @@ namespace OrbitPOInts
 
         private WireSphereRenderer CreateWireSphereFromPoi(POI poi)
         {
-            return CreateWireSphere(poi.Body, poi.Color, (float)poi.Radius, poi.LineWidth, poi.Resolution);
+            return CreateWireSphere(poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth, poi.Resolution);
         }
 
         private WireSphereRenderer CreateWireSphere(
@@ -549,7 +549,7 @@ namespace OrbitPOInts
 
         private CircleRenderer CreateCircleFromPoi(POI poi)
         {
-            return CreateCircle(poi.Body, poi.Color, (float)poi.Radius, poi.LineWidth);
+            return CreateCircle(poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth);
         }
 
         private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
