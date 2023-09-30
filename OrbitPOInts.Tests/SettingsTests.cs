@@ -63,10 +63,10 @@ namespace OrbitPOInts.Tests
         }
 
         [Test]
-        public void ConfiguredPois_AddPoi_IsSettingCorrectValue()
+        public void ConfiguredPois_AddConfiguredPoi_IsSettingCorrectValue()
         {
             var newPoi = POI.DefaultFrom(PoiType.Custom);
-            Settings.Instance.AddPoi(newPoi);
+            Settings.Instance.AddConfiguredPoi(newPoi);
             CustomAsserts.CollectionAssert.HaveSameElements(
                 Settings.Instance.ConfiguredPois,
                 new []{ newPoi },

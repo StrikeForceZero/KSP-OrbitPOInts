@@ -173,7 +173,7 @@ namespace OrbitPOInts
             _configuredPois = pois;
         }
 
-        internal void AddPoi(POI poi)
+        internal void AddConfiguredPoi(POI poi)
         {
             _configuredPois.Add(poi);
         }
