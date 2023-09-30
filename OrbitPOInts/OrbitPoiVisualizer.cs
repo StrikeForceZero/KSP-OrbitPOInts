@@ -444,12 +444,17 @@ namespace OrbitPOInts
             {
                 if (poiType is PoiType.None or PoiType.Custom) continue;
                 // check to make sure its not disabled in the global config
-                if (!Settings.Instance.GetGlobalEnableFor(body, poiType)) continue;
+                if (!Settings.Instance.GetGlobalEnableFor(body, poiType))
+                {
+                    LogDebug($"[CreatePoisForBody] global disable for {body.Serialize()} {poiType}");
+                    continue;
+                }
                 var poi = Settings.Instance.GetStandardPoiFor(body, poiType);
                 switch (poiType)
                 {
                     case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
                     case PoiType.Atmosphere when !body.atmosphere:
+                        LogDebug($"[CreatePoisForBody] skipping {body.Serialize()} {poiType} - atmosphere:{body.atmosphere} ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:{Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies}");
                         continue;
                     default:
                         LogDebug($"[CreatePoisForBody] {poi.Body.bodyName} {poi.Type} {poi.RadiusForRendering()}");
@@ -492,6 +497,7 @@ namespace OrbitPOInts
 
         private WireSphereRenderer CreateWireSphereFromPoi(POI poi)
         {
+            LogDebug($"[CreateWireSphereFromPoi]: Generating spheres around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
             return CreateWireSphere(poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth, poi.Resolution);
         }
 
@@ -551,6 +557,7 @@ namespace OrbitPOInts
 
         private CircleRenderer CreateCircleFromPoi(POI poi)
         {
+            LogDebug($"[CreateCircleFromPoi]: Generating circle around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
             return CreateCircle(poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth);
         }
 
