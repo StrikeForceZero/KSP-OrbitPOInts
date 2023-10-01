@@ -105,9 +105,12 @@ namespace OrbitPOInts
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected virtual void OnPoiPropChanged(object poi, PropertyChangedEventArgs propertyName)
+        protected virtual void OnPoiPropChanged(object senderPoi, PropertyChangedEventArgs args)
         {
-            ConfiguredPoiPropChanged?.Invoke(this, poi, propertyName);
+            ConfiguredPoiPropChanged?.Invoke(this, senderPoi, args);
+            if (senderPoi is not POI poi) return;
+            if (!IsDefaultPoi(poi)) return;
+            RemoveConfiguredPoi(poi);
         }
 
         public static Settings Instance
@@ -322,6 +325,16 @@ namespace OrbitPOInts
             _configuredPois.Add(poi);
         }
 
+        internal void RemoveConfiguredPoi(POI poi, bool removeFirstOccurrenceOnly = false)
+        {
+            var poisToRemove = GetPoisToUpdate(poi, removeFirstOccurrenceOnly);
+            foreach (var poiToRemove in poisToRemove)
+            {
+                poi.PropertyChanged -= OnPoiPropChanged;
+                _configuredPois.Remove(poiToRemove);
+            }
+        }
+
         public IEnumerable<POI> GetConfiguredPoisFor(CelestialBody body)
         {
             return ConfiguredPois.Where(poi => poi.Body == body);
@@ -360,6 +373,11 @@ namespace OrbitPOInts
                 .Concat(GetDefaultPoisFor(body)) // defaults
                 .FirstOrDefault(poi => poi.Type == poiType) // priority: global > configured > default
                 .Enabled;
+        }
+
+        public static bool IsDefaultPoi(POI poi)
+        {
+            return GetDefaultPoisFor(poi.Body).Contains(poi, new PoiComparer());
         }
     }
 }
