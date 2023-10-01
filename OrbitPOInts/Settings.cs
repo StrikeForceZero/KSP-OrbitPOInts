@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions.KSP;
 
 #if TEST
 using UnityEngineMock;
@@ -233,14 +234,15 @@ namespace OrbitPOInts
 
         private void OnDefaultPoiPropChange(object senderPoi, PropertyChangedEventArgs args)
         {
-            if (senderPoi is not POI poi) return;
+            if (senderPoi is not ResettablePoi poi) return;
             // clone it so we can keep listening to when defaults change
             // configured ones should mask default in UI
             AddConfiguredPoi(poi.Clone());
+            poi.Reset();
         }
         private void RegisterForDefaultPoiPropChanges()
         {
-            foreach (var poi in DefaultGlobalPoiDictionary.Values)
+            foreach (var poi in GetAllDefaultPois())
             {
                 // if its a duplicate we dont want to register twice
                 poi.PropertyChanged -= OnDefaultPoiPropChange;
@@ -250,7 +252,7 @@ namespace OrbitPOInts
 
         private void UnregisterForDefaultPoiPropChanges()
         {
-            foreach (var poi in DefaultGlobalPoiDictionary.Values)
+            foreach (var poi in GetAllDefaultPois())
             {
                 poi.PropertyChanged -= OnDefaultPoiPropChange;
             }
@@ -272,15 +274,38 @@ namespace OrbitPOInts
             return pois.ToDictionary(poi => poi.Type);
         }
 
-        public static readonly IReadOnlyDictionary<PoiType, POI> DefaultGlobalPoiDictionary = new ReadOnlyDictionary<PoiType, POI>(
-            CreatePoiTypeDictionary(
-                POI.DefaultFrom(PoiType.HillSphere),
-                POI.DefaultFrom(PoiType.SphereOfInfluence),
-                POI.DefaultFrom(PoiType.Atmosphere),
-                POI.DefaultFrom(PoiType.MinimumOrbit),
-                POI.DefaultFrom(PoiType.MaxTerrainAltitude)
-            )
-        );
+        private static IReadOnlyDictionary<TKey, ResettablePoi> SealDictionary<TKey>(IDictionary<TKey, POI> poiDictionary)
+        {
+            return new ReadOnlyDictionary<TKey, ResettablePoi>(
+                poiDictionary.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => ResettablePoi.From(kvp.Value, true)
+                )
+            );
+        }
+
+        public static readonly IReadOnlyDictionary<PoiType, ResettablePoi> DefaultGlobalPoiDictionary =
+            SealDictionary(
+                CreatePoiTypeDictionary(
+                    POI.DefaultFrom(PoiType.HillSphere),
+                    POI.DefaultFrom(PoiType.SphereOfInfluence),
+                    POI.DefaultFrom(PoiType.Atmosphere),
+                    POI.DefaultFrom(PoiType.MinimumOrbit),
+                    POI.DefaultFrom(PoiType.MaxTerrainAltitude)
+                )
+            );
+
+        private static IDictionary<PoiType, POI> CreateBodyPoiTypeDictionary(CelestialBody body)
+        {
+            return GetNewDefaultPoisFor(body)
+                .ToDictionary(poi => poi.Type, poi => poi.CloneWith(body));
+        }
+
+        public static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<PoiType, ResettablePoi>> DefaultBodyPoiTypeDictionary =
+            FlightGlobals.Bodies.ToDictionary(
+                body => body.Serialize(),
+                body => SealDictionary(CreateBodyPoiTypeDictionary(body))
+            );
 
         // user configured
         private ObservableCollection<POI> _configuredPois = new();
@@ -367,9 +392,28 @@ namespace OrbitPOInts
             return ConfiguredPois.Where(poi => poi.Body == body);
         }
 
-        public static IEnumerable<POI> GetDefaultPoisFor(CelestialBody body)
+        public static IEnumerable<POI> GetGlobalDefaultCopy()
+        {
+            return DefaultGlobalPoiDictionary.Values;
+        }
+
+        public static IEnumerable<POI> GetAllDefaultPois()
+        {
+            return GetGlobalDefaultCopy().Concat(DefaultBodyPoiTypeDictionary.Values.SelectMany(d => d.Values));
+        }
+
+        public static IEnumerable<POI> GetNewDefaultPoisFor(CelestialBody body)
         {
             return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body));
+        }
+
+        public static IEnumerable<POI> GetDefaultPoisFor(CelestialBody body)
+        {
+            if (body == null)
+            {
+                return DefaultGlobalPoiDictionary.Values;
+            }
+            return DefaultBodyPoiTypeDictionary[body.Serialize()].Values;
         }
 
         public IEnumerable<POI> GetCustomPoisFor(CelestialBody body)
@@ -404,7 +448,7 @@ namespace OrbitPOInts
 
         public static bool IsDefaultPoi(POI poi)
         {
-            return GetDefaultPoisFor(poi.Body).Contains(poi, new PoiComparer());
+            return GetNewDefaultPoisFor(poi.Body).Contains(poi, new PoiComparer());
         }
     }
 }
