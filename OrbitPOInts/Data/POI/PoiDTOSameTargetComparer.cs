@@ -38,6 +38,7 @@ namespace OrbitPOInts.Data.POI
         {
             // Check if types are the same
             if (x.Type != y.Type) return false;
+            if (ReferenceEquals(x.Body, y.Body)) return false;
             // but not Custom or None, or if their radii are equal
             return x.Type is not (PoiType.Custom or PoiType.None) || x.Radius.AreRelativelyEqual(y.Radius);
         }
@@ -50,6 +51,9 @@ namespace OrbitPOInts.Data.POI
 
             // Check if types are the same
             if (x.Type != y.Type) return false;
+
+            // Check is bodies are the same
+            if (!ReferenceEquals(x.Body, y.Body)) return false;
 
             // skip Radius check if Custom or None
             if (x.Type is not (PoiType.Custom or PoiType.None)) return true;
