@@ -133,28 +133,20 @@ namespace OrbitPOInts
         }
 
 #if TEST
-        // only for testing as we don't cleanup or notify
+        // only for testing
         public static void ResetInstance()
         {
-            lock (Padlock)
-            {
-                _instance = null;
-                // required for mocking flight globals
-                RestDefaultBodyPoiTypeDictionary();
-            }
+            _instance?.Dispose();
+            // required for mocking flight globals
+            RestDefaultPoiDictionaries();
         }
 #endif
         // TODO: might be better to just copy the properties from a new object?
         internal static void ResetToDefaults()
         {
-            lock (Padlock)
-            {
-                if (_instance == null) return;
-                var oldInstance = _instance;
-                _instance.ClearConfiguredPois();
-                _instance = null;
-                oldInstance.Dispose();
-            }
+            if (_instance == null) return;
+            _instance.ClearConfiguredPois();
+            _instance.Dispose();
         }
 
 
@@ -289,7 +281,7 @@ namespace OrbitPOInts
             );
         }
 
-        public static readonly IReadOnlyDictionary<PoiType, ResettablePoi> DefaultGlobalPoiDictionary =
+        public static IReadOnlyDictionary<PoiType, ResettablePoi> DefaultGlobalPoiDictionary { get; private set; } =
             SealDictionary(
                 CreatePoiTypeDictionary(
                     POI.DefaultFrom(PoiType.HillSphere),
@@ -315,13 +307,24 @@ namespace OrbitPOInts
                     body => SealDictionary(CreateBodyPoiTypeDictionary(body))
                 );
 
-        private static void RestDefaultBodyPoiTypeDictionary()
+#if TEST
+        private static void RestDefaultPoiDictionaries()
         {
+            DefaultGlobalPoiDictionary = SealDictionary(
+                CreatePoiTypeDictionary(
+                    POI.DefaultFrom(PoiType.HillSphere),
+                    POI.DefaultFrom(PoiType.SphereOfInfluence),
+                    POI.DefaultFrom(PoiType.Atmosphere),
+                    POI.DefaultFrom(PoiType.MinimumOrbit),
+                    POI.DefaultFrom(PoiType.MaxTerrainAltitude)
+                )
+            );
             DefaultBodyPoiTypeDictionary = FlightGlobals.Bodies.ToDictionary(
                 body => body.Serialize(),
                 body => SealDictionary(CreateBodyPoiTypeDictionary(body))
             );
         }
+#endif
 
         // user configured
         private ObservableCollection<POI> _configuredPois = new();
