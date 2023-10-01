@@ -220,7 +220,7 @@ namespace OrbitPOInts
             Settings.InstanceDestroyed -= OnSettingsDestroyed;
             Settings.InstanceCreated -= OnSettingsCreated;
             _settings.PropertyChanged -= OnPropertyChanged;
-            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoisChanged;
+            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoiChanged;
             _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
             _settings = null;
         }
@@ -235,8 +235,8 @@ namespace OrbitPOInts
             Settings.InstanceCreated += OnSettingsCreated;
             _settings.PropertyChanged += OnPropertyChanged;
             // remove and reregister at the end because we want to make sure we at least got the event that the collection was reset
-            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoisChanged;
-            _settings.ConfiguredPoiPropChanged += OnConfiguredPoisChanged;
+            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoiChanged;
+            _settings.ConfiguredPoiPropChanged += OnConfiguredPoiChanged;
             _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
             _settings.ConfiguredPoisCollectionChanged += OnConfiguredPoisCollectionChanged;
         }
@@ -258,7 +258,7 @@ namespace OrbitPOInts
             // CurrentTargetRefresh();
         }
 
-        private void OnPropertyChanged(object settings, PropertyChangedEventArgs args)
+        private void OnPropertyChanged(object senderSettings, PropertyChangedEventArgs args)
         {
             if (args.PropertyName == nameof(Settings.ConfiguredPois)) return;
 
@@ -266,7 +266,7 @@ namespace OrbitPOInts
             CurrentTargetRefresh();
         }
 
-        private void OnConfiguredPoisChanged(object settings, object poi, PropertyChangedEventArgs args)
+        private void OnConfiguredPoiChanged(object senderSettings, object senderPoi, PropertyChangedEventArgs args)
         {
             CurrentTargetRefresh();
         }
