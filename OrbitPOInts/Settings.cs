@@ -298,6 +298,9 @@ namespace OrbitPOInts
                 )
             );
 
+        public static readonly IEnumerable<PoiType> PoiTypeOrder =
+            DefaultGlobalPoiDictionary.Keys.Concat(new []{ PoiType.Custom });
+
         private static IDictionary<PoiType, POI> CreateBodyPoiTypeDictionary(CelestialBody body)
         {
             return GetNewDefaultPoisFor(body)
@@ -392,7 +395,9 @@ namespace OrbitPOInts
 
         public IEnumerable<POI> GetConfiguredPoisFor(CelestialBody body)
         {
-            return ConfiguredPois.Where(poi => poi.Body == body);
+            return ConfiguredPois
+                .Where(poi => poi.Body == body)
+                .OrderBy(poi => Array.IndexOf(PoiTypeOrder.ToArray(), poi.Type)); // ordering by default type order;
         }
 
         public static IEnumerable<POI> GetGlobalDefaultCopy()
@@ -428,8 +433,9 @@ namespace OrbitPOInts
         public IEnumerable<POI> GetStandardPoisFor(CelestialBody body)
         {
             return GetConfiguredPoisFor(body) // configured body
-                .Union(GetDefaultPoisFor(body), PoiCustomEqualityComparer.FilterByType)  // default
-                .Where(poi => poi.Type != PoiType.Custom); // custom is not standard poi
+                .Where(poi => poi.Type != PoiType.Custom) // custom is not standard poi
+                .Union(GetDefaultPoisFor(body), PoiCustomEqualityComparer.FilterByType) // default
+                .OrderBy(poi => Array.IndexOf(PoiTypeOrder.ToArray(), poi.Type)); // ordering by default type order
             // priority: configured > default
         }
 
