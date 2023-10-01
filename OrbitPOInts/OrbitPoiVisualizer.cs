@@ -536,7 +536,9 @@ namespace OrbitPOInts
                 }
             }
 
-            var customPois = Settings.Instance.GetCustomPoisFor(body);
+            var customPois = Settings.Instance
+                .GetCustomPoisFor(body)
+                .Concat(Settings.Instance.GetCustomPoisFor(null)); // include global custom
             foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.RadiusForRendering() > 0))
             {
                 LogDebug($"[CreatePoisForBody] body:{customPoi.Body.bodyName} type:{customPoi.Type} renderRadius:{customPoi.RadiusForRendering()} color:{customPoi.Color.Serialize()}");
