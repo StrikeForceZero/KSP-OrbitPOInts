@@ -327,7 +327,7 @@ namespace OrbitPOInts
             return ConfiguredPois.Where(poi => poi.Body == body);
         }
 
-        private IEnumerable<POI> GetDefaultPoisFor(CelestialBody body)
+        public static IEnumerable<POI> GetDefaultPoisFor(CelestialBody body)
         {
             return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body));
         }
