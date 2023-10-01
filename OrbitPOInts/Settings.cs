@@ -21,12 +21,18 @@ namespace OrbitPOInts
 
     using CelestialBody = KSP_CelestialBody;
 
-    public interface INotifyConfiguredPoisChanged
+    public interface INotifyConfiguredPoiPropChanged
     {
-        event NotifyCollectionChangedEventHandler ConfiguredPoisChanged;
+        public delegate void NotifyConfiguredPropChangedEventHandler(object sender, object poi, PropertyChangedEventArgs poiPropertyName);
+        event NotifyConfiguredPropChangedEventHandler ConfiguredPoiPropChanged;
     }
 
-    public class Settings : INotifyPropertyChanged, INotifyConfiguredPoisChanged, IDisposable
+    public interface INotifyConfiguredPoisCollectionChanged
+    {
+        event NotifyCollectionChangedEventHandler ConfiguredPoisCollectionChanged;
+    }
+
+    public class Settings : INotifyPropertyChanged, INotifyConfiguredPoisCollectionChanged, INotifyConfiguredPoiPropChanged, IDisposable
     {
         public const uint VERSION = 0;
 
@@ -36,7 +42,8 @@ namespace OrbitPOInts
         public static event Action<Settings> InstanceCreated;
         public static event Action<Settings> InstanceDestroyed;
         public event PropertyChangedEventHandler PropertyChanged;
-        public event NotifyCollectionChangedEventHandler ConfiguredPoisChanged;
+        public event INotifyConfiguredPoiPropChanged.NotifyConfiguredPropChangedEventHandler ConfiguredPoiPropChanged;
+        public event NotifyCollectionChangedEventHandler ConfiguredPoisCollectionChanged;
 
         private Settings()
         {
@@ -46,19 +53,43 @@ namespace OrbitPOInts
 
         ~Settings()
         {
-            Dispose();
+            Dispose(false);
         }
 
         private bool _disposed = false;
+
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             if (_disposed) return;
 
-            _configuredPois.CollectionChanged -= NotifyCollectionChanged;
-            InstanceDestroyed?.Invoke(this);
-            InstanceDestroyed = null;
+            lock (Padlock)
+            {
+                if (_disposed) return;
 
-            _disposed = true;
+                if (_instance == this) _instance = null;
+
+                if (disposing)
+                {
+                    // Free any other managed objects here.
+                    _configuredPois.CollectionChanged -= NotifyCollectionChanged;
+                    InstanceDestroyed?.Invoke(this);
+                    InstanceDestroyed = null;
+
+                    InstanceCreated = null;
+                    PropertyChanged = null;
+                    ConfiguredPoiPropChanged = null;
+                    ConfiguredPoisCollectionChanged = null;
+                }
+
+                // Free any unmanaged objects here, if any.
+                _disposed = true;
+            }
         }
 
         public bool IsDisposed => _disposed;
@@ -66,12 +97,17 @@ namespace OrbitPOInts
         protected virtual void NotifyCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
             OnPropertyChanged(nameof(ConfiguredPois));
-            ConfiguredPoisChanged?.Invoke(sender, args);
+            ConfiguredPoisCollectionChanged?.Invoke(sender, args);
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected virtual void OnPoiPropChanged(object poi, PropertyChangedEventArgs propertyName)
+        {
+            ConfiguredPoiPropChanged?.Invoke(this, poi, propertyName);
         }
 
         public static Settings Instance
@@ -276,9 +312,13 @@ namespace OrbitPOInts
                 var poisToRemove = GetPoisToUpdate(poi, addMethod == AddConfiguredPoiMethod.ReplaceFirst);
                 foreach (var poiToRemove in poisToRemove)
                 {
+                    poiToRemove.PropertyChanged -= OnPoiPropChanged;
                     _configuredPois.Remove(poiToRemove);
                 }
             }
+            // if its a duplicate we dont want to register twice
+            poi.PropertyChanged -= OnPoiPropChanged;
+            poi.PropertyChanged += OnPoiPropChanged;
             _configuredPois.Add(poi);
         }
 

@@ -217,7 +217,8 @@ namespace OrbitPOInts
             Settings.InstanceDestroyed -= OnSettingsDestroyed;
             Settings.InstanceCreated -= OnSettingsCreated;
             _settings.PropertyChanged -= OnPropertyChanged;
-            _settings.ConfiguredPoisChanged -= OnConfiguredPoisChanged;
+            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoisChanged;
+            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
             _settings = null;
         }
 
@@ -231,8 +232,10 @@ namespace OrbitPOInts
             Settings.InstanceCreated += OnSettingsCreated;
             _settings.PropertyChanged += OnPropertyChanged;
             // remove and reregister at the end because we want to make sure we at least got the event that the collection was reset
-            _settings.ConfiguredPoisChanged -= OnConfiguredPoisChanged;
-            _settings.ConfiguredPoisChanged += OnConfiguredPoisChanged;
+            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoisChanged;
+            _settings.ConfiguredPoiPropChanged += OnConfiguredPoisChanged;
+            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
+            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
         }
 
         #endregion
@@ -260,7 +263,12 @@ namespace OrbitPOInts
             CurrentTargetRefresh();
         }
 
-        private void OnConfiguredPoisChanged(object settings, NotifyCollectionChangedEventArgs args)
+        private void OnConfiguredPoisChanged(object settings, object poi, PropertyChangedEventArgs args)
+        {
+            CurrentTargetRefresh();
+        }
+
+        private void OnConfiguredPoisCollectionChanged(object settings, NotifyCollectionChangedEventArgs args)
         {
             CurrentTargetRefresh();
         }
