@@ -400,14 +400,14 @@ namespace OrbitPOInts
                 .OrderBy(poi => Array.IndexOf(PoiTypeOrder.ToArray(), poi.Type)); // ordering by default type order;
         }
 
-        public static IEnumerable<POI> GetGlobalDefaultCopy()
+        public static IEnumerable<ResettablePoi> GetGlobalDefault()
         {
             return DefaultGlobalPoiDictionary.Values;
         }
 
-        public static IEnumerable<POI> GetAllDefaultPois()
+        public static IEnumerable<ResettablePoi> GetAllDefaultPois()
         {
-            return GetGlobalDefaultCopy().Concat(DefaultBodyPoiTypeDictionary.Values.SelectMany(d => d.Values));
+            return GetGlobalDefault().Concat(DefaultBodyPoiTypeDictionary.Values.SelectMany(d => d.Values));
         }
 
         public static IEnumerable<POI> GetNewDefaultPoisFor(CelestialBody body)
@@ -415,7 +415,7 @@ namespace OrbitPOInts
             return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body));
         }
 
-        public static IEnumerable<POI> GetDefaultPoisFor(CelestialBody body)
+        public static IEnumerable<ResettablePoi> GetDefaultPoisFor(CelestialBody body)
         {
             if (body == null)
             {
