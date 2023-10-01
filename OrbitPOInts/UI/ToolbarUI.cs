@@ -346,7 +346,7 @@ namespace OrbitPOInts.UI
                 CustomPoiGUI(poi);
             }
 
-            if (GUILayout.Button("+"))
+            if (GUILayout.Button("Add Custom POI"))
             {
                 Settings.Instance.AddConfiguredPoi(POI.DefaultFrom(body, PoiType.Custom));
             }
