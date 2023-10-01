@@ -525,7 +525,7 @@ namespace OrbitPOInts
                 var poi = Settings.Instance.GetStandardPoiFor(body, poiType);
                 switch (poiType)
                 {
-                    case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
+                    case PoiType.MaxTerrainAltitude when body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
                     case PoiType.Atmosphere when !body.atmosphere:
                         LogDebug($"[CreatePoisForBody] skipping body:{body.Serialize()} type:{poiType} - atmosphere:{body.atmosphere} ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:{Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies}");
                         continue;
