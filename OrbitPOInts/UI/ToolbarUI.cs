@@ -315,7 +315,6 @@ namespace OrbitPOInts.UI
             {
                 LogDebug($"OnColorChangedAction body:{poi.Body.Serialize()}, type:{Enum.GetName(typeof(PoiType), poi.Type)}, color:{color.Serialize()}");
                 poi.Color = color;
-                OrbitPoiVisualizer.Instance.CurrentTargetRefresh();
             };
         }
 
