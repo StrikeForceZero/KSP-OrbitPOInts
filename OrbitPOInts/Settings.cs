@@ -232,6 +232,8 @@ namespace OrbitPOInts
         private void OnDefaultPoiPropChange(object senderPoi, PropertyChangedEventArgs args)
         {
             if (senderPoi is not ResettablePoi poi) return;
+            // don't continue if we are already resetting
+            if (poi.IsResetting) return;
             // clone it so we can keep listening to when defaults change
             // configured ones should mask default in UI
             AddConfiguredPoi(poi.Clone());

@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 
 #if TEST
@@ -22,16 +23,28 @@ namespace OrbitPOInts.Data.POI
         public bool Sealed { get; private set; }
         public POI SealedState { get; private set; }
 
+        public bool IsResetting { get; private set; }
+
+        private bool _isInitialized;
+
         public ResettablePoi(POI poiSource, bool seal = false) : base(poiSource.Type, poiSource.Body)
         {
             CopyFromPoi(poiSource);
-            if (!seal) return;
-            Seal();
+            Initialize(seal);
         }
 
-        public ResettablePoi(PoiType type, CelestialBody body = null) : base(type, body)
+        public ResettablePoi(PoiType type, CelestialBody body = null, bool seal = false) : base(type, body)
         {
+            Initialize(seal);
+        }
+
+        private void Initialize(bool seal)
+        {
+            if (_isInitialized) throw new InvalidOperationException("Initialize should only be called once.");
+
             PropertyChanged += OnBasePropertyChanged;
+            if (seal) Seal();
+            _isInitialized = true;
         }
 
         public static ResettablePoi From(POI sourcePoi, bool seal = false)
@@ -41,7 +54,7 @@ namespace OrbitPOInts.Data.POI
 
         private void OnBasePropertyChanged(object senderPoi, PropertyChangedEventArgs args)
         {
-            if (!Sealed) return;
+            if (!Sealed || IsResetting) return;
             Dirty = true;
         }
 
@@ -56,7 +69,15 @@ namespace OrbitPOInts.Data.POI
         {
             if (!Dirty) return;
 
+            // if this is a problem we can add a lock
+            if (IsResetting) throw new InvalidOperationException("Tried calling Reset() during reset!");
+
+            // so we dont trigger a property change event and set Dirty=true
+            IsResetting = true;
+
             CopyFromPoi(SealedState);
+
+            IsResetting = false;
 
             Dirty = false;
         }
