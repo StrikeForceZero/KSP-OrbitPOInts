@@ -35,7 +35,7 @@ namespace OrbitPOInts.Data.POI
         private float _lineWidth;
         private int _resolution;
 
-        public PoiType Type { get; private set; }
+        public PoiType Type { get; protected set; }
 
         private string _resolveLabel()
         {
@@ -100,7 +100,7 @@ namespace OrbitPOInts.Data.POI
             get => _body;
             // Body is private set because there’s no current use case to change the Body after creation.
             // Triggering PropertyChanged events for both Radius and Body in the same frame might lead to unintuitive behavior.
-            private set
+            protected set
             {
                 if (_body == value) return;
                 _body = value;
