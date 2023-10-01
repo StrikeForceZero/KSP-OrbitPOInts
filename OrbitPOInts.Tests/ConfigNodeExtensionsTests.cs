@@ -21,17 +21,18 @@ namespace OrbitPOInts.Tests
 
         private CelestialBody _celestialBodyReference;
 
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            FlightGlobals.Bodies = new List<CelestialBody>
+            {
+                new() { bodyName = "TestBody" }
+            };
+        }
 
         [SetUp]
         public void SetUp()
         {
-            FlightGlobals.Bodies = new List<CelestialBody>()
-            {
-                new CelestialBody()
-                {
-                    bodyName = "TestBody"
-                }
-            };
             _celestialBodyReference = FlightGlobals.Bodies[0];
             _configNode = new ConfigNode();
             _configNode.SetValue("boolKey", "true");

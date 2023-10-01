@@ -25,8 +25,8 @@ namespace OrbitPOInts.Tests
 
         private JsonSerializerOptions _serializerOptions;
 
-        [SetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             _serializerOptions = new JsonSerializerOptions
             {
@@ -38,9 +38,6 @@ namespace OrbitPOInts.Tests
             _serializerOptions.Converters.Add(new ExposedConfigNodeConverter());
             _serializerOptions.Converters.Add(new ConfigNodeConverter());
             _serializerOptions.Converters.Add(new PoiConverter());
-
-            Settings.ResetInstance();
-            _modScenario = new ModScenario();
 
             var mockTerrainService = new Mock<ITerrainService>();
             mockTerrainService.Setup(c => c.TerrainAltitude(It.IsAny<double>(), It.IsAny<double>(), It.IsAny<bool>())).Returns(1);
@@ -72,7 +69,13 @@ namespace OrbitPOInts.Tests
                 new(PoiType.Custom, testBody) { Enabled = true, Color = Color.black, Radius = 10 },
                 new(PoiType.Custom, testBody2) { Enabled = true, Color = Color.red, Radius = 5 },
             };
+        }
 
+        [SetUp]
+        public void Setup()
+        {
+            Settings.ResetInstance();
+            _modScenario = new ModScenario();
             Settings.Instance.UpdateConfiguredPois(_initialPois);
         }
 

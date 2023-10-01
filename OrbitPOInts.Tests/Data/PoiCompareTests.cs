@@ -15,8 +15,8 @@ namespace OrbitPOInts.Tests.Data
         private CelestialBody testBody;
         private CelestialBody testBody2;
 
-        [SetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             var mockTerrainService = new Mock<ITerrainService>();
             mockTerrainService.Setup(c => c.TerrainAltitude(It.IsAny<double>(), It.IsAny<double>(), It.IsAny<bool>())).Returns(1);

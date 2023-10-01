@@ -16,8 +16,8 @@ namespace OrbitPOInts.Tests
     {
         private CelestialBody testBody;
 
-        [SetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
             var mockTerrainService = new Mock<ITerrainService>();
             mockTerrainService.Setup(c => c.TerrainAltitude(It.IsAny<double>(), It.IsAny<double>(), It.IsAny<bool>())).Returns(1);
@@ -32,6 +32,11 @@ namespace OrbitPOInts.Tests
                 Radius = 1,
             };
             FlightGlobals.Bodies = new List<CelestialBody> { testBody };
+        }
+
+        [SetUp]
+        public void Setup()
+        {
             Settings.ResetInstance();
         }
 
