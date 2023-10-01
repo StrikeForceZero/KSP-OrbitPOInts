@@ -86,6 +86,7 @@
         <Compile Include="Data\POI\PoiDTOSameTargetComparer.cs" />
         <Compile Include="Data\POI\PoiSameTargetComparer.cs" />
         <Compile Include="Data\POI\PoiType.cs" />
+        <Compile Include="Data\POI\ResettablePoi.cs" />
         <Compile Include="Extensions\IDictionaryExtensions.cs" />
         <Compile Include="Extensions\FloatExtensions.cs" />
         <Compile Include="Extensions\KSP\CelestialBodyExtensions.cs" />
