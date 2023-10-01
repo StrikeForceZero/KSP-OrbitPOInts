@@ -139,6 +139,8 @@ namespace OrbitPOInts
             lock (Padlock)
             {
                 _instance = null;
+                // required for mocking flight globals
+                RestDefaultBodyPoiTypeDictionary();
             }
         }
 #endif
@@ -307,11 +309,19 @@ namespace OrbitPOInts
                 .ToDictionary(poi => poi.Type, poi => poi.CloneWith(body));
         }
 
-        public static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<PoiType, ResettablePoi>> DefaultBodyPoiTypeDictionary =
+        public static IReadOnlyDictionary<string, IReadOnlyDictionary<PoiType, ResettablePoi>> DefaultBodyPoiTypeDictionary { get; private set; } =
             FlightGlobals.Bodies.ToDictionary(
+                    body => body.Serialize(),
+                    body => SealDictionary(CreateBodyPoiTypeDictionary(body))
+                );
+
+        private static void RestDefaultBodyPoiTypeDictionary()
+        {
+            DefaultBodyPoiTypeDictionary = FlightGlobals.Bodies.ToDictionary(
                 body => body.Serialize(),
                 body => SealDictionary(CreateBodyPoiTypeDictionary(body))
             );
+        }
 
         // user configured
         private ObservableCollection<POI> _configuredPois = new();
