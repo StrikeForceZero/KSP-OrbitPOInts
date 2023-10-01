@@ -215,7 +215,7 @@ namespace OrbitPOInts.Data.POI
                 PoiType.SphereOfInfluence => body.sphereOfInfluence,
                 PoiType.Atmosphere => body.atmosphereDepth + body.Radius,
                 PoiType.MinimumOrbit => body.minOrbitalDistance,
-                PoiType.MaxTerrainAltitude => body.GetApproxTerrainMaxHeight(),
+                PoiType.MaxTerrainAltitude => body.GetApproxTerrainMaxHeight() + body.Radius,
                 PoiType.Custom => throw new NotSupportedException("Custom does not have a predefined radius."),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
