@@ -516,7 +516,7 @@ namespace OrbitPOInts
                 // check to make sure its not disabled in the global config
                 if (!Settings.Instance.GetGlobalEnableFor(body, poiType))
                 {
-                    LogDebug($"[CreatePoisForBody] global disable for {body.Serialize()} {poiType}");
+                    LogDebug($"[CreatePoisForBody] skipping - global disable for body:{body.Serialize()} type:{poiType}");
                     continue;
                 }
                 var poi = Settings.Instance.GetStandardPoiFor(body, poiType);
@@ -524,10 +524,10 @@ namespace OrbitPOInts
                 {
                     case PoiType.MaxTerrainAltitude when !body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
                     case PoiType.Atmosphere when !body.atmosphere:
-                        LogDebug($"[CreatePoisForBody] skipping {body.Serialize()} {poiType} - atmosphere:{body.atmosphere} ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:{Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies}");
+                        LogDebug($"[CreatePoisForBody] skipping body:{body.Serialize()} type:{poiType} - atmosphere:{body.atmosphere} ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:{Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies}");
                         continue;
                     default:
-                        LogDebug($"[CreatePoisForBody] {poi.Body.bodyName} {poi.Type} {poi.RadiusForRendering()}");
+                        LogDebug($"[CreatePoisForBody] body:{poi.Body.bodyName} type:{poi.Type} renderRadius:{poi.RadiusForRendering()} color:{poi.Color.Serialize()}");
                         onCreatePoi.Invoke(poi);
                         break;
                 }
@@ -536,7 +536,7 @@ namespace OrbitPOInts
             var customPois = Settings.Instance.GetCustomPoisFor(body);
             foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.RadiusForRendering() > 0))
             {
-                LogDebug($"[CreatePoisForBody] {customPoi.Body.bodyName} {customPoi.Type} {customPoi.RadiusForRendering()}");
+                LogDebug($"[CreatePoisForBody] body:{customPoi.Body.bodyName} type:{customPoi.Type} renderRadius:{customPoi.RadiusForRendering()} color:{customPoi.Color.Serialize()}");
                 onCreatePoi.Invoke(customPoi);
             }
         }
