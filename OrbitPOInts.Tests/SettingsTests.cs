@@ -260,12 +260,13 @@ namespace OrbitPOInts.Tests
             );
         }
 
+        // TODO: add negative test using custom instead of SphereOfInfluence
         [Test]
         public void ConfiguredPois_AddConfiguredPoi_ExistingIsSame_ReplaceFirst_IsSettingCorrectValue()
         {
             var existingPoi = POI.DefaultFrom(PoiType.Atmosphere);
-            var existingPoi2 = POI.DefaultFrom(PoiType.Custom);
-            var existingPoi3 = POI.DefaultFrom(PoiType.Custom);
+            var existingPoi2 = POI.DefaultFrom(PoiType.SphereOfInfluence);
+            var existingPoi3 = POI.DefaultFrom(PoiType.SphereOfInfluence);
             existingPoi2.Radius = 2;
             existingPoi3.Radius = 3;
             Settings.Instance.UpdateConfiguredPois(
@@ -276,7 +277,7 @@ namespace OrbitPOInts.Tests
                     existingPoi3,
                 }
             );
-            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            var newPoi = POI.DefaultFrom(PoiType.SphereOfInfluence);
             newPoi.Radius = 1;
             // ReSharper disable once RedundantArgumentDefaultValue
             Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.ReplaceFirst);
@@ -288,12 +289,13 @@ namespace OrbitPOInts.Tests
             );
         }
 
+        // TODO: add negative test using custom instead of SphereOfInfluence
         [Test]
         public void ConfiguredPois_AddConfiguredPoi_ExistingIsSame_ReplaceAll_IsSettingCorrectValue()
         {
             var existingPoi = POI.DefaultFrom(PoiType.Atmosphere);
-            var existingPoi2 = POI.DefaultFrom(PoiType.Custom);
-            var existingPoi3 = POI.DefaultFrom(PoiType.Custom);
+            var existingPoi2 = POI.DefaultFrom(PoiType.SphereOfInfluence);
+            var existingPoi3 = POI.DefaultFrom(PoiType.SphereOfInfluence);
             existingPoi2.Radius = 2;
             existingPoi3.Radius = 3;
             Settings.Instance.UpdateConfiguredPois(
@@ -304,7 +306,7 @@ namespace OrbitPOInts.Tests
                     existingPoi3,
                 }
             );
-            var newPoi = POI.DefaultFrom(PoiType.Custom);
+            var newPoi = POI.DefaultFrom(PoiType.SphereOfInfluence);
             newPoi.Radius = 1;
             // ReSharper disable once RedundantArgumentDefaultValue
             Settings.Instance.AddConfiguredPoi(newPoi, Settings.AddConfiguredPoiMethod.ReplaceAll);
