@@ -414,6 +414,14 @@ namespace OrbitPOInts.Tests
                 POI.DefaultFrom(testBody, PoiType.Atmosphere)
             );
             var selectedPois = Settings.Instance.GetStandardPoisFor(testBody).ToList();
+
+            TestContext.WriteLine(PoiSerializer(selectedPois.First()));
+            TestContext.WriteLine(PoiSerializer(StandardPoisForTestBody.First()));
+            // TODO: move to its own test
+            // Sanity check... either the list is out of order or the body references have changed
+            Assert.IsTrue(ReferenceEquals(selectedPois.First().Body, StandardPoisForTestBody.First().Body));
+            Assert.IsTrue(PoiSameTargetComparer.StaticEquals(selectedPois.First(), StandardPoisForTestBody.First()));
+
             CustomAsserts.CollectionAssert.HaveSameElements(
                 selectedPois,
                 StandardPoisForTestBody,
