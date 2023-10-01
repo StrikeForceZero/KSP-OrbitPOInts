@@ -424,6 +424,57 @@ namespace OrbitPOInts.Tests
             Assert.AreEqual(testBody, selectedPois.First().Body);
         }
 
+        [Test]
+        public void ConfiguredPois_RemoveConfiguredPoi_RemovesAllCopies()
+        {
+            var newPois = ConfiguredPoiSetup(
+                POI.DefaultFrom(PoiType.Atmosphere),
+                POI.DefaultFrom(PoiType.Custom),
+                POI.DefaultFrom(PoiType.SphereOfInfluence),
+                POI.DefaultFrom(testBody, PoiType.Custom),
+                POI.DefaultFrom(testBody, PoiType.Atmosphere)
+            );
+
+            var lastPoi = newPois.Last();
+
+            Settings.Instance.RemoveConfiguredPoi(lastPoi, false);
+
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                newPois.Take(newPois.Count() - 1),
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
+        [Test]
+        public void ConfiguredPois_RemoveConfiguredPoi_RemovesFirstInstance()
+        {
+            var newPois = ConfiguredPoiSetup(
+                POI.DefaultFrom(PoiType.Atmosphere),
+                POI.DefaultFrom(PoiType.Atmosphere),
+                POI.DefaultFrom(PoiType.Atmosphere),
+                POI.DefaultFrom(PoiType.Custom),
+                POI.DefaultFrom(PoiType.SphereOfInfluence),
+                POI.DefaultFrom(testBody, PoiType.Custom),
+                POI.DefaultFrom(PoiType.Atmosphere),
+                POI.DefaultFrom(PoiType.Atmosphere),
+                POI.DefaultFrom(PoiType.Atmosphere),
+                POI.DefaultFrom(testBody, PoiType.Atmosphere)
+            );
+
+            var firstPoi = newPois.First();
+
+            Settings.Instance.RemoveConfiguredPoi(firstPoi, true);
+
+            CustomAsserts.CollectionAssert.HaveSameElements(
+                Settings.Instance.ConfiguredPois,
+                newPois.Skip(1),
+                PoiSerializer,
+                new PoiComparer()
+            );
+        }
+
         private IList<POI> GlobalStandardPois =>
             new List<POI>()
             {
