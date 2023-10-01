@@ -8,6 +8,7 @@ using OrbitPOInts.Tests.Mocks;
 
 namespace OrbitPOInts.Tests.Data
 {
+#if TEST
     [TestFixture]
     public class PoiCompareTests
     {
@@ -103,4 +104,5 @@ namespace OrbitPOInts.Tests.Data
             Assert.IsTrue(equals(poi1, poi2));
         }
     }
+#endif
 }
