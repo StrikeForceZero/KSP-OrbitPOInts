@@ -144,6 +144,9 @@ namespace OrbitPOInts
         private void OnDisable()
         {
             LogDebug("OnDisable");
+            // this prevents us from waking up again
+            // but instead of leaving a envent handler just for GlobalEnable
+            // we'll pass the responsibility to the UI
             UnregisterSettings();
             RegisterEvents(false);
             PurgeAll();
