@@ -48,6 +48,7 @@ namespace OrbitPOInts
         private Settings()
         {
             _configuredPois.CollectionChanged += NotifyCollectionChanged;
+            RegisterForDefaultPoiPropChanges();
             InstanceCreated?.Invoke(this);
         }
 
@@ -85,6 +86,7 @@ namespace OrbitPOInts
                     PropertyChanged = null;
                     ConfiguredPoiPropChanged = null;
                     ConfiguredPoisCollectionChanged = null;
+                    UnregisterForDefaultPoiPropChanges();
                 }
 
                 // Free any unmanaged objects here, if any.
@@ -228,6 +230,31 @@ namespace OrbitPOInts
 
 
         public bool LogDebugEnabled { get; set; }
+
+        private void OnDefaultPoiPropChange(object senderPoi, PropertyChangedEventArgs args)
+        {
+            if (senderPoi is not POI poi) return;
+            // clone it so we can keep listening to when defaults change
+            // configured ones should mask default in UI
+            AddConfiguredPoi(poi.Clone());
+        }
+        private void RegisterForDefaultPoiPropChanges()
+        {
+            foreach (var poi in DefaultGlobalPoiDictionary.Values)
+            {
+                // if its a duplicate we dont want to register twice
+                poi.PropertyChanged -= OnDefaultPoiPropChange;
+                poi.PropertyChanged += OnDefaultPoiPropChange;
+            }
+        }
+
+        private void UnregisterForDefaultPoiPropChanges()
+        {
+            foreach (var poi in DefaultGlobalPoiDictionary.Values)
+            {
+                poi.PropertyChanged -= OnDefaultPoiPropChange;
+            }
+        }
 
         public static readonly IReadOnlyDictionary<PoiType, Color> DefaultPoiColors = new ReadOnlyDictionary<PoiType, Color>(
             new Dictionary<PoiType, Color> {
