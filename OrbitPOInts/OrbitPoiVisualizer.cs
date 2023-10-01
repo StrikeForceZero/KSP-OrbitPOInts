@@ -238,7 +238,7 @@ namespace OrbitPOInts
             _settings.ConfiguredPoiPropChanged -= OnConfiguredPoisChanged;
             _settings.ConfiguredPoiPropChanged += OnConfiguredPoisChanged;
             _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
-            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
+            _settings.ConfiguredPoisCollectionChanged += OnConfiguredPoisCollectionChanged;
         }
 
         #endregion
