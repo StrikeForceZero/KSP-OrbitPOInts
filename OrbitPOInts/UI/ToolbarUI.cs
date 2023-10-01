@@ -280,7 +280,7 @@ namespace OrbitPOInts.UI
             var result = ToggleTextFieldResult.Default;
             GUILayout.BeginHorizontal();
             result.Enabled = GUILayout.Toggle(toggled, label, GUILayout.ExpandWidth(false));
-            GUILayout.Space(100);
+            GUILayout.Space(75);
             result.Text = GUILayout.TextField(text, GUILayout.ExpandWidth(false), GUILayout.Width(100));
             GUILayout.EndHorizontal();
             return result;
