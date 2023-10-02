@@ -62,6 +62,7 @@ namespace OrbitPOInts.UI
         private int _selectedBodyIndex = 0;
 
         private SimpleColorPicker _colorPicker = new SimpleColorPicker();
+        private OptionsPopup _optionsPopup = new OptionsPopup();
 
         private void LogDebug(string message)
         {
@@ -228,6 +229,7 @@ namespace OrbitPOInts.UI
                 GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
                 windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts");
                 _colorPicker.OnGUI();
+                _optionsPopup.OnGUI();
             }
         }
 
@@ -443,8 +445,12 @@ namespace OrbitPOInts.UI
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20);
 
-                Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
-                Settings.Instance.UseSkin = GUILayout.Toggle(Settings.Instance.UseSkin, "Use Skin");
+                var showOptionsButtonClicked = GUILayout.Button("Show Options");
+                if (showOptionsButtonClicked)
+                {
+                    LogDebug($"[GUI] Show Options Button clicked");
+                    _optionsPopup.OpenOptionsPopup();
+                }
             
             GUILayout.EndVertical();
 
@@ -477,6 +483,7 @@ namespace OrbitPOInts.UI
             toolbarButton.SetFalse();
             showUI = false;
             _colorPicker.DisplayGUI(false);
+            _optionsPopup.DisplayGUI(false);
         }
 
         void Update()
