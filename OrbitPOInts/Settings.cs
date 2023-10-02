@@ -138,7 +138,7 @@ namespace OrbitPOInts
         {
             _instance?.Dispose();
             // required for mocking flight globals
-            RestDefaultPoiDictionaries();
+            ResetDefaultBodyPoiTypeDictionary();
         }
 #endif
         // TODO: might be better to just copy the properties from a new object?
@@ -283,7 +283,7 @@ namespace OrbitPOInts
             );
         }
 
-        public static IReadOnlyDictionary<PoiType, ResettablePoi> DefaultGlobalPoiDictionary { get; private set; } =
+        public static readonly IReadOnlyDictionary<PoiType, ResettablePoi> DefaultGlobalPoiDictionary =
             SealDictionary(
                 CreatePoiTypeDictionary(
                     POI.DefaultFrom(PoiType.HillSphere),
@@ -303,29 +303,26 @@ namespace OrbitPOInts
                 .ToDictionary(poi => poi.Type, poi => poi.CloneWith(body));
         }
 
-        public static IReadOnlyDictionary<string, IReadOnlyDictionary<PoiType, ResettablePoi>> DefaultBodyPoiTypeDictionary { get; private set; } =
-            FlightGlobals.Bodies.ToDictionary(
-                    body => body.Serialize(),
-                    body => SealDictionary(CreateBodyPoiTypeDictionary(body))
-                );
-
 #if TEST
-        private static void RestDefaultPoiDictionaries()
+        private static void ResetDefaultBodyPoiTypeDictionary()
         {
-            DefaultGlobalPoiDictionary = SealDictionary(
-                CreatePoiTypeDictionary(
-                    POI.DefaultFrom(PoiType.HillSphere),
-                    POI.DefaultFrom(PoiType.SphereOfInfluence),
-                    POI.DefaultFrom(PoiType.Atmosphere),
-                    POI.DefaultFrom(PoiType.MinimumOrbit),
-                    POI.DefaultFrom(PoiType.MaxTerrainAltitude)
-                )
-            );
             DefaultBodyPoiTypeDictionary = FlightGlobals.Bodies.ToDictionary(
                 body => body.Serialize(),
                 body => SealDictionary(CreateBodyPoiTypeDictionary(body))
             );
         }
+
+        public static IReadOnlyDictionary<string, IReadOnlyDictionary<PoiType, ResettablePoi>> DefaultBodyPoiTypeDictionary { get; private set; } =
+            FlightGlobals.Bodies.ToDictionary(
+                    body => body.Serialize(),
+                    body => SealDictionary(CreateBodyPoiTypeDictionary(body))
+                );
+#else
+        public static readonly IReadOnlyDictionary<string, IReadOnlyDictionary<PoiType, ResettablePoi>> DefaultBodyPoiTypeDictionary =
+            FlightGlobals.Bodies.ToDictionary(
+                    body => body.Serialize(),
+                    body => SealDictionary(CreateBodyPoiTypeDictionary(body))
+                );
 #endif
 
         // user configured
