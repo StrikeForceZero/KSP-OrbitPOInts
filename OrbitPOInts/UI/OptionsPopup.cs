@@ -53,7 +53,7 @@ namespace OrbitPOInts.UI
         {
             if (!_showGUI) return;
             GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
-            _windowRect = GUILayout.Window(1234567, _windowRect, DrawUI, "OrbitPOInts Options");
+            _windowRect = GUILayout.Window(1234567, _windowRect, DrawUI, "OrbitPOInts Options", WindowStyle.GetSharedDarkWindowStyle());
         }
 
         private void DrawUI(int windowID)
@@ -66,7 +66,17 @@ namespace OrbitPOInts.UI
                 GUILayout.Label("Misc");
                 Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
                 Settings.Instance.UseSkin = GUILayout.Toggle(Settings.Instance.UseSkin, "Use Skin");
+                Settings.Instance.UseOpaqueBackgroundOverride = GUILayout.Toggle(Settings.Instance.UseOpaqueBackgroundOverride, "Use Opaque Background Override");
                 Settings.Instance.UseTopRightCloseButton = GUILayout.Toggle(Settings.Instance.UseTopRightCloseButton, "Use Top Right Close Button");
+
+                if (Settings.Instance.UseOpaqueBackgroundOverride)
+                {
+                    WindowStyle.ApplyOverride();
+                }
+                else
+                {
+                    WindowStyle.ApplyDefaults();
+                }
 
                 GUILayout.Space(50);
 

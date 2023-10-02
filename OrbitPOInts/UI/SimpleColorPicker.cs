@@ -68,7 +68,7 @@ namespace OrbitPOInts.UI
         {
             if (!_showGUI) return;
             GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
-            _windowRect = GUILayout.Window(123456, _windowRect, DrawUI, _title);
+            _windowRect = GUILayout.Window(123456, _windowRect, DrawUI, _title, WindowStyle.GetSharedDarkWindowStyle());
         }
 
         private void DrawUI(int windowID)

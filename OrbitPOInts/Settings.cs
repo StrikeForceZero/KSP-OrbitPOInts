@@ -233,6 +233,8 @@ namespace OrbitPOInts
 
         public bool UseSkin { get; set; } = false;
 
+        public bool UseOpaqueBackgroundOverride { get; set; } = false;
+
         public bool LogDebugEnabled { get; set; }
 
         public bool UseTopRightCloseButton { get; set; }

@@ -227,7 +227,7 @@ namespace OrbitPOInts.UI
             if (showUI)
             {
                 GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
-                windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts");
+                windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts", WindowStyle.GetSharedDarkWindowStyle());
                 _colorPicker.OnGUI();
                 _optionsPopup.OnGUI();
             }

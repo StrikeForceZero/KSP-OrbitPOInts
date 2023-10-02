@@ -109,6 +109,7 @@
         <Compile Include="UI\SimpleColorPicker.cs" />
         <Compile Include="UI\ToggleTextfieldResult.cs" />
         <Compile Include="UI\ToolbarUI.cs" />
+        <Compile Include="UI\WindowStyle.cs" />
         <Compile Include="Utils\DelayedAction.cs" />
         <Compile Include="Utils\Logger.cs" />
         <Compile Include="Utils\Option.cs" />
