@@ -68,5 +68,19 @@ namespace OrbitPOInts.UI
             onCloseButtonClick.Invoke();
             Event.current.Use();
         }
+
+        public static void ColorBox(Color color, uint width = 25, uint height = 25)
+        {
+            var colorBox = new GUIStyle
+            {
+                normal =
+                {
+                    background = Texture2D.whiteTexture
+                }
+            };
+            GUI.color = color;
+            GUILayout.Box("", colorBox, GUILayout.Width(width), GUILayout.Height(height));
+            GUI.color = Color.white;
+        }
     }
 }

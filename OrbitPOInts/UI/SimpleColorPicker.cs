@@ -87,11 +87,7 @@ namespace OrbitPOInts.UI
             _color = new Color(_red, _green, _blue);
 
             // A simple way to display the color you've picked.
-            GUIStyle colorBox = new GUIStyle();
-            colorBox.normal.background = Texture2D.whiteTexture;
-            GUI.color = _color;
-            GUILayout.Box("", colorBox, GUILayout.Width(100), GUILayout.Height(100));
-            GUI.color = Color.white;
+            Controls.ColorBox(_color, 100, 100);
 
             GUILayout.Space(10);
 
