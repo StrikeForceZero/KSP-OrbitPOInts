@@ -12,49 +12,49 @@ using UnityEngine.Events;
 
 namespace OrbitPOInts.UI
 {
-    public static class CloseButton
+    public static class Controls
     {
         const int closeButtonSize = 25;
-        private const string Label = "X";
+        private const string closeButtonLabel = "X";
 
         private static void LogDebug(string message)
         {
-            Logger.LogDebug($"[CloseButton] {message}");
+            Logger.LogDebug($"[Controls] {message}");
         }
 
         private static void Log(string message)
         {
-            Logger.Log($"[CloseButton] {message}");
+            Logger.Log($"[Controls] {message}");
         }
 
-        public static void StandardCloseButton(Action onCloseButtonClick)
+        public static void StandardCloseButton(Action onCloseButtonClick, bool show = true)
         {
-            if (Settings.Instance.UseTopRightCloseButton) return;
+            if (!show) return;
 
             GUILayout.BeginHorizontal();
 
                 GUILayout.FlexibleSpace(); // Pushes the following items to the right
 
-                if (GUILayout.Button(Label, GUILayout.Width(closeButtonSize)))
+                if (GUILayout.Button(closeButtonLabel, GUILayout.Width(closeButtonSize)))
                 {
-                    LogDebug("[GUI] StandardCloseButton normal click");
+                    LogDebug("[StandardCloseButton][GUI] StandardCloseButton normal click");
                     onCloseButtonClick.Invoke();
                 }
 
             GUILayout.EndHorizontal();
         }
 
-        public static void TopRightCloseButton(Rect windowRect, Action onCloseButtonClick)
+        public static void TopRightCloseButton(Rect windowRect, Action onCloseButtonClick, bool show = true)
         {
-            if (!Settings.Instance.UseTopRightCloseButton) return;
+            if (!show) return;
 
             const float padding = 5; // Padding from the edge of the window
             var closeButtonRect = new Rect(windowRect.width - closeButtonSize - padding, padding, closeButtonSize, closeButtonSize);
-            var closeButtonClicked = GUI.Button(closeButtonRect, Label);
+            var closeButtonClicked = GUI.Button(closeButtonRect, closeButtonLabel);
 
             if (closeButtonClicked)
             {
-                LogDebug("[GUI] TopRightCloseButton normal click");
+                LogDebug("[TopRightCloseButton][GUI] TopRightCloseButton normal click");
                 onCloseButtonClick.Invoke();
                 return;
             }
@@ -63,7 +63,7 @@ namespace OrbitPOInts.UI
             if (Event.current.type != EventType.MouseDown) return;
             if (!closeButtonRect.Contains(Event.current.mousePosition)) return;
 
-            LogDebug("[GUI] TopRightCloseButton intercepted click");
+            LogDebug("[TopRightCloseButton][GUI] TopRightCloseButton intercepted click");
 
             onCloseButtonClick.Invoke();
             Event.current.Use();

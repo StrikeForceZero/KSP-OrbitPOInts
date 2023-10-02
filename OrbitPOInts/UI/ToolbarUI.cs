@@ -359,7 +359,7 @@ namespace OrbitPOInts.UI
         {
             GUILayout.BeginVertical();
 
-                CloseButton.StandardCloseButton(CloseWindow);
+                Controls.StandardCloseButton(CloseWindow, !Settings.Instance.UseTopRightCloseButton);
 
                 Settings.Instance.GlobalEnable = GUILayout.Toggle(Settings.Instance.GlobalEnable, "Enabled");
                 if (Settings.Instance.GlobalEnable)
@@ -443,7 +443,7 @@ namespace OrbitPOInts.UI
             
             GUILayout.EndVertical();
 
-            CloseButton.TopRightCloseButton(windowRect, CloseWindow);
+            Controls.TopRightCloseButton(windowRect, CloseWindow, Settings.Instance.UseTopRightCloseButton);
 
             // // make only title bar be used for dragging
             GUI.DragWindow(new Rect(0, 0, windowRect.width, 25));

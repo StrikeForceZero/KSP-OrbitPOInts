@@ -61,7 +61,7 @@ namespace OrbitPOInts.UI
             const int closeButtonSize = 25;
             GUILayout.BeginVertical();
 
-                CloseButton.StandardCloseButton(CloseWindow);
+                Controls.StandardCloseButton(CloseWindow, !Settings.Instance.UseTopRightCloseButton);
 
                 GUILayout.Label("Misc");
                 Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
@@ -93,7 +93,7 @@ namespace OrbitPOInts.UI
 
             GUILayout.EndVertical();
 
-            CloseButton.TopRightCloseButton(_windowRect, CloseWindow);
+            Controls.TopRightCloseButton(_windowRect, CloseWindow, Settings.Instance.UseTopRightCloseButton);
 
             // make only title bar be used for dragging
             GUI.DragWindow(new Rect(0, 0, _windowRect.width, 25));
