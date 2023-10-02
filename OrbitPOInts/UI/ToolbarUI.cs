@@ -408,14 +408,13 @@ namespace OrbitPOInts.UI
                 var resetBodyPoiClicked = GUILayout.Button($"Reset POIs for {selectedBodyName} to defaults");
                 if (resetBodyPoiClicked)
                 {
-                    var configuredPoisToRemove = Settings.Instance.ConfiguredPois.Where(poi =>
-                    {
-                        // TODO: it might be worth making a wrapper class for CelestialBodies
-                        // so we can make null treated like a body with its own name
-                        // this way we don't have to rely on all bodies having unique names
-                        var sameBody = _selectedBodyIndex > 0 ? poi.Body.Serialize() == selectedBodyName : poi.Body == null;
-                        return poi.Type != PoiType.Custom && sameBody;
-                    });
+                    // TODO: it might be worth making a wrapper class for CelestialBodies
+                    // so we can make null treated like a body with its own name
+                    // this way we don't have to rely on all bodies having unique names
+                    // or looping through them each time as CelestialBodyExtensions.ResolveByName adds some overhead
+                    var targetBodyName = _selectedBodyIndex > 0 ? selectedBodyName : null;
+                    var targetBody = CelestialBodyExtensions.ResolveByName(targetBodyName);
+                    var configuredPoisToRemove = Settings.Instance.ConfiguredPois.Where(poi => poi.Type != PoiType.Custom && poi.Body == targetBody);
 
                     foreach (var poi in configuredPoisToRemove)
                     {
