@@ -177,6 +177,7 @@ namespace OrbitPOInts.Data.POI
                 Enabled = GetDefaultEnabledForType(type),
                 Resolution = GetDefaultResolutionForType(type),
                 LineWidth = 1f,
+                AddPlanetRadius = type == PoiType.Custom,
             };
         }
 
