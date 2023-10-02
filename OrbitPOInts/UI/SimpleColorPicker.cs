@@ -24,6 +24,7 @@ namespace OrbitPOInts.UI
         private float _blue = 1.0f;
         private Color _color = Color.white;
         private Color _initialColor;
+        private Color _defaultColor;
         private string _title;
 
         private bool _showGUI;
@@ -32,11 +33,12 @@ namespace OrbitPOInts.UI
 
         public UnityAction<Color> OnColorPickerClosed;
 
-        public void OpenColorPicker(Color initialColor, string title)
+        public void OpenColorPicker(Color initialColor, Color defaultColor, string title)
         {
 
             _title = title;
             _initialColor = initialColor;
+            _defaultColor = defaultColor;
             _red = initialColor.r;
             _green = initialColor.g;
             _blue = initialColor.b;
@@ -84,8 +86,10 @@ namespace OrbitPOInts.UI
 
             GUILayout.BeginHorizontal();
                 var cancelButtonClicked = GUILayout.Button("Cancel");
+                var defaultButtonClicked = GUILayout.Button("Default");
                 var saveButtonClicked = GUILayout.Button("Save");
                 if (cancelButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(_initialColor));
+                if (defaultButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(_defaultColor));
                 if (saveButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(GetCurrentColor()));
             GUILayout.EndHorizontal();
 

@@ -287,13 +287,13 @@ namespace OrbitPOInts.UI
         }
 
         private delegate void OnColorChangedAction(Color color);
-        private void CustomColorButton(string name, Color initialColor, OnColorChangedAction onColorChangedAction)
+        private void CustomColorButton(string name, Color initialColor, Color defaultColor, OnColorChangedAction onColorChangedAction)
         {
             var customColorButtonClicked = GUILayout.Button("Color", GUILayout.ExpandWidth(false));
             if (customColorButtonClicked)
             {
                 LogDebug($"customColorButtonClicked {initialColor}");
-                _colorPicker.OpenColorPicker(initialColor, $"Edit {name} color");
+                _colorPicker.OpenColorPicker(initialColor, defaultColor, $"Edit {name} color");
                 _colorPicker.OnColorPickerClosed += color =>
                 {
                     LogDebug($"color picker closed {initialColor} -> {color}");
@@ -309,7 +309,7 @@ namespace OrbitPOInts.UI
             GUILayout.BeginHorizontal();
             children.Invoke();
             GUILayout.FlexibleSpace();
-            CustomColorButton(poi.Label, poi.Color, AssignPoiColorFactory(poi));
+            CustomColorButton(poi.Label, poi.Color, Settings.DefaultPoiColors[poi.Type], AssignPoiColorFactory(poi));
             GUILayout.EndHorizontal();
         }
 
