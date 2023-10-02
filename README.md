@@ -17,14 +17,16 @@ Points of Interest:
 See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issues.
 
 ## Planned/TODO/PRs Welcome!
-- [~~Submit to CKAN!~~](https://github.com/KSP-CKAN/NetKAN/blob/master/NetKAN/OrbitPOInts.netkan)
-- ~~Custom colors~~
-- ~~Custom POIs ("I want to visualize a 500km ring around a body")~~
-    - Allow any number of custom POIs
-- Rewrite the mess OrbitPoiVisualizer has become.
-- High resolution max altitude detection for current orbit to warn user if they are at risk of impact
-- Show POI for High/Low Orbit and potentially other science related altitudes
-- ~~Persistent Settings~~
+- [x] [~~Submit to CKAN!~~](https://github.com/KSP-CKAN/NetKAN/blob/master/NetKAN/OrbitPOInts.netkan)
+- [x] ~~Custom colors~~
+- [x] ~~Custom POIs ("I want to visualize a 500km ring around a body")~~
+   - [x] ~~ Allow any number of custom POIs~~
+- [ ] Rewrite the mess OrbitPoiVisualizer has become.
+- [ ] Cleanup the Settings code and move off some responsibility
+- [ ] Cleanup the UI code
+- [ ] High resolution max altitude detection for current orbit to warn user if they are at risk of impact
+- [ ] Show POI for High/Low Orbit and potentially other science related altitudes
+- [x] ~~Persistent Settings~~
 
 ## Screenshots
 ![POI Mun SOI Screenshot](./Screenshots/Mun%20SOI.png)
