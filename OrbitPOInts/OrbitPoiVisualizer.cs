@@ -523,6 +523,13 @@ namespace OrbitPOInts
                     continue;
                 }
                 var poi = Settings.Instance.GetStandardPoiFor(body, poiType);
+
+                // TODO: there is probably a better way to ensure the colors are respected in the correct order but this works for now
+                var poiColor = Settings.Instance.GetPoiColorFor(body, poiType);
+                // clone so we don't trigger a prop change event
+                poi = poi.Clone();
+                poi.Color = poiColor;
+
                 switch (poiType)
                 {
                     case PoiType.MaxTerrainAltitude when body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
