@@ -467,6 +467,15 @@ namespace OrbitPOInts
                 .FirstOrDefault(poi => poi.Type == poiType); // priority: global > configured > default
         }
         #endif
+
+        public Color GetPoiColorFor(CelestialBody body, PoiType poiType)
+        {
+            return GetConfiguredPoisFor(body) // configured body
+                .Concat(GetConfiguredPoisFor(null)) // configured globals
+                .Concat(GetDefaultPoisFor(body)) // defaults
+                .FirstOrDefault(poi => poi.Type == poiType) // priority: configured > global > default
+                .Color;
+        }
         
         public bool GetGlobalEnableFor(CelestialBody body, PoiType poiType)
         {
