@@ -40,7 +40,7 @@ namespace OrbitPOInts
 
     public class Settings : INotifyPropertyChanged, INotifyConfiguredPoisCollectionChanged, INotifyConfiguredPoiPropChanged, IDisposable
     {
-        public const uint VERSION = 0;
+        public const uint VERSION = 1;
 
         private static Settings _instance;
         private static readonly object Padlock = new();
