@@ -357,22 +357,9 @@ namespace OrbitPOInts.UI
 
         private void DrawUI(int windowID)
         {
-            const int closeButtonSize = 25;
             GUILayout.BeginVertical();
 
-                if (!_useTopRightCloseButton) {
-                    GUILayout.BeginHorizontal();
-
-                        GUILayout.FlexibleSpace(); // Pushes the following items to the right
-
-                        if (GUILayout.Button("X", GUILayout.Width(closeButtonSize)))
-                        {
-                            LogDebug("[GUI] Close button clicked");
-                            CloseWindow();
-                        }
-
-                    GUILayout.EndHorizontal();
-                }
+                CloseButton.StandardCloseButton(CloseWindow);
 
                 Settings.Instance.GlobalEnable = GUILayout.Toggle(Settings.Instance.GlobalEnable, "Enabled");
                 if (Settings.Instance.GlobalEnable)
@@ -456,32 +443,15 @@ namespace OrbitPOInts.UI
             
             GUILayout.EndVertical();
 
-            // Make the window draggable
-            GUI.DragWindow();
+            CloseButton.TopRightCloseButton(windowRect, CloseWindow);
 
-            // TODO: the GUILayout close button seems out of place
-            if (_useTopRightCloseButton)
-            {
-                const float padding = 5; // Padding from the edge of the window
-                var closeButtonRect = new Rect(windowRect.width - closeButtonSize - padding, padding, closeButtonSize, closeButtonSize);
-                GUI.Button(closeButtonRect, "X");
-
-                // GUI.Button never captures the mouse when rendered on top of GUILayout
-                if (Event.current.type == EventType.MouseDown)
-                {
-                    if (closeButtonRect.Contains(Event.current.mousePosition))
-                    {
-                        LogDebug("[GUI] Close button clicked");
-                        CloseWindow();
-                        Event.current.Use();
-                        return;
-                    }
-                }
-            }
+            // // make only title bar be used for dragging
+            GUI.DragWindow(new Rect(0, 0, windowRect.width, 25));
         }
 
         private void CloseWindow()
         {
+            LogDebug("CloseWindow");
             toolbarButton.SetFalse();
             showUI = false;
             _colorPicker.DisplayGUI(false);

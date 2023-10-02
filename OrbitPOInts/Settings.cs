@@ -235,6 +235,8 @@ namespace OrbitPOInts
 
         public bool LogDebugEnabled { get; set; }
 
+        public bool UseTopRightCloseButton { get; set; }
+
         private void OnDefaultPoiPropChange(object senderPoi, PropertyChangedEventArgs args)
         {
             if (senderPoi is not ResettablePoi poi) return;

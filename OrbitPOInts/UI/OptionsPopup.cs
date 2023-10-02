@@ -61,23 +61,12 @@ namespace OrbitPOInts.UI
             const int closeButtonSize = 25;
             GUILayout.BeginVertical();
 
-                if (!_useTopRightCloseButton) {
-                    GUILayout.BeginHorizontal();
-
-                    GUILayout.FlexibleSpace(); // Pushes the following items to the right
-
-                    if (GUILayout.Button("X", GUILayout.Width(closeButtonSize)))
-                    {
-                        LogDebug("[GUI] Close button clicked");
-                        CloseWindow();
-                    }
-
-                    GUILayout.EndHorizontal();
-                }
+                CloseButton.StandardCloseButton(CloseWindow);
 
                 GUILayout.Label("Misc");
                 Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
                 Settings.Instance.UseSkin = GUILayout.Toggle(Settings.Instance.UseSkin, "Use Skin");
+                Settings.Instance.UseTopRightCloseButton = GUILayout.Toggle(Settings.Instance.UseTopRightCloseButton, "Use Top Right Close Button");
 
                 GUILayout.Space(50);
 
@@ -104,31 +93,15 @@ namespace OrbitPOInts.UI
 
             GUILayout.EndVertical();
 
-            GUI.DragWindow();
+            CloseButton.TopRightCloseButton(_windowRect, CloseWindow);
 
-            // TODO: the GUILayout close button seems out of place
-            if (_useTopRightCloseButton)
-            {
-                const float padding = 5; // Padding from the edge of the window
-                var closeButtonRect = new Rect(_windowRect.width - closeButtonSize - padding, padding, closeButtonSize, closeButtonSize);
-                GUI.Button(closeButtonRect, "X");
-
-                // GUI.Button never captures the mouse when rendered on top of GUILayout
-                if (Event.current.type == EventType.MouseDown)
-                {
-                    if (closeButtonRect.Contains(Event.current.mousePosition))
-                    {
-                        LogDebug("[GUI] Close button clicked");
-                        CloseWindow();
-                        Event.current.Use();
-                        return;
-                    }
-                }
-            }
+            // make only title bar be used for dragging
+            GUI.DragWindow(new Rect(0, 0, _windowRect.width, 25));
         }
 
         private void CloseWindow()
         {
+            LogDebug("CloseWindow");
             DisplayGUI(false);
         }
 

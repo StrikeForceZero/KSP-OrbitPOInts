@@ -49,6 +49,7 @@ namespace OrbitPOInts
             ShowPoiMaxTerrainAltitudeOnAtmosphericBodies,
             LogDebugEnabled,
             UseSkin,
+            UseTopRightCloseButton,
         }
 
         private static string GetKey<TEnum>(TEnum key) where TEnum : Enum
@@ -82,6 +83,7 @@ namespace OrbitPOInts
             Settings.Instance.LogDebugEnabled = node.GetBool(GetKey(SettingsBool.LogDebugEnabled), false);
             Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = node.GetBool(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), false);
             Settings.Instance.UseSkin = node.GetBool(GetKey(SettingsBool.UseSkin), false);
+            Settings.Instance.UseTopRightCloseButton = node.GetBool(GetKey(SettingsBool.UseTopRightCloseButton), false);
 
             Settings.Instance.UpdateConfiguredPois(LoadConfiguredPois(node));
 
@@ -101,6 +103,7 @@ namespace OrbitPOInts
             node.AddValue(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies);
             node.AddValue(GetKey(SettingsBool.LogDebugEnabled), Settings.Instance.LogDebugEnabled);
             node.AddValue(GetKey(SettingsBool.UseSkin), Settings.Instance.UseSkin);
+            node.AddValue(GetKey(SettingsBool.UseTopRightCloseButton), Settings.Instance.UseTopRightCloseButton);
 
             SaveConfiguredPois(node, Settings.Instance.ConfiguredPois);
 

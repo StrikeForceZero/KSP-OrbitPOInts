@@ -104,6 +104,7 @@
         <Compile Include="Renderers\CircleRenderer.cs" />
         <Compile Include="Renderers\WireSphereRenderer.cs" />
         <Compile Include="Settings.cs" />
+        <Compile Include="UI\CloseButton.cs" />
         <Compile Include="UI\OptionsPopup.cs" />
         <Compile Include="UI\SimpleColorPicker.cs" />
         <Compile Include="UI\ToggleTextfieldResult.cs" />
