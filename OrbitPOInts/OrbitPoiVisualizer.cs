@@ -249,10 +249,12 @@ namespace OrbitPOInts
 
         private void OnSettingsDestroyed(Settings settings)
         {
+            LogDebug($"[OnSettingsDestroyed]");
             UnregisterSettings();
         }
         private void OnSettingsCreated(Settings settings)
         {
+            LogDebug($"[OnSettingsCreated]");
             RegisterSettings();
             UpdatePropsFromSettings();
             // maybe
@@ -261,6 +263,16 @@ namespace OrbitPOInts
 
         private void OnPropertyChanged(object senderSettings, PropertyChangedEventArgs args)
         {
+
+            if (senderSettings is Settings settings)
+            {
+                LogDebug($"[OnPropertyChanged] Settings.{args.PropertyName}={Reflection.AccessProp(settings, args.PropertyName)}");
+            }
+            else
+            {
+                LogDebug($"[OnPropertyChanged] Settings.{args.PropertyName}");
+            }
+
             if (args.PropertyName == nameof(Settings.ConfiguredPois)) return;
 
             UpdatePropsFromSettings();
@@ -269,11 +281,20 @@ namespace OrbitPOInts
 
         private void OnConfiguredPoiChanged(object senderSettings, object senderPoi, PropertyChangedEventArgs args)
         {
+            if (senderSettings is POI poi)
+            {
+                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}={Reflection.AccessProp(poi, args.PropertyName)}");
+            }
+            else
+            {
+                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}");
+            }
             CurrentTargetRefresh();
         }
 
         private void OnConfiguredPoisCollectionChanged(object settings, NotifyCollectionChangedEventArgs args)
         {
+            LogDebug($"[OnConfiguredPoisCollectionChanged] Settings.{nameof(Settings.ConfiguredPois)} - ${args.Action}");
             CurrentTargetRefresh();
         }
 

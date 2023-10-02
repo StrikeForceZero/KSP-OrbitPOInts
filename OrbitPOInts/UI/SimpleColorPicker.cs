@@ -14,6 +14,7 @@ using KSP_HighLogic = HighLogic;
 namespace OrbitPOInts.UI
 {
     using HighLogic = KSP_HighLogic;
+    using Logger = Utils.Logger;
 
     // using instance and calling OnGUI()
     // [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
@@ -35,7 +36,7 @@ namespace OrbitPOInts.UI
 
         public void OpenColorPicker(Color initialColor, Color defaultColor, string title)
         {
-
+            LogDebug($"[OpenColorPicker]");
             _title = title;
             _initialColor = initialColor;
             _defaultColor = defaultColor;
@@ -44,6 +45,16 @@ namespace OrbitPOInts.UI
             _blue = initialColor.b;
             DisplayGUI();
             CenterWindowPos();
+        }
+
+        private void LogDebug(string message)
+        {
+            Logger.LogDebug($"[SimpleColorPicker] {message}");
+        }
+
+        private void Log(string message)
+        {
+            Logger.Log($"[SimpleColorPicker] {message}");
         }
 
         public Color GetCurrentColor() => new Color(_red, _green, _blue);
@@ -101,6 +112,7 @@ namespace OrbitPOInts.UI
         private delegate void OnCloseAction();
         private void CloseWindow(OnCloseAction onCloseAction = null)
         {
+            LogDebug("[CloseWindow]");
             onCloseAction?.Invoke();
             OnColorPickerClosed = null;
             DisplayGUI(false);

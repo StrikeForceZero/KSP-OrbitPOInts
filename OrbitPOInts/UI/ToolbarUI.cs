@@ -253,6 +253,7 @@ namespace OrbitPOInts.UI
 
             if (GUILayout.Button("Remove", GUILayout.ExpandWidth(false)))
             {
+                LogDebug($"[GUI] Remove poi clicked: {poi.Label}");
                 Settings.Instance.RemoveConfiguredPoi(poi, true);
             }
         }
@@ -410,6 +411,7 @@ namespace OrbitPOInts.UI
                 var resetBodyPoiClicked = GUILayout.Button($"Reset POIs for {selectedBodyName} to defaults");
                 if (resetBodyPoiClicked)
                 {
+                    LogDebug($"[GUI] Reset POIs for Body Clicked: {selectedBodyName}");
                     // TODO: it might be worth making a wrapper class for CelestialBodies
                     // so we can make null treated like a body with its own name
                     // this way we don't have to rely on all bodies having unique names
