@@ -7,7 +7,7 @@ namespace OrbitPOInts.Tests.CustomAsserts
 {
     public static class CollectionAssert
     {
-        public static void HasCountN<T>(IEnumerable<T> collection, int expectedCount)
+        public static void HasCountN<T>(IEnumerable<T> collection, int expectedCount, string message = "")
         {
             if (collection == null)
             {
@@ -18,7 +18,8 @@ namespace OrbitPOInts.Tests.CustomAsserts
 
             if(actualCount != expectedCount)
             {
-                throw new AssertionException($"Expected count: {expectedCount}, but was: {actualCount}.");
+                if (message.Length > 0) message += "\n";
+                throw new AssertionException($"{message}Expected count: {expectedCount}, but was: {actualCount}.");
             }
         }
 
