@@ -341,6 +341,16 @@ namespace OrbitPOInts
                 oldItems = _configuredPois.ToList();
             }
 
+            foreach (var oldPoi in _configuredPois)
+            {
+                UnRegisterPoi(oldPoi);
+            }
+
+            foreach (var newPoi in pois)
+            {
+                RegisterPoi(newPoi);
+            }
+
             _configuredPois = new ObservableCollection<POI>(pois);
             _configuredPois.CollectionChanged += NotifyCollectionChanged;
             // we are opting to combine Reset + Add into Replace to prevent multiple events for the same action overall
@@ -373,6 +383,18 @@ namespace OrbitPOInts
             return new[] { poiToUpdate };
         }
 
+        private void RegisterPoi(POI poi)
+        {
+            // if its a duplicate we dont want to register twice
+            UnRegisterPoi(poi);
+            poi.PropertyChanged += OnPoiPropChanged;
+        }
+
+        private void UnRegisterPoi(POI poi)
+        {
+            poi.PropertyChanged -= OnPoiPropChanged;
+        }
+
         public enum AddConfiguredPoiMethod
         {
             Insert,
@@ -386,13 +408,11 @@ namespace OrbitPOInts
                 var poisToRemove = GetPoisToUpdate(poi, addMethod == AddConfiguredPoiMethod.ReplaceFirst);
                 foreach (var poiToRemove in poisToRemove)
                 {
-                    poiToRemove.PropertyChanged -= OnPoiPropChanged;
+                    UnRegisterPoi(poiToRemove);
                     _configuredPois.Remove(poiToRemove);
                 }
             }
-            // if its a duplicate we dont want to register twice
-            poi.PropertyChanged -= OnPoiPropChanged;
-            poi.PropertyChanged += OnPoiPropChanged;
+            RegisterPoi(poi);
             _configuredPois.Add(poi);
         }
 
@@ -401,7 +421,7 @@ namespace OrbitPOInts
             var poisToRemove = GetPoisToUpdate(poi, removeFirstOccurrenceOnly);
             foreach (var poiToRemove in poisToRemove)
             {
-                poi.PropertyChanged -= OnPoiPropChanged;
+                UnRegisterPoi(poiToRemove);
                 _configuredPois.Remove(poiToRemove);
             }
         }
