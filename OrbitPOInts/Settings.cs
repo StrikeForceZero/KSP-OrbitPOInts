@@ -237,7 +237,7 @@ namespace OrbitPOInts
 
         public bool LogDebugEnabled { get; set; }
 
-        public bool UseTopRightCloseButton { get; set; }
+        public bool UseTopRightCloseButton { get; set; } = true;
 
         private void OnDefaultPoiPropChange(object senderPoi, PropertyChangedEventArgs args)
         {

@@ -84,7 +84,7 @@ namespace OrbitPOInts
             Settings.Instance.LogDebugEnabled = node.GetBool(GetKey(SettingsBool.LogDebugEnabled), false);
             Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = node.GetBool(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), false);
             Settings.Instance.UseSkin = node.GetBool(GetKey(SettingsBool.UseSkin), false);
-            Settings.Instance.UseTopRightCloseButton = node.GetBool(GetKey(SettingsBool.UseTopRightCloseButton), false);
+            Settings.Instance.UseTopRightCloseButton = node.GetBool(GetKey(SettingsBool.UseTopRightCloseButton), true);
             Settings.Instance.UseOpaqueBackgroundOverride = node.GetBool(GetKey(SettingsBool.UseOpaqueBackgroundOverride), false);
 
             Settings.Instance.UpdateConfiguredPois(LoadConfiguredPois(node));
