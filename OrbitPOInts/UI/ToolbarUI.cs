@@ -401,11 +401,12 @@ namespace OrbitPOInts.UI
                 // TODO: make a dropdown
                 _selectedBodyIndex = GUILayout.SelectionGrid(_selectedBodyIndex, _selectableBodyNames.ToArray(), 6);
 
+                var selectedBodyName = _selectableBodyNames[_selectedBodyIndex];
                 if (_selectedBodyIndex > 0)
                 {
                     foreach (var body in FlightGlobals.Bodies)
                     {
-                        if (_selectableBodyNames[_selectedBodyIndex] != body.name) continue;
+                        if (selectedBodyName != body.name) continue;
 
                         DrawPoiControls(body);
 
