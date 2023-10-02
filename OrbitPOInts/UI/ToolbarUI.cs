@@ -225,7 +225,7 @@ namespace OrbitPOInts.UI
         {
             if (showUI)
             {
-                GUI.skin = HighLogic.Skin;
+                GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
                 windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts");
                 _colorPicker.OnGUI();
             }
@@ -421,6 +421,7 @@ namespace OrbitPOInts.UI
                 GUILayout.Space(20);
 
                 Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
+                Settings.Instance.UseSkin = GUILayout.Toggle(Settings.Instance.UseSkin, "Use Skin");
             
             GUILayout.EndVertical();
 

@@ -48,6 +48,7 @@ namespace OrbitPOInts
             EnableCircles,
             ShowPoiMaxTerrainAltitudeOnAtmosphericBodies,
             LogDebugEnabled,
+            UseSkin,
         }
 
         private static string GetKey<TEnum>(TEnum key) where TEnum : Enum
@@ -80,6 +81,7 @@ namespace OrbitPOInts
             Settings.Instance.EnableCircles = node.GetBool(GetKey(SettingsBool.EnableCircles), true);
             Settings.Instance.LogDebugEnabled = node.GetBool(GetKey(SettingsBool.LogDebugEnabled), false);
             Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = node.GetBool(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), false);
+            Settings.Instance.UseSkin = node.GetBool(GetKey(SettingsBool.UseSkin), false);
 
             Settings.Instance.UpdateConfiguredPois(LoadConfiguredPois(node));
 
@@ -98,6 +100,7 @@ namespace OrbitPOInts
             node.AddValue(GetKey(SettingsBool.EnableCircles), Settings.Instance.EnableCircles);
             node.AddValue(GetKey(SettingsBool.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies), Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies);
             node.AddValue(GetKey(SettingsBool.LogDebugEnabled), Settings.Instance.LogDebugEnabled);
+            node.AddValue(GetKey(SettingsBool.UseSkin), Settings.Instance.UseSkin);
 
             SaveConfiguredPois(node, Settings.Instance.ConfiguredPois);
 

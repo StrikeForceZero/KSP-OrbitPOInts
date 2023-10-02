@@ -226,6 +226,7 @@ namespace OrbitPOInts
             }
         }
 
+        public bool UseSkin { get; set; } = false;
 
         public bool LogDebugEnabled { get; set; }
 
