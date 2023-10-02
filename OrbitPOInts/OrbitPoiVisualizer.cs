@@ -543,10 +543,15 @@ namespace OrbitPOInts
                 }
             }
 
+            var globalCustomPois = Settings.Instance
+                .GetCustomPoisFor(null)
+                .Select(poi => poi.CloneWith(body)); // populate them with a body
+
             var customPois = Settings.Instance
                 .GetCustomPoisFor(body)
-                .Concat(Settings.Instance.GetCustomPoisFor(null)); // include global custom
-            foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.RadiusForRendering() > 0))
+                .Concat(globalCustomPois) // include global custom
+                .Where(poi => poi.Enabled && poi.RadiusForRendering() > 0); // only ones that are enabled and have a radius
+            foreach (var customPoi in customPois)
             {
                 LogDebug($"[CreatePoisForBody] body:{customPoi.Body.Serialize()} type:{customPoi.Type} renderRadius:{customPoi.RadiusForRendering()} color:{customPoi.Color.Serialize()}");
                 onCreatePoi.Invoke(customPoi);
