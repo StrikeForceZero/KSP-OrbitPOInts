@@ -537,7 +537,7 @@ namespace OrbitPOInts
                         LogDebug($"[CreatePoisForBody] skipping body:{body.Serialize()} type:{poiType} - atmosphere:{body.atmosphere} ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:{Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies}");
                         continue;
                     default:
-                        LogDebug($"[CreatePoisForBody] body:{poi.Body.bodyName} type:{poi.Type} renderRadius:{poi.RadiusForRendering()} color:{poi.Color.Serialize()}");
+                        LogDebug($"[CreatePoisForBody] body:{body.Serialize()} type:{poi.Type} renderRadius:{poi.RadiusForRendering()} color:{poi.Color.Serialize()}");
                         onCreatePoi.Invoke(poi);
                         break;
                 }
@@ -548,7 +548,7 @@ namespace OrbitPOInts
                 .Concat(Settings.Instance.GetCustomPoisFor(null)); // include global custom
             foreach (var customPoi in customPois.Where(poi => poi.Enabled && poi.RadiusForRendering() > 0))
             {
-                LogDebug($"[CreatePoisForBody] body:{customPoi.Body.bodyName} type:{customPoi.Type} renderRadius:{customPoi.RadiusForRendering()} color:{customPoi.Color.Serialize()}");
+                LogDebug($"[CreatePoisForBody] body:{customPoi.Body.Serialize()} type:{customPoi.Type} renderRadius:{customPoi.RadiusForRendering()} color:{customPoi.Color.Serialize()}");
                 onCreatePoi.Invoke(customPoi);
             }
         }
