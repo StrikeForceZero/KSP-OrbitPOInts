@@ -160,7 +160,7 @@ namespace OrbitPOInts.Data.POI
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public double RadiusForRendering() => AddPlanetRadius ? Radius + Body.Radius : Radius;
+        public double RadiusForRendering() => AddPlanetRadius && Body ? Radius + Body.Radius : Radius;
 
         // TODO: need to be careful if the type is Custom it will throw
         public double DefaultRadius(CelestialBody body)
