@@ -133,6 +133,7 @@ namespace OrbitPOInts
         {
             LogDebug("OnEnable");
             CheckEnabled();
+            if (enabled) CurrentTargetRefresh();
         }
 
         private void Start()
