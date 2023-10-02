@@ -1,6 +1,7 @@
 using System;
 
 #if TEST
+using System.Linq;
 using KSP_CelestialBody = KSPMock.CelestialBody;
 using KSP_FlightGlobals = KSPMock.FlightGlobals;
 using JB_Annotations = UnityEngineMock.JetBrains.Annotations;
@@ -40,17 +41,18 @@ namespace OrbitPOInts.Extensions.KSP
             return maxAltitude;
         }
 
+        // TODO: this probably belongs in a utils/helper class
+        [CanBeNull]
+        public static CelestialBody ResolveByName(string name)
+        {
+            return FlightGlobals.Bodies.FirstOrDefault( body => body.Serialize() == name);
+        }
+
+        // TODO: technically this isn't an extension method and probably belongs in a utils/helper class
         public static bool TryDeserialize(string input, [CanBeNull] out CelestialBody result)
         {
-            result = null;
-            // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
-            foreach (var body in FlightGlobals.Bodies)
-            {
-                if (body.Serialize() != input) continue;
-                result = body;
-                return true;
-            }
-            return false;
+            result = ResolveByName(input);
+            return result != null;
         }
 
         [CanBeNull]
