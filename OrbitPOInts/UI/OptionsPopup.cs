@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using KSP_HighLogic = HighLogic;
 #endif
+using OrbitPOInts.Data.POI;
 
 
 namespace OrbitPOInts.UI
@@ -74,8 +75,32 @@ namespace OrbitPOInts.UI
                     GUILayout.EndHorizontal();
                 }
 
+                GUILayout.Label("Misc");
                 Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
                 Settings.Instance.UseSkin = GUILayout.Toggle(Settings.Instance.UseSkin, "Use Skin");
+
+                GUILayout.Space(50);
+
+                GUILayout.Label("-- Danger Zone -- (no confirmation and no undo)");
+                var resetAllStandardPOIsButtonClicked = GUILayout.Button("Reset All Standard POIs to defaults");
+                if (resetAllStandardPOIsButtonClicked)
+                {
+                    LogDebug("[GUI] Reset All Standard POIs to defaults clicked");
+                    // we want to keep the custom pois
+                    var customPois = Settings.Instance.ConfiguredPois.Where(poi => poi.Type == PoiType.Custom);
+                    Settings.Instance.ClearConfiguredPois(customPois);
+                }
+
+                GUILayout.Space(10);
+
+                var removeAllCustomPOIsButtonClicked = GUILayout.Button("Remove All Custom POIs");
+                if (removeAllCustomPOIsButtonClicked)
+                {
+                    LogDebug("[GUI] Remove All Custom POIs clicked");
+                    // we want to keep the standard pois
+                    var standardPois = Settings.Instance.ConfiguredPois.Where(poi => poi.Type != PoiType.Custom);
+                    Settings.Instance.ClearConfiguredPois(standardPois);
+                }
 
             GUILayout.EndVertical();
 
