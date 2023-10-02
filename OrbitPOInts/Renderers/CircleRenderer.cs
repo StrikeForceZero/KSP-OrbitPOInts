@@ -1,7 +1,24 @@
+#if TEST
+using KSPMock;
+using UnityEngineMock;
+using System.Linq;
+using KSP_MapView = KSPMock.MapView;
+using KSP_HighLogic = KSPMock.HighLogic;
+using KSP_GameScenes = KSPMock.GameScenes;
+#else
+using UniLinq;
 using UnityEngine;
+using KSP_MapView = MapView;
+using KSP_HighLogic = HighLogic;
+using KSP_GameScenes = GameScenes;
+#endif
 
 namespace OrbitPOInts
 {
+    using MapView = KSP_MapView;
+    using HighLogic = KSP_HighLogic;
+    using GameScenes = KSP_GameScenes;
+
     [RequireComponent(typeof(LineRenderer))]
     public class CircleRenderer : MonoBehaviour
     {

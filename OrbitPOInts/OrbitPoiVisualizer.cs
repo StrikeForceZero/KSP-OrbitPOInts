@@ -1,27 +1,75 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using OrbitPOInts.Data;
+using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
-using Smooth.Collections;
+using OrbitPOInts.Extensions.KSP;
+using OrbitPOInts.Extensions.Unity;
+using OrbitPOInts.Helpers;
+using OrbitPOInts.Utils;
+
+#if TEST
+using UnityEngineMock;
+using System.Linq;
+using KSP_KSPAddon = KSPMock.KSPAddon;
+using KSP_HighLogic = KSPMock.HighLogic;
+using KSP_CelestialBody = KSPMock.CelestialBody;
+using KSP_Vector3d = KSPMock.Vector3d;
+using KSP_Vessel = KSPMock.Vessel;
+using KSP_FlightGlobals = KSPMock.FlightGlobals;
+using KSP_GameEvents = KSPMock.GameEvents;
+using KSP_PlanetariumCamera = KSPMock.PlanetariumCamera;
+using KSP_MapObject = KSPMock.MapObject;
+using KSP_GameScenes = KSPMock.GameScenes;
+using KSP_ScaledSpace = KSPMock.ScaledSpace;
+#else
+using UniLinq;
 using UnityEngine;
-using Enumerable = UniLinq.Enumerable;
+using KSP_KSPAddon = KSPAddon;
+using KSP_HighLogic = HighLogic;
+using KSP_CelestialBody = CelestialBody;
+using KSP_Vector3d = Vector3d;
+using KSP_Vessel = Vessel;
+using KSP_FlightGlobals = FlightGlobals;
+using KSP_GameEvents = GameEvents;
+using KSP_PlanetariumCamera = PlanetariumCamera;
+using KSP_MapObject = MapObject;
+using KSP_GameScenes = GameScenes;
+using KSP_ScaledSpace = ScaledSpace;
+#endif
 
 namespace OrbitPOInts
 {
+    using KSPAddon = KSP_KSPAddon;
+    using HighLogic = KSP_HighLogic;
+    using Vessel = KSP_Vessel;
+    using Vector3d = KSP_Vector3d;
+    using CelestialBody = KSP_CelestialBody;
+    using FlightGlobals = KSP_FlightGlobals;
+    using GameEvents = KSP_GameEvents;
+    using PlanetariumCamera = KSP_PlanetariumCamera;
+    using MapObject = KSP_MapObject;
+    using GameScenes = KSP_GameScenes;
+    using ScaledSpace = KSP_ScaledSpace;
+
+    using Logger = Utils.Logger;
+
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class OrbitPoiVisualizer : MonoBehaviour
     {
         public static OrbitPoiVisualizer Instance { get; private set; }
 
+        private Settings _settings;
+
         private readonly Dictionary<string, GameObject> _bodyComponentHolders = new();
         private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
         private readonly HashSet<CircleRenderer> _drawnCircles = new();
 
-        public bool DrawSpheres = Settings.EnableSpheres;
-        public bool DrawCircles = Settings.EnableCircles;
-        public bool AlignSpheres = Settings.AlignSpheres;
-
+        public bool DrawSpheres;
+        public bool DrawCircles;
+        public bool AlignSpheres;
 
         private bool _eventsRegistered;
         private static bool _sceneLoading;
@@ -30,12 +78,6 @@ namespace OrbitPOInts
         private CelestialBody _lastOrbitingBody;
 
         private static double _standardLineWidthDistance;
-        
-        private static CustomPOI[] _customPois = {
-            new() { PoiName = PoiName.Custom1, Enabled = () => Settings.CustomPOI1Enabled, Diameter = () => Settings.CustomPOI1 },
-            new() { PoiName = PoiName.Custom2, Enabled = () => Settings.CustomPOI2Enabled, Diameter = () => Settings.CustomPOI2 },
-            new() { PoiName = PoiName.Custom3, Enabled = () => Settings.CustomPOI3Enabled, Diameter = () => Settings.CustomPOI3 },
-        };
 
         private static void LogDebug(string message)
         {
@@ -91,6 +133,7 @@ namespace OrbitPOInts
         {
             LogDebug("OnEnable");
             CheckEnabled();
+            if (enabled) CurrentTargetRefresh();
         }
 
         private void Start()
@@ -102,6 +145,10 @@ namespace OrbitPOInts
         private void OnDisable()
         {
             LogDebug("OnDisable");
+            // this prevents us from waking up again
+            // but instead of leaving a envent handler just for GlobalEnable
+            // we'll pass the responsibility to the UI
+            UnregisterSettings();
             RegisterEvents(false);
             PurgeAll();
         }
@@ -109,6 +156,7 @@ namespace OrbitPOInts
         private void OnDestroy()
         {
             LogDebug("OnDestroy");
+            UnregisterSettings();
             RegisterEvents(false);
             PurgeAll();
         }
@@ -144,7 +192,7 @@ namespace OrbitPOInts
 
         private void Update()
         {
-            if (!Lib.ViewingMapOrTrackingStation)
+            if (!SceneHelper.ViewingMapOrTrackingStation)
             {
                 return;
             }
@@ -167,24 +215,103 @@ namespace OrbitPOInts
             UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
         }
 
+        private void UnregisterSettings()
+        {
+            if (_settings == null) return;
+            Settings.InstanceDestroyed -= OnSettingsDestroyed;
+            Settings.InstanceCreated -= OnSettingsCreated;
+            _settings.PropertyChanged -= OnPropertyChanged;
+            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoiChanged;
+            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
+            _settings = null;
+        }
+
+        private void RegisterSettings()
+        {
+            if (_settings is { IsDisposed: false }) return;
+            Settings.InstanceDestroyed -= OnSettingsDestroyed;
+            Settings.InstanceCreated -= OnSettingsCreated;
+            _settings = Settings.Instance;
+            Settings.InstanceDestroyed += OnSettingsDestroyed;
+            Settings.InstanceCreated += OnSettingsCreated;
+            _settings.PropertyChanged += OnPropertyChanged;
+            // remove and reregister at the end because we want to make sure we at least got the event that the collection was reset
+            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoiChanged;
+            _settings.ConfiguredPoiPropChanged += OnConfiguredPoiChanged;
+            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
+            _settings.ConfiguredPoisCollectionChanged += OnConfiguredPoisCollectionChanged;
+        }
+
         #endregion
 
         #region EventHandlers
 
+
+        private void OnSettingsDestroyed(Settings settings)
+        {
+            LogDebug($"[OnSettingsDestroyed]");
+            UnregisterSettings();
+        }
+        private void OnSettingsCreated(Settings settings)
+        {
+            LogDebug($"[OnSettingsCreated]");
+            RegisterSettings();
+            UpdatePropsFromSettings();
+            // maybe
+            // CurrentTargetRefresh();
+        }
+
+        private void OnPropertyChanged(object senderSettings, PropertyChangedEventArgs args)
+        {
+
+            if (senderSettings is Settings settings)
+            {
+                LogDebug($"[OnPropertyChanged] Settings.{args.PropertyName}={Reflection.AccessProp(settings, args.PropertyName)}");
+            }
+            else
+            {
+                LogDebug($"[OnPropertyChanged] Settings.{args.PropertyName}");
+            }
+
+            if (args.PropertyName == nameof(Settings.ConfiguredPois)) return;
+
+            UpdatePropsFromSettings();
+            CurrentTargetRefresh();
+        }
+
+        private void OnConfiguredPoiChanged(object senderSettings, object senderPoi, PropertyChangedEventArgs args)
+        {
+            if (senderSettings is POI poi)
+            {
+                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}={Reflection.AccessProp(poi, args.PropertyName)}");
+            }
+            else
+            {
+                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}");
+            }
+            CurrentTargetRefresh();
+        }
+
+        private void OnConfiguredPoisCollectionChanged(object settings, NotifyCollectionChangedEventArgs args)
+        {
+            LogDebug($"[OnConfiguredPoisCollectionChanged] Settings.{nameof(Settings.ConfiguredPois)} - ${args.Action}");
+            CurrentTargetRefresh();
+        }
+
         private void OnGameSceneLoadRequested(GameScenes scenes)
         {
             _sceneLoading = true;
-            LogDebug($"[OnGameSceneLoadRequested] {Lib.GetSceneName(scenes)}");
+            LogDebug($"[OnGameSceneLoadRequested] {SceneHelper.GetSceneName(scenes)}");
             RemoveAll();
         }
 
         private void OnGameSceneLoadedGUIReady(GameScenes scenes)
         {
-            LogDebug($"[OnGameSceneLoadedGUIReady] {Lib.GetSceneName(scenes)}");
+            LogDebug($"[OnGameSceneLoadedGUIReady] {SceneHelper.GetSceneName(scenes)}");
             // TOD: this might not be the same on all systems
-            StartCoroutine(Lib.DelayedAction(() =>
+            StartCoroutine(DelayedAction.CreateCoroutine(() =>
                 {
-                    LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {Lib.GetSceneName(scenes)}");
+                    LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {SceneHelper.GetSceneName(scenes)}");
                     _sceneLoading = false;
                     if (PurgeIfNotInMapOrTracking())
                     {
@@ -226,7 +353,7 @@ namespace OrbitPOInts
 
         private void OnVesselChange(Vessel vessel)
         {
-            if (_sceneLoading || !Lib.ViewingMapOrTrackingStation) return;
+            if (_sceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             LogDebug(
                 $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
 
@@ -248,7 +375,7 @@ namespace OrbitPOInts
 
         private void OnMapFocusChange(MapObject focusTarget)
         {
-            if (_sceneLoading || !Lib.ViewingMapOrTrackingStation) return;
+            if (_sceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             LogDebug($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
             // TODO: this gets called when loading a save and we dont want to generate anything unless in map
             if (PurgeIfNotInMapOrTracking())
@@ -272,7 +399,7 @@ namespace OrbitPOInts
                 LogError("[UpdateBody] UpdateBody called when not enabled!");
                 return;
             }
-            if (!Lib.ViewingMapOrTrackingStation)
+            if (!SceneHelper.ViewingMapOrTrackingStation)
             {
                 LogError("[UpdateBody] UpdateBody called not ViewingMapOrTrackingStation!");
                 return;
@@ -283,7 +410,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            if (Settings.ActiveBodyOnly)
+            if (_settings.FocusedBodyOnly)
             {
                 DestroyAndRecreateBodySpheres(body);
                 DestroyAndRecreateBodyCircles(body);
@@ -345,7 +472,7 @@ namespace OrbitPOInts
         #region Normals
         private void UpdateNormals(Vector3 normal)
         {
-            if (!enabled || _sceneLoading || !Lib.ViewingMapOrTrackingStation)
+            if (!enabled || _sceneLoading || !SceneHelper.ViewingMapOrTrackingStation)
             {
                 return;
             }
@@ -387,7 +514,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            StartCoroutine(Lib.DelayedAction(() => AlignTransformToNormal(transform, normal), 1));
+            StartCoroutine(DelayedAction.CreateCoroutine(() => AlignTransformToNormal(transform, normal), 1));
         }
 
         private void AlignTransformToNormal(Transform transform, Vector3d normal)
@@ -402,9 +529,56 @@ namespace OrbitPOInts
             {
                 return;
             }
-            Lib.AlignTransformToNormal(transform, normal);
+            OrbitHelpers.AlignTransformToNormal(transform, normal);
         }
         #endregion
+
+        private void CreatePoisForBody(CelestialBody body, Action<POI> onCreatePoi)
+        {
+            foreach (PoiType poiType in Enum.GetValues(typeof(PoiType)))
+            {
+                if (poiType is PoiType.None or PoiType.Custom) continue;
+                // check to make sure its not disabled in the global config
+                if (!Settings.Instance.GetGlobalEnableFor(body, poiType))
+                {
+                    LogDebug($"[CreatePoisForBody] skipping - global disable for body:{body.Serialize()} type:{poiType}");
+                    continue;
+                }
+                var poi = Settings.Instance.GetStandardPoiFor(body, poiType);
+
+                // TODO: there is probably a better way to ensure the colors are respected in the correct order but this works for now
+                var poiColor = Settings.Instance.GetPoiColorFor(body, poiType);
+                // clone so we don't trigger a prop change event
+                poi = poi.Clone();
+                poi.Color = poiColor;
+
+                switch (poiType)
+                {
+                    case PoiType.MaxTerrainAltitude when body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
+                    case PoiType.Atmosphere when !body.atmosphere:
+                        LogDebug($"[CreatePoisForBody] skipping body:{body.Serialize()} type:{poiType} - atmosphere:{body.atmosphere} ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:{Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies}");
+                        continue;
+                    default:
+                        LogDebug($"[CreatePoisForBody] body:{body.Serialize()} type:{poi.Type} renderRadius:{poi.RadiusForRendering()} color:{poi.Color.Serialize()}");
+                        onCreatePoi.Invoke(poi);
+                        break;
+                }
+            }
+
+            var globalCustomPois = Settings.Instance
+                .GetCustomPoisFor(null)
+                .Select(poi => poi.CloneWith(body)); // populate them with a body
+
+            var customPois = Settings.Instance
+                .GetCustomPoisFor(body)
+                .Concat(globalCustomPois) // include global custom
+                .Where(poi => poi.Enabled && poi.RadiusForRendering() > 0); // only ones that are enabled and have a radius
+            foreach (var customPoi in customPois)
+            {
+                LogDebug($"[CreatePoisForBody] body:{customPoi.Body.Serialize()} type:{customPoi.Type} renderRadius:{customPoi.RadiusForRendering()} color:{customPoi.Color.Serialize()}");
+                onCreatePoi.Invoke(customPoi);
+            }
+        }
 
         #region Spheres
 
@@ -427,41 +601,13 @@ namespace OrbitPOInts
             }
 
             LogDebug($"[CreateBodySphere]: Generating spheres around {body.name}");
-            if (Settings.EnablePOI_HillSphere)
-            {
-                CreateWireSphere(body, Settings.PoiColors[PoiName.HillSphere], (float)body.hillSphere, .05f, 50);
-            }
+            CreatePoisForBody(body, poi => CreateWireSphereFromPoi(poi));
+        }
 
-            var shouldShowMaxAlt =
-                Settings.EnablePOI_MaxAlt && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
-            if (shouldShowMaxAlt)
-            {
-                // TODO: scale sampleRes based on body.Radius
-                var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
-                CreateWireSphere(body, Settings.PoiColors[PoiName.MaxAlt], (float)maxAlt, .1f, 55);
-            }
-
-            if (Settings.EnablePOI_SOI)
-            {
-                CreateWireSphere(body, Settings.PoiColors[PoiName.SOI], (float)body.sphereOfInfluence, .05f, 50);
-            }
-
-            if (Settings.EnablePOI_MinOrbit)
-            {
-                CreateWireSphere(body, Settings.PoiColors[PoiName.MinOrbit], (float)body.minOrbitalDistance, 0.1f, 50);
-            }
-
-            if (body.atmosphere && Settings.EnablePOI_Atmo)
-            {
-                var atmoDist = body.atmosphereDepth + body.Radius;
-                CreateWireSphere(body, Settings.PoiColors[PoiName.Atmo], (float)atmoDist, 0.1f, 40);
-            }
-            
-            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
-            {
-                // TODO: custom color and specific body
-                CreateWireSphere(body, Settings.PoiColors[customPoi.PoiName], (float)GetCustomPoiRadius(body, customPoi.Diameter()), .1f);
-            }
+        private WireSphereRenderer CreateWireSphereFromPoi(POI poi)
+        {
+            LogDebug($"[CreateWireSphereFromPoi]: Generating spheres around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
+            return CreateWireSphere(poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth, poi.Resolution);
         }
 
         private WireSphereRenderer CreateWireSphere(
@@ -515,41 +661,13 @@ namespace OrbitPOInts
             }
 
             LogDebug($"[CreateBodyCircle]: Generating circles around {body.name}");
-            if (Settings.EnablePOI_HillSphere)
-            {
-                CreateCircle(body, Settings.PoiColors[PoiName.HillSphere], (float)body.hillSphere, 1f);
-            }
+            CreatePoisForBody(body, poi => CreateCircleFromPoi(poi));
+        }
 
-            var shouldShowMaxAlt =
-                Settings.EnablePOI_MaxAlt && (!body.atmosphere || Settings.ShowPOI_MaxAlt_OnAtmoBodies);
-            if (shouldShowMaxAlt)
-            {
-                // TODO: scale sampleRes based on body.Radius
-                var maxAlt = body.Radius + Lib.GetApproxTerrainMaxHeight(body);
-                CreateCircle(body, Settings.PoiColors[PoiName.MaxAlt], (float)maxAlt, 1f);
-            }
-
-            if (Settings.EnablePOI_SOI)
-            {
-                CreateCircle(body, Settings.PoiColors[PoiName.SOI], (float)body.sphereOfInfluence, 1f);
-            }
-
-            if (Settings.EnablePOI_MinOrbit)
-            {
-                CreateCircle(body, Settings.PoiColors[PoiName.MinOrbit], (float)body.minOrbitalDistance, 1f);
-            }
-
-            if (body.atmosphere && Settings.EnablePOI_Atmo)
-            {
-                var atmoDist = body.atmosphereDepth + body.Radius;
-                CreateCircle(body, Settings.PoiColors[PoiName.Atmo], (float)atmoDist, 1f);
-            }
-
-            foreach (var customPoi in Enumerable.Where(_customPois, poi => poi.Enabled() && poi.Diameter() > 0))
-            {
-                // TODO: custom color and specific body
-                CreateCircle(body, Settings.PoiColors[customPoi.PoiName], (float)GetCustomPoiRadius(body, customPoi.Diameter()), 1f);
-            }
+        private CircleRenderer CreateCircleFromPoi(POI poi)
+        {
+            LogDebug($"[CreateCircleFromPoi]: Generating circle around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
+            return CreateCircle(poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth);
         }
 
         private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
@@ -576,10 +694,20 @@ namespace OrbitPOInts
         #endregion
 
         #region MISC
+
+        private void UpdatePropsFromSettings()
+        {
+            enabled = Settings.Instance.GlobalEnable;
+            DrawCircles = Settings.Instance.EnableCircles;
+            DrawSpheres = Settings.Instance.EnableSpheres;
+            AlignSpheres = Settings.Instance.AlignSpheres;
+        }
+
         private void CheckEnabled()
         {
-            enabled = Settings.GlobalEnable;
-            LogDebug($"[CheckEnabled] enable: {Settings.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
+            RegisterSettings();
+            UpdatePropsFromSettings();
+            LogDebug($"[CheckEnabled] enable: {Settings.Instance.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
             // check to make sure we still enabled after loading settings
             if (!enabled)
             {
@@ -594,7 +722,7 @@ namespace OrbitPOInts
         private bool PurgeIfNotInMapOrTracking()
         {
             // if for some reason we end up here and we arent in the mapview or tracking station we should purge
-            if (!Lib.ViewingMapOrTrackingStation)
+            if (!SceneHelper.ViewingMapOrTrackingStation)
             {
                 LogDebug("[PurgeIfNotInMapOrTracking] Purging");
                 PurgeAll();
@@ -602,16 +730,6 @@ namespace OrbitPOInts
             }
 
             return false;
-        }
-
-        private double GetCustomPoiRadius(CelestialBody body, double poiRadius)
-        {
-            if (Settings.CustomPOiFromCenter)
-            {
-                return poiRadius;
-            }
-
-            return body.Radius + poiRadius;
         }
 
         private static void LoadStandardLineWidthDistance()
@@ -703,12 +821,12 @@ namespace OrbitPOInts
         private GameObject GetOrCreateBodyComponentHolder(CelestialBody body, ComponentHolderType type)
         {
             var componentHolder = _bodyComponentHolders.TryGet(GetComponentHolderKey(body, type));
-            if (componentHolder.isSome && componentHolder.value.IsAlive())
+            if (componentHolder.IsSome && componentHolder.Value.IsAlive())
             {
                 LogDebug($"[GetOrCreateBodyComponentHolder] Reusing component holder {type} for {body.name}");
-                return componentHolder.value;
+                return componentHolder.Value;
             }
-            if (componentHolder.isSome && !componentHolder.value.IsAlive())
+            if (componentHolder.IsSome && !componentHolder.Value.IsAlive())
             {
                 LogDebug($"[GetOrCreateBodyComponentHolder] Skipping dead component holder for {body.name}");
             }
@@ -763,8 +881,8 @@ namespace OrbitPOInts
         private void PurgeAllCirclesByBody(CelestialBody body)
         {
             var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
-            if (bodyComponentHolder.isNone) return;
-            var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
+            if (bodyComponentHolder.IsNone) return;
+            var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>();
             LogDebug($"[PurgeAllCirclesByBody] {body.name} - {components.Length}");
             foreach (var component in components)
             {
@@ -775,8 +893,8 @@ namespace OrbitPOInts
         private void PurgeAllSpheresByBody(CelestialBody body)
         {
             var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
-            if (bodyComponentHolder.isNone) return;
-            var components = bodyComponentHolder.value.GetComponents<WireSphereRenderer>();
+            if (bodyComponentHolder.IsNone) return;
+            var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>();
             LogDebug($"[PurgeAllSpheresByBody] {body.name} - {components.Length}");
             foreach (var component in components)
             {

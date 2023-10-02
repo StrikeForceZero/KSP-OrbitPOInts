@@ -1,0 +1,29 @@
+name: Mono CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: mono:latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup NuGet
+      run: apt-get update && apt-get install -y nuget
+
+    - name: Restore NuGet packages
+      run: nuget restore
+
+    - name: Build
+      run: msbuild /p:Configuration=Test
+
+    - name: Test
+      run: mono ./packages/NUnit.ConsoleRunner.3.16.3/tools/nunit3-console.exe ./OrbitPOInts.Tests/bin/Test/OrbitPOInts.Tests.dll

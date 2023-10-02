@@ -1,7 +1,12 @@
-using UnityEngine;
-using Debug = UnityEngine.Debug;
+#if TEST
+using UnityEngineMock;
 
-namespace OrbitPOInts
+#else
+using UniLinq;
+using UnityEngine;
+#endif
+
+namespace OrbitPOInts.Utils
 {
     public class Logger
     {
@@ -9,7 +14,7 @@ namespace OrbitPOInts
 
         public static void LogDebug(string str)
         {
-            if (!Settings.LogDebugEnabled) return;
+            if (!Settings.Instance.LogDebugEnabled) return;
             Debug.Log($"{TAG}[{Time.frameCount}][DEBUG] {str}");
         }
 

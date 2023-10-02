@@ -1,8 +1,21 @@
+#if TEST
+using UnityEngineMock;
+using UnityEngineMock.Events;
+using KSP_HighLogic = KSPMock.HighLogic;
+using System.Linq;
+#else
+using UniLinq;
 using UnityEngine;
 using UnityEngine.Events;
+using KSP_HighLogic = HighLogic;
+#endif
+
 
 namespace OrbitPOInts.UI
 {
+    using HighLogic = KSP_HighLogic;
+    using Logger = Utils.Logger;
+
     // using instance and calling OnGUI()
     // [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class SimpleColorPicker : MonoBehaviour
@@ -12,6 +25,7 @@ namespace OrbitPOInts.UI
         private float _blue = 1.0f;
         private Color _color = Color.white;
         private Color _initialColor;
+        private Color _defaultColor;
         private string _title;
 
         private bool _showGUI;
@@ -20,16 +34,27 @@ namespace OrbitPOInts.UI
 
         public UnityAction<Color> OnColorPickerClosed;
 
-        public void OpenColorPicker(Color initialColor, string title)
+        public void OpenColorPicker(Color initialColor, Color defaultColor, string title)
         {
-
+            LogDebug($"[OpenColorPicker]");
             _title = title;
             _initialColor = initialColor;
+            _defaultColor = defaultColor;
             _red = initialColor.r;
             _green = initialColor.g;
             _blue = initialColor.b;
             DisplayGUI();
             CenterWindowPos();
+        }
+
+        private void LogDebug(string message)
+        {
+            Logger.LogDebug($"[SimpleColorPicker] {message}");
+        }
+
+        private void Log(string message)
+        {
+            Logger.Log($"[SimpleColorPicker] {message}");
         }
 
         public Color GetCurrentColor() => new Color(_red, _green, _blue);
@@ -42,8 +67,8 @@ namespace OrbitPOInts.UI
         internal void OnGUI()
         {
             if (!_showGUI) return;
-            GUI.skin = HighLogic.Skin;
-            _windowRect = GUILayout.Window(123456, _windowRect, DrawUI, _title);
+            GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
+            _windowRect = GUILayout.Window(123456, _windowRect, DrawUI, _title, WindowStyle.GetSharedDarkWindowStyle());
         }
 
         private void DrawUI(int windowID)
@@ -62,22 +87,16 @@ namespace OrbitPOInts.UI
             _color = new Color(_red, _green, _blue);
 
             // A simple way to display the color you've picked.
-            GUIStyle colorBox = new GUIStyle();
-            colorBox.normal.background = Texture2D.whiteTexture;
-            GUI.color = _color;
-            GUILayout.Box("", colorBox, GUILayout.Width(100), GUILayout.Height(100));
-            GUI.color = Color.white;
-
-            GUILayout.Space(10);
-
-            GUILayout.Label("(these wont persist between game launches, yet!)");
+            Controls.ColorBox(_color, 100, 100);
 
             GUILayout.Space(10);
 
             GUILayout.BeginHorizontal();
                 var cancelButtonClicked = GUILayout.Button("Cancel");
+                var defaultButtonClicked = GUILayout.Button("Default");
                 var saveButtonClicked = GUILayout.Button("Save");
                 if (cancelButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(_initialColor));
+                if (defaultButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(_defaultColor));
                 if (saveButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(GetCurrentColor()));
             GUILayout.EndHorizontal();
 
@@ -89,6 +108,7 @@ namespace OrbitPOInts.UI
         private delegate void OnCloseAction();
         private void CloseWindow(OnCloseAction onCloseAction = null)
         {
+            LogDebug("[CloseWindow]");
             onCloseAction?.Invoke();
             OnColorPickerClosed = null;
             DisplayGUI(false);

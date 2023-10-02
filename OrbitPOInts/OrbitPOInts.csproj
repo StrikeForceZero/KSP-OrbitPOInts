@@ -33,6 +33,12 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+      <OutputPath>bin\Test\</OutputPath>
+      <DefineConstants>TEST</DefineConstants>
+      <DebugSymbols>true</DebugSymbols>
+      <DebugType>full</DebugType>
+    </PropertyGroup>
     <PropertyGroup>
         <HOME_DIR>../../..</HOME_DIR>
     </PropertyGroup>
@@ -40,7 +46,7 @@
         <KSP_DATA_MANAGED>$(HOME_DIR)/.local/share/Steam/steamapps/common/Kerbal Space Program/KSP_Data/Managed</KSP_DATA_MANAGED>
     </PropertyGroup>
     <PropertyGroup>
-        <PostBuildEvent>bash "$(SolutionDir)Scripts/post_build.sh" --solution_dir="$(SolutionDir)" --config="$(Configuration)"</PostBuildEvent>
+        <PostBuildEvent>if [ "$(Configuration)" != "Test" ]; then bash "$(SolutionDir)Scripts/post_build.sh" --solution_dir="$(SolutionDir)" --config="$(Configuration)"; fi</PostBuildEvent>
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="Assembly-CSharp">
@@ -68,22 +74,56 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Data\CustomPOI.cs" />
+        <Compile Include="Data\ConfigNode\ConfigNodeDto.cs" />
+        <Compile Include="Data\ConfigNode\ConfigNodeValueExtractor.cs" />
+        <Compile Include="Data\ConfigNode\Extensions\ConfigNodeExtensions.cs" />
+        <Compile Include="Data\POI\CustomPOI.cs" />
+        <Compile Include="Data\POI\POI.cs" />
+        <Compile Include="Data\POI\PoiComparer.cs" />
+        <Compile Include="Data\POI\PoiCustomEqualityComparer.cs" />
+        <Compile Include="Data\POI\PoiDTO.cs" />
+        <Compile Include="Data\POI\PoiDTOComparer.cs" />
+        <Compile Include="Data\POI\PoiDTOSameTargetComparer.cs" />
+        <Compile Include="Data\POI\PoiSameTargetComparer.cs" />
+        <Compile Include="Data\POI\PoiType.cs" />
+        <Compile Include="Data\POI\ResettablePoi.cs" />
+        <Compile Include="Extensions\IDictionaryExtensions.cs" />
+        <Compile Include="Extensions\FloatExtensions.cs" />
+        <Compile Include="Extensions\KSP\CelestialBodyExtensions.cs" />
+        <Compile Include="Extensions\EnumerableExtensions.cs" />
+        <Compile Include="Extensions\Unity\ColorExtensions.cs" />
+        <Compile Include="Extensions\Unity\GameObjectExtensions.cs" />
+        <Compile Include="Extensions\Unity\MonoBehaviourExtensions.cs" />
+        <Compile Include="Helpers\MapObjectHelper.cs" />
+        <Compile Include="Helpers\OrbitHelpers.cs" />
+        <Compile Include="Helpers\SceneHelper.cs" />
+        <Compile Include="ModScenerio.cs" />
         <Compile Include="Extensions\DoubleExtensions.cs" />
-        <Compile Include="Extensions\GameObjectExtensions.cs" />
-        <Compile Include="Extensions\MonoBehaviourExtensions.cs" />
-        <Compile Include="Lib.cs" />
-        <Compile Include="MapObjectHelper.cs" />
         <Compile Include="OrbitPoiVisualizer.cs" />
-        <Compile Include="POI.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
-        <Compile Include="Logger.cs" />
         <Compile Include="Renderers\CircleRenderer.cs" />
         <Compile Include="Renderers\WireSphereRenderer.cs" />
         <Compile Include="Settings.cs" />
+        <Compile Include="UI\Controls.cs" />
+        <Compile Include="UI\OptionsPopup.cs" />
         <Compile Include="UI\SimpleColorPicker.cs" />
         <Compile Include="UI\ToggleTextfieldResult.cs" />
         <Compile Include="UI\ToolbarUI.cs" />
+        <Compile Include="UI\WindowStyle.cs" />
+        <Compile Include="Utils\DelayedAction.cs" />
+        <Compile Include="Utils\Logger.cs" />
+        <Compile Include="Utils\Option.cs" />
+        <Compile Include="Utils\Reflection.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\KSPMock\KSPMock.csproj">
+        <Project>{e8f0721d-df2e-41cd-9495-c72c101986c3}</Project>
+        <Name>KSPMock</Name>
+      </ProjectReference>
+      <ProjectReference Include="..\UnityEngineMock\UnityEngineMock.csproj">
+        <Project>{f3ba9bdb-370e-4d48-bff8-c90ea02e0fd0}</Project>
+        <Name>UnityEngineMock</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

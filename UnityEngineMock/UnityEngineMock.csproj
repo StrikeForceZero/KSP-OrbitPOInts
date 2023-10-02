@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+            Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{F3BA9BDB-370E-4D48-BFF8-C90EA02E0FD0}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>UnityEngineMock</RootNamespace>
+        <AssemblyName>UnityEngineMock</AssemblyName>
+        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Test|AnyCPU' ">
+      <OutputPath>bin\Test\</OutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="System"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="CoreEngineModule\Behaviour.cs" />
+        <Compile Include="CoreEngineModule\Color.cs" />
+        <Compile Include="CoreEngineModule\Component.cs" />
+        <Compile Include="CoreEngineModule\Coroutine.cs" />
+        <Compile Include="CoreEngineModule\Debug.cs" />
+        <Compile Include="CoreEngineModule\Events\UnityAction.cs" />
+        <Compile Include="CoreEngineModule\GameObject.cs" />
+        <Compile Include="CoreEngineModule\JetBrains\Annotations.cs" />
+        <Compile Include="CoreEngineModule\LineRenderer.cs" />
+        <Compile Include="CoreEngineModule\Material.cs" />
+        <Compile Include="CoreEngineModule\Mathf.cs" />
+        <Compile Include="CoreEngineModule\MonoBehavior.cs" />
+        <Compile Include="CoreEngineModule\Object.cs" />
+        <Compile Include="CoreEngineModule\PrimitiveType.cs" />
+        <Compile Include="CoreEngineModule\Quaternion.cs" />
+        <Compile Include="CoreEngineModule\Rect.cs" />
+        <Compile Include="CoreEngineModule\Renderer.cs" />
+        <Compile Include="CoreEngineModule\RequireComponent.cs" />
+        <Compile Include="CoreEngineModule\Screen.cs" />
+        <Compile Include="CoreEngineModule\Texture.cs" />
+        <Compile Include="CoreEngineModule\Texture2D.cs" />
+        <Compile Include="CoreEngineModule\Time.cs" />
+        <Compile Include="CoreEngineModule\Transform.cs" />
+        <Compile Include="CoreEngineModule\Vector2.cs" />
+        <Compile Include="CoreEngineModule\Vector3.cs" />
+        <Compile Include="CoreEngineModule\Vector4.cs" />
+        <Compile Include="CoreEngineModule\YieldInstruction.cs" />
+        <Compile Include="IMGUIModule\Event.cs" />
+        <Compile Include="IMGUIModule\EventType.cs" />
+        <Compile Include="IMGUIModule\GUI.cs" />
+        <Compile Include="IMGUIModule\GUILayout.cs" />
+        <Compile Include="IMGUIModule\GUILayoutOption.cs" />
+        <Compile Include="IMGUIModule\GUISkin.cs" />
+        <Compile Include="IMGUIModule\GUIStyle.cs" />
+        <Compile Include="IMGUIModule\GUIStyleState.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+
+</Project>

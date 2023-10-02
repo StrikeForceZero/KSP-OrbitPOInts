@@ -1,6 +1,12 @@
-using UnityEngine;
+#if TEST
+using UnityEngineMock;
 
-namespace OrbitPOInts.Extensions
+#else
+using UniLinq;
+using UnityEngine;
+#endif
+
+namespace OrbitPOInts.Extensions.Unity
 {
     public static class GameObjectExtensions
     {
