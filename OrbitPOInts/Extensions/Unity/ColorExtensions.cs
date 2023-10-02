@@ -10,21 +10,25 @@ namespace OrbitPOInts.Extensions.Unity
 {
     public static class ColorExtensions
     {
+        // TODO: technically these aren't used in an extension method and probably belongs in a utils/helper class
         private const uint R = 0;
         private const uint G = 1;
         private const uint B = 2;
         private const uint A = 3;
 
+        // TODO: technically this isn't an extension method and probably belongs in a utils/helper class
         private static float ColorComponentFromInt(int value)
         {
             return Mathf.Clamp01(value / 255f);
         }
 
+        // TODO: technically this isn't an extension method and probably belongs in a utils/helper class
         private static int ColorComponentToInt(float value)
         {
             return Mathf.Clamp((int)(value * 255), 0, 255);
         }
 
+        // TODO: technically this isn't an extension method and probably belongs in a utils/helper class
         public static bool TryDeserialize(string input, out Color result)
         {
             result = Color.clear;
