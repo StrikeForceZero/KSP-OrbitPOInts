@@ -17,6 +17,7 @@ namespace UnityEngineMock
         public static bool Button(string text) { throw new NotImplementedException(); }
         public static bool Button(string text, params GUILayoutOption[] options) { throw new NotImplementedException(); }
         public static Rect Window(uint id, Rect windowRect, GUI.WindowFunction drawUiAction, string title) { throw new NotImplementedException(); }
+        public static Rect Window(uint id, Rect windowRect, GUI.WindowFunction drawUiAction, string title, GUIStyle windowStyle) { throw new NotImplementedException(); }
         public static void FlexibleSpace() { throw new NotImplementedException(); }
         public static bool Toggle(bool initial, object content) { throw new NotImplementedException(); }
         public static bool Toggle(bool initial, object content, params GUILayoutOption[] options) { throw new NotImplementedException(); }
