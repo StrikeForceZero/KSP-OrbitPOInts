@@ -1,5 +1,17 @@
 # Changelog
 
+## 2023-10-02 v0.5
+- Added:
+    - Persistence
+    - Unlimited POIs
+    - Per Body configuration
+    - Various UI tweaks
+    - Options menu
+    - Display each POI's color
+- Under the Hood:
+    - Added Tests
+    - Organized most of the code
+
 ## 2023-09-25 v0.4
 - Added:
     - Ability to draw POIs for all bodies
