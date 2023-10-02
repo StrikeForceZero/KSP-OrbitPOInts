@@ -312,6 +312,7 @@ namespace OrbitPOInts.UI
             GUILayout.BeginHorizontal();
             children.Invoke();
             GUILayout.FlexibleSpace();
+            Controls.ColorBox(poi.Color);
             CustomColorButton(poi.Label, poi.Color, Settings.DefaultPoiColors[poi.Type], AssignPoiColorFactory(poi));
             GUILayout.EndHorizontal();
         }
