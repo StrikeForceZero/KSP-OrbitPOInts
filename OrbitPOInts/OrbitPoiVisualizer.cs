@@ -882,7 +882,7 @@ namespace OrbitPOInts
         {
             var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
             if (bodyComponentHolder.IsNone) return;
-            var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>();
+            var components = bodyComponentHolder.Value.GetComponents<CircleRenderer>();
             LogDebug($"[PurgeAllCirclesByBody] {body.name} - {components.Length}");
             foreach (var component in components)
             {
