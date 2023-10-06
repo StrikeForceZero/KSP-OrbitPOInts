@@ -362,19 +362,19 @@ namespace OrbitPOInts
         private PoiWireSphereRenderer CreateWireSphereFromPoi(POI poi)
         {
             LogDebug($"[CreateWireSphereFromPoi]: Generating spheres around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
-            return CreateWireSphere(poi.Body, poi.Color, (float)poi.RadiusForRendering(), GetComponentGroupId(poi), poi.LineWidth, poi.Resolution);
+            return CreateWireSphere(poi.Body, poi.Color, (float)poi.RadiusForRendering(), GetComponentInstanceId(poi, ComponentHolderType.Sphere), poi.LineWidth, poi.Resolution);
         }
 
         private PoiWireSphereRenderer CreateWireSphere(
             CelestialBody body,
             Color color,
             float radius,
-            string groupId,
+            int instanceId,
             float width = 1f,
             int resolution = 50
         )
         {
-            var sphere = AddOrGetSphereComponent(body, groupId);
+            var sphere = AddOrGetSphereComponent(body, instanceId);
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -417,18 +417,18 @@ namespace OrbitPOInts
         private PoiCircleRenderer CreateCircleFromPoi(POI poi)
         {
             LogDebug($"[CreateCircleFromPoi]: Generating circle around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
-            return CreateCircle(poi.Body, poi.Color, (float)poi.RadiusForRendering(), GetComponentGroupId(poi), poi.LineWidth);
+            return CreateCircle(poi.Body, poi.Color, (float)poi.RadiusForRendering(), GetComponentInstanceId(poi, ComponentHolderType.Circle), poi.LineWidth);
         }
 
         private PoiCircleRenderer CreateCircle(
             CelestialBody body,
             Color color,
             float radius,
-            string groupId,
+            int instanceId,
             float width = 1f,
             int segments = 360)
         {
-            var circle = AddOrGetCircleComponent(body, groupId);
+            var circle = AddOrGetCircleComponent(body, instanceId);
 
             circle.wireframeColor = color;
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -476,6 +476,17 @@ namespace OrbitPOInts
             return GetComponentGroupId(poi.Body, poi.Type, poi.Radius);
         }
 
+        private int GetComponentInstanceId(POI poi, ComponentHolderType componentHolderType)
+        {
+            return componentHolderType switch
+            {
+                ComponentHolderType.Sphere => _drawnSpheres.FirstOrDefault(r => r.Poi.Equals(poi))?.GetInstanceID(),
+                ComponentHolderType.Circle => _drawnCircles.FirstOrDefault(r => r.Poi.Equals(poi))?.GetInstanceID(),
+                _ => throw new ArgumentOutOfRangeException(nameof(componentHolderType), componentHolderType, null)
+            } ?? -1;
+        }
+
+        [Obsolete]
         private PoiCircleRenderer AddOrGetCircleComponent(CelestialBody body, string groupId)
         {
             var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Circle);
@@ -503,6 +514,23 @@ namespace OrbitPOInts
             return circle;
         }
 
+        private PoiCircleRenderer AddOrGetCircleComponent(CelestialBody body, int instanceId)
+        {
+            var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Circle);
+            var existingComponent = _drawnCircles.FirstOrDefault(c => c.GetInstanceID() == instanceId);
+            if (existingComponent is { IsDying: false })
+            {
+                LogDebug($"[AddOrGetCircleComponent] Reusing: {instanceId}");
+                return existingComponent;
+            }
+
+
+            LogDebug($"[AddOrGetCircleComponent] Creating new component {instanceId}");
+            var circle = target.AddComponent<PoiCircleRenderer>();
+            return circle;
+        }
+
+        [Obsolete]
         private PoiWireSphereRenderer AddOrGetSphereComponent(CelestialBody body, string groupId)
         {
             var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Sphere);
@@ -527,6 +555,20 @@ namespace OrbitPOInts
             LogDebug($"[AddOrGetSphereComponent] Creating new component {groupId}");
             var sphere = target.AddComponent<PoiWireSphereRenderer>();
             sphere.groupId = groupId;
+            return sphere;
+        }
+
+        private PoiWireSphereRenderer AddOrGetSphereComponent(CelestialBody body, int instanceId)
+        {
+            var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Sphere);
+            var existingComponent = _drawnSpheres.FirstOrDefault(c => c.GetInstanceID() == instanceId);
+            if (existingComponent is { IsDying: false })
+            {
+                LogDebug($"[AddOrGetSphereComponent] Reusing: {instanceId}");
+                return existingComponent;
+            }
+            LogDebug($"[AddOrGetSphereComponent] Creating new component {instanceId}");
+            var sphere = target.AddComponent<PoiWireSphereRenderer>();
             return sphere;
         }
         #endregion
