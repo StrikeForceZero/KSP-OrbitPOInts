@@ -1,3 +1,5 @@
+using OrbitPOInts.Extensions.Unity;
+
 #if TEST
 using KSPMock;
 using UnityEngineMock;
@@ -52,10 +54,9 @@ namespace OrbitPOInts
             line.receiveShadows = false;
             line.useWorldSpace = false;
             line.positionCount = segments + 1; // +1 to close the circle
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
@@ -90,6 +91,23 @@ namespace OrbitPOInts
         {
             enabled = state;
         }
+
+        void SetColor(Color color)
+        {
+            foreach (var line in lineObject.GetComponents<LineRenderer>())
+            {
+                line.SetColor(color);
+            }
+        }
+
+        void SetWidth(float width)
+        {
+            foreach (var line in lineObject.GetComponents<LineRenderer>())
+            {
+                line.SetWidth(width);
+            }
+        }
+
 
         public static string NameKey => "CircleLine";
 

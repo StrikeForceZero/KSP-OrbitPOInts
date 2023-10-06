@@ -365,10 +365,10 @@ namespace OrbitPOInts.UI
                 Settings.Instance.GlobalEnable = GUILayout.Toggle(Settings.Instance.GlobalEnable, "Enabled");
                 if (Settings.Instance.GlobalEnable)
                 {
-                    if (!OrbitPoiVisualizer.Instance.enabled)
+                    if (!GameStateManager.Instance.enabled)
                     {
                         LogDebug("[GUI] enabling OrbitPoiVisualizer");
-                        OrbitPoiVisualizer.Instance.enabled = true;
+                        GameStateManager.Instance.enabled = true;
                     }
                 }
 

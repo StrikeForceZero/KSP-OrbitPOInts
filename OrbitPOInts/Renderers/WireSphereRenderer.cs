@@ -1,3 +1,5 @@
+using OrbitPOInts.Extensions.Unity;
+
 #if TEST
 using KSPMock;
 using UnityEngineMock;
@@ -93,10 +95,9 @@ namespace OrbitPOInts
             // line.material = new Material(Shader.Find("Sprites/Default"));
             line.useWorldSpace = false;
             line.positionCount = longitudeLines + 1;
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
@@ -125,10 +126,9 @@ namespace OrbitPOInts
             // line.material = new Material(Shader.Find("Sprites/Default"));
             line.useWorldSpace = false;
             line.positionCount = latitudeLines; // Making longitude lines conform to the curvature
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
@@ -160,6 +160,30 @@ namespace OrbitPOInts
         {
             enabled = state;
         }
+
+
+        void SetColor(Color color)
+        {
+            foreach (var lineObject in lineObjects)
+            {
+                foreach (var line in lineObject.GetComponents<LineRenderer>())
+                {
+                    line.SetColor(color);
+                }
+            }
+        }
+
+        void SetWidth(float width)
+        {
+            foreach (var lineObject in lineObjects)
+            {
+                foreach (var line in lineObject.GetComponents<LineRenderer>())
+                {
+                    line.SetWidth(width);
+                }
+            }
+        }
+
 
         public static string NameKey => "WireSphereLine";
 

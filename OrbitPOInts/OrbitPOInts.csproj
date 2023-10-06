@@ -80,6 +80,7 @@
         <Compile Include="Data\POI\CustomPOI.cs" />
         <Compile Include="Data\POI\POI.cs" />
         <Compile Include="Data\POI\PoiComparer.cs" />
+        <Compile Include="Data\POI\PoiComponentContainer.cs" />
         <Compile Include="Data\POI\PoiCustomEqualityComparer.cs" />
         <Compile Include="Data\POI\PoiDTO.cs" />
         <Compile Include="Data\POI\PoiDTOComparer.cs" />
@@ -91,9 +92,13 @@
         <Compile Include="Extensions\FloatExtensions.cs" />
         <Compile Include="Extensions\KSP\CelestialBodyExtensions.cs" />
         <Compile Include="Extensions\EnumerableExtensions.cs" />
+        <Compile Include="Extensions\PoiTypeExtensions.cs" />
         <Compile Include="Extensions\Unity\ColorExtensions.cs" />
         <Compile Include="Extensions\Unity\GameObjectExtensions.cs" />
+        <Compile Include="Extensions\Unity\LineRendererExtensions.cs" />
         <Compile Include="Extensions\Unity\MonoBehaviourExtensions.cs" />
+        <Compile Include="GameState.cs" />
+        <Compile Include="GameStateManager.cs" />
         <Compile Include="Helpers\MapObjectHelper.cs" />
         <Compile Include="Helpers\OrbitHelpers.cs" />
         <Compile Include="Helpers\SceneHelper.cs" />
@@ -113,6 +118,8 @@
         <Compile Include="Utils\DelayedAction.cs" />
         <Compile Include="Utils\Logger.cs" />
         <Compile Include="Utils\Option.cs" />
+        <Compile Include="Utils\PropChangeActionMapper.cs" />
+        <Compile Include="Utils\PropChangeMapper.cs" />
         <Compile Include="Utils\Reflection.cs" />
     </ItemGroup>
     <ItemGroup>

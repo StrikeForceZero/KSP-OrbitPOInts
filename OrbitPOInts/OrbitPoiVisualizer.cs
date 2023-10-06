@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -57,12 +58,8 @@ namespace OrbitPOInts
     using Logger = Utils.Logger;
 
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
-    public class OrbitPoiVisualizer : MonoBehaviour
+    public class OrbitPoiVisualizer
     {
-        public static OrbitPoiVisualizer Instance { get; private set; }
-
-        private Settings _settings;
-
         private readonly Dictionary<string, GameObject> _bodyComponentHolders = new();
         private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
         private readonly HashSet<CircleRenderer> _drawnCircles = new();
@@ -70,14 +67,29 @@ namespace OrbitPOInts
         public bool DrawSpheres;
         public bool DrawCircles;
         public bool AlignSpheres;
-
-        private bool _eventsRegistered;
-        private static bool _sceneLoading;
-
-        private Vessel _lastVessel;
-        private CelestialBody _lastOrbitingBody;
+        public bool FocusedBodyOnly;
+        public bool enabled = true;
 
         private static double _standardLineWidthDistance;
+
+        public OrbitPoiVisualizer(
+            GameState gameState,
+            Func<IEnumerator, Coroutine> startCoroutine,
+            Action<object> destroy,
+            Action<object> destroyImmediate
+        )
+        {
+            GameState = gameState;
+            StartCoroutine = startCoroutine;
+            Destroy = destroy;
+            DestroyImmediate = destroyImmediate;
+            _standardLineWidthDistance = GetStandardLineWidthDistance();
+        }
+
+        public GameState GameState { get; }
+        public Func<IEnumerator, Coroutine> StartCoroutine { get; }
+        public Action<object> Destroy { get; }
+        public Action<object> DestroyImmediate { get; }
 
         private static void LogDebug(string message)
         {
@@ -119,275 +131,6 @@ namespace OrbitPOInts
             enabled = state;
         }
 
-        #region Lifecycle Methods
-
-        private void Awake()
-        {
-            LogDebug("Awake");
-            LoadStandardLineWidthDistance();
-            Instance = this;
-            CheckEnabled();
-        }
-
-        private void OnEnable()
-        {
-            LogDebug("OnEnable");
-            CheckEnabled();
-            if (enabled) CurrentTargetRefresh();
-        }
-
-        private void Start()
-        {
-            LogDebug("Start");
-            CheckEnabled();
-        }
-
-        private void OnDisable()
-        {
-            LogDebug("OnDisable");
-            // this prevents us from waking up again
-            // but instead of leaving a envent handler just for GlobalEnable
-            // we'll pass the responsibility to the UI
-            UnregisterSettings();
-            RegisterEvents(false);
-            PurgeAll();
-        }
-
-        private void OnDestroy()
-        {
-            LogDebug("OnDestroy");
-            UnregisterSettings();
-            RegisterEvents(false);
-            PurgeAll();
-        }
-
-        private void RegisterEvents(bool register = true)
-        {
-            if (register)
-            {
-                if (_eventsRegistered) return;
-                LogDebug("RegisterEvents");
-                GameEvents.OnMapEntered.Add(OnMapEntered);
-                GameEvents.OnMapExited.Add(OnMapExited);
-                GameEvents.OnMapFocusChange.Add(OnMapFocusChange);
-                GameEvents.onVesselChange.Add(OnVesselChange);
-                GameEvents.onVesselSOIChanged.Add(OnVesselSOIChange);
-                GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
-                GameEvents.onLevelWasLoadedGUIReady.Add(OnGameSceneLoadedGUIReady);
-                _eventsRegistered = true;
-                return;
-            }
-
-            if (!_eventsRegistered) return;
-            LogDebug("UnRegisterEvents");
-            GameEvents.OnMapEntered.Remove(OnMapEntered);
-            GameEvents.OnMapExited.Remove(OnMapExited);
-            GameEvents.OnMapFocusChange.Remove(OnMapFocusChange);
-            GameEvents.onVesselChange.Remove(OnVesselChange);
-            GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChange);
-            GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
-            GameEvents.onLevelWasLoadedGUIReady.Remove(OnGameSceneLoadedGUIReady);
-            _eventsRegistered = false;
-        }
-
-        private void Update()
-        {
-            if (!SceneHelper.ViewingMapOrTrackingStation)
-            {
-                return;
-            }
-
-            var target = PlanetariumCamera.fetch.target;
-            var vessel = target.vessel;
-            var hasVessel = vessel != null;
-            var body = hasVessel ? vessel.mainBody : target.celestialBody;
-
-            if (_lastVessel != vessel || _lastOrbitingBody != body)
-            {
-                LogDebug(
-                    $"[UPDATE] lastVessel: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}, lastOrbitingBody: {MapObjectHelper.GetBodyName(_lastOrbitingBody)} -> {MapObjectHelper.GetBodyName(body)}");
-                Refresh(target);
-
-                _lastVessel = vessel;
-                _lastOrbitingBody = body;
-            }
-
-            UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
-        }
-
-        private void UnregisterSettings()
-        {
-            if (_settings == null) return;
-            Settings.InstanceDestroyed -= OnSettingsDestroyed;
-            Settings.InstanceCreated -= OnSettingsCreated;
-            _settings.PropertyChanged -= OnPropertyChanged;
-            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoiChanged;
-            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
-            _settings = null;
-        }
-
-        private void RegisterSettings()
-        {
-            if (_settings is { IsDisposed: false }) return;
-            Settings.InstanceDestroyed -= OnSettingsDestroyed;
-            Settings.InstanceCreated -= OnSettingsCreated;
-            _settings = Settings.Instance;
-            Settings.InstanceDestroyed += OnSettingsDestroyed;
-            Settings.InstanceCreated += OnSettingsCreated;
-            _settings.PropertyChanged += OnPropertyChanged;
-            // remove and reregister at the end because we want to make sure we at least got the event that the collection was reset
-            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoiChanged;
-            _settings.ConfiguredPoiPropChanged += OnConfiguredPoiChanged;
-            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
-            _settings.ConfiguredPoisCollectionChanged += OnConfiguredPoisCollectionChanged;
-        }
-
-        #endregion
-
-        #region EventHandlers
-
-
-        private void OnSettingsDestroyed(Settings settings)
-        {
-            LogDebug($"[OnSettingsDestroyed]");
-            UnregisterSettings();
-        }
-        private void OnSettingsCreated(Settings settings)
-        {
-            LogDebug($"[OnSettingsCreated]");
-            RegisterSettings();
-            UpdatePropsFromSettings();
-            // maybe
-            // CurrentTargetRefresh();
-        }
-
-        private void OnPropertyChanged(object senderSettings, PropertyChangedEventArgs args)
-        {
-
-            if (senderSettings is Settings settings)
-            {
-                LogDebug($"[OnPropertyChanged] Settings.{args.PropertyName}={Reflection.AccessProp(settings, args.PropertyName)}");
-            }
-            else
-            {
-                LogDebug($"[OnPropertyChanged] Settings.{args.PropertyName}");
-            }
-
-            if (args.PropertyName == nameof(Settings.ConfiguredPois)) return;
-
-            UpdatePropsFromSettings();
-            CurrentTargetRefresh();
-        }
-
-        private void OnConfiguredPoiChanged(object senderSettings, object senderPoi, PropertyChangedEventArgs args)
-        {
-            if (senderSettings is POI poi)
-            {
-                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}={Reflection.AccessProp(poi, args.PropertyName)}");
-            }
-            else
-            {
-                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}");
-            }
-            CurrentTargetRefresh();
-        }
-
-        private void OnConfiguredPoisCollectionChanged(object settings, NotifyCollectionChangedEventArgs args)
-        {
-            LogDebug($"[OnConfiguredPoisCollectionChanged] Settings.{nameof(Settings.ConfiguredPois)} - ${args.Action}");
-            CurrentTargetRefresh();
-        }
-
-        private void OnGameSceneLoadRequested(GameScenes scenes)
-        {
-            _sceneLoading = true;
-            LogDebug($"[OnGameSceneLoadRequested] {SceneHelper.GetSceneName(scenes)}");
-            RemoveAll();
-        }
-
-        private void OnGameSceneLoadedGUIReady(GameScenes scenes)
-        {
-            LogDebug($"[OnGameSceneLoadedGUIReady] {SceneHelper.GetSceneName(scenes)}");
-            // TOD: this might not be the same on all systems
-            StartCoroutine(DelayedAction.CreateCoroutine(() =>
-                {
-                    LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {SceneHelper.GetSceneName(scenes)}");
-                    _sceneLoading = false;
-                    if (PurgeIfNotInMapOrTracking())
-                    {
-                        LogDebug("[OnGameSceneLoadedGUIReady] purge complete");
-                        return;
-                    }
-
-                    CurrentTargetRefresh();
-                },
-                6 // appears it takes 6 frames on my system before OnMapExit is called
-            ));
-        }
-
-        private void OnMapEntered()
-        {
-            var target = PlanetariumCamera.fetch.target;
-            LogDebug($"[OnMapEntered] focus on {MapObjectHelper.GetTargetName(target)}");
-
-            Refresh(target);
-        }
-
-        private void OnMapExited()
-        {
-            LogDebug($"[OnMapExited]");
-            PurgeAll();
-        }
-
-        private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
-        {
-            LogDebug($"[OnVesselSOIChange] soi changed: {data.from.name} -> {data.to.name}");
-            if (PurgeIfNotInMapOrTracking())
-            {
-                // TODO: this might be ok if our SOI changes while flying
-                LogError("[OnVesselSOIChange] OnVesselSOIChange called when not in map or tracking!");
-                return;
-            }
-            UpdateBody(data.to);
-        }
-
-        private void OnVesselChange(Vessel vessel)
-        {
-            if (_sceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
-            LogDebug(
-                $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
-
-            if (PurgeIfNotInMapOrTracking())
-            {
-                // TODO: this might be ok if we are flightview and switch ships
-                LogError("[OnVesselChange] OnVesselChange called when not in map or tracking!");
-                return;
-            }
-
-            if (vessel == null)
-            {
-                return;
-            }
-
-            UpdateBody(vessel.mainBody);
-            UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
-        }
-
-        private void OnMapFocusChange(MapObject focusTarget)
-        {
-            if (_sceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
-            LogDebug($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
-            // TODO: this gets called when loading a save and we dont want to generate anything unless in map
-            if (PurgeIfNotInMapOrTracking())
-            {
-                LogError("[OnMapFocusChange] OnMapFocusChange called when not in map or tracking!");
-                return;
-            }
-            Refresh(focusTarget);
-        }
-
-        #endregion
-
         #region Refresh
 
         public void UpdateBody(CelestialBody body)
@@ -404,13 +147,13 @@ namespace OrbitPOInts
                 LogError("[UpdateBody] UpdateBody called not ViewingMapOrTrackingStation!");
                 return;
             }
-            if (_sceneLoading)
+            if (GameState.IsSceneLoading)
             {
                 LogError("[UpdateBody] UpdateBody called when scene loading!");
                 return;
             }
 
-            if (_settings.FocusedBodyOnly)
+            if (FocusedBodyOnly)
             {
                 DestroyAndRecreateBodySpheres(body);
                 DestroyAndRecreateBodyCircles(body);
@@ -437,7 +180,7 @@ namespace OrbitPOInts
                 LogError("[Refresh] refresh called when not in map or tracking!");
                 return;
             }
-            if (_sceneLoading)
+            if (GameState.IsSceneLoading)
             {
                 LogError("[Refresh] refresh called when scene loading!");
                 return;
@@ -470,9 +213,9 @@ namespace OrbitPOInts
         #endregion
 
         #region Normals
-        private void UpdateNormals(Vector3 normal)
+        public void UpdateNormals(Vector3 normal)
         {
-            if (!enabled || _sceneLoading || !SceneHelper.ViewingMapOrTrackingStation)
+            if (!enabled || GameState.IsSceneLoading || !SceneHelper.ViewingMapOrTrackingStation)
             {
                 return;
             }
@@ -519,14 +262,14 @@ namespace OrbitPOInts
 
         private void AlignTransformToNormal(Transform transform, Vector3d normal)
         {
+            if (!enabled)
+            {
+                return;
+            }
             // TODO: sometimes the transform can be null
             if (transform == null)
             {
                 Logger.LogError($"[AlignTransformToNormal] transform null!");
-                return;
-            }
-            if (!enabled)
-            {
                 return;
             }
             OrbitHelpers.AlignTransformToNormal(transform, normal);
@@ -537,7 +280,7 @@ namespace OrbitPOInts
         {
             foreach (PoiType poiType in Enum.GetValues(typeof(PoiType)))
             {
-                if (poiType is PoiType.None or PoiType.Custom) continue;
+                if (poiType.IsNoneOrCustom()) continue;
                 // check to make sure its not disabled in the global config
                 if (!Settings.Instance.GetGlobalEnableFor(body, poiType))
                 {
@@ -582,7 +325,7 @@ namespace OrbitPOInts
 
         #region Spheres
 
-        private void DestroyAndRecreateBodySpheres(CelestialBody targetObject)
+        public void DestroyAndRecreateBodySpheres(CelestialBody targetObject)
         {
             RemoveBodySpheres();
             CreateBodySphere(targetObject);
@@ -642,7 +385,7 @@ namespace OrbitPOInts
 
         #region Circles
 
-        private void DestroyAndRecreateBodyCircles(CelestialBody targetObject)
+        public void DestroyAndRecreateBodyCircles(CelestialBody targetObject)
         {
             RemoveBodyCircles();
             CreateBodyCircle(targetObject);
@@ -695,50 +438,18 @@ namespace OrbitPOInts
 
         #region MISC
 
-        private void UpdatePropsFromSettings()
+        public bool PurgeIfNotInMapOrTracking()
         {
-            enabled = Settings.Instance.GlobalEnable;
-            DrawCircles = Settings.Instance.EnableCircles;
-            DrawSpheres = Settings.Instance.EnableSpheres;
-            AlignSpheres = Settings.Instance.AlignSpheres;
-        }
-
-        private void CheckEnabled()
-        {
-            RegisterSettings();
-            UpdatePropsFromSettings();
-            LogDebug($"[CheckEnabled] enable: {Settings.Instance.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
-            // check to make sure we still enabled after loading settings
-            if (!enabled)
-            {
-                PurgeAll();
-                return;
-            }
-
-            PurgeIfNotInMapOrTracking();
-            RegisterEvents();
-        }
-
-        private bool PurgeIfNotInMapOrTracking()
-        {
+            if (SceneHelper.ViewingMapOrTrackingStation) return false;
             // if for some reason we end up here and we arent in the mapview or tracking station we should purge
-            if (!SceneHelper.ViewingMapOrTrackingStation)
-            {
-                LogDebug("[PurgeIfNotInMapOrTracking] Purging");
-                PurgeAll();
-                return true;
-            }
-
-            return false;
+            LogDebug("[PurgeIfNotInMapOrTracking] Purging");
+            PurgeAll();
+            return true;
         }
 
-        private static void LoadStandardLineWidthDistance()
+        private static double GetStandardLineWidthDistance()
         {
-            foreach (var body in FlightGlobals.Bodies.Where(body => body.isHomeWorld))
-            {
-                _standardLineWidthDistance = body.minOrbitalDistance;
-                break;
-            }
+            return FlightGlobals.Bodies.Where(body => body.isHomeWorld).Select(body => body.minOrbitalDistance).FirstOrDefault();
         }
         #endregion
 
