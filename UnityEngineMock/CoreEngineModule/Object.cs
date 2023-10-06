@@ -1,8 +1,15 @@
+using System;
+
 namespace UnityEngineMock
 {
     public class Object
     {
-        public string name;
+        public string name { get; set; }
+
+        public int GetInstanceID()
+        {
+            throw new NotImplementedException();
+        }
 
         public static void Destroy(object obj)
         {
