@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions.Unity;
 using OrbitPOInts.Helpers;
 using OrbitPOInts.Utils;
 #if TEST
@@ -118,6 +119,18 @@ namespace OrbitPOInts
                     foreach (var renderer in Visualizer.CelestialBodyComponentManager.GetRenderersForPoi(args.Source))
                     {
                         renderer.SetEnabled(args.Source.Enabled);
+                    }
+                }),
+                PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
+                {
+                    Visualizer.CurrentTargetRefresh();
+                }),
+                PropChangeActionMapping<POI>.From(s => s.Radius, (args) =>
+                {
+                    foreach (var bodyComponentHolder in Visualizer.CelestialBodyComponentManager.TryGetBodyComponentHolders(args.Source))
+                    {
+                        Visualizer.CelestialBodyComponentManager.Remove(bodyComponentHolder, args.Source.Body);
+                        // TODO: recreate
                     }
                 })
             );

@@ -90,6 +90,18 @@ namespace OrbitPOInts.CelestialBodies
             return from ComponentHolderType type in Enum.GetValues(typeof(ComponentHolderType)) select TryGetBodyComponentHolder(body, type);
         }
 
+        public IEnumerable<GameObject> TryGetBodyComponentHolders(POI poi)
+        {
+            if (poi.Body == null) return Enumerable.Empty<GameObject>();
+            return TryGetBodyComponentHolders(poi.Body)
+                .Where(c => c.IsSome)
+                .Select(c => c.Value)
+                .Where(c => c.GetComponents<PoiWireSphereRenderer>().Cast<IPoiRenderer>()
+                    .Concat(c.GetComponents<PoiCircleRenderer>().Cast<IPoiRenderer>())
+                    .Any(r => r.Poi.Equals(poi))
+                );
+        }
+
         public IEnumerable<IPoiRenderer> GetRenderersForPoi(POI poi)
         {
             return GetSphereRenderersForPoi(poi).Cast<IPoiRenderer>().Concat(GetCircleRenderersForPoi(poi).Cast<IPoiRenderer>());
@@ -122,11 +134,11 @@ namespace OrbitPOInts.CelestialBodies
             switch (componentHolderType)
             {
                 case ComponentHolderType.Circle:
-                    RemoveCircles(componentHolder);
+                    RemoveCircles(componentHolder, body);
                     break;
 
                 case ComponentHolderType.Sphere:
-                    RemoveSpheres(componentHolder);
+                    RemoveSpheres(componentHolder, body);
                     break;
 
                 default:
@@ -144,27 +156,57 @@ namespace OrbitPOInts.CelestialBodies
             }
         }
 
-        public void RemoveSpheres(GameObject componentHolder)
+        public void RemoveSpheres(GameObject componentHolder, CelestialBody body, bool destroy = true)
         {
             foreach (var sphere in componentHolder.GetComponents<PoiWireSphereRenderer>())
             {
                 sphere.DestroyImmediateIfAlive();
             }
+
+            _bodyComponentHolders.Remove((body, ComponentHolderType.Sphere));
+            if (destroy) componentHolder.DestroyImmediateIfAlive();
         }
 
-        public void RemoveCircles(GameObject componentHolder)
+        public void RemoveCircles(GameObject componentHolder, CelestialBody body, bool destroy = true)
         {
             foreach (var circle in componentHolder.GetComponents<PoiCircleRenderer>())
             {
                 circle.DestroyImmediateIfAlive();
             }
+            _bodyComponentHolders.Remove((body, ComponentHolderType.Circle));
+            if (destroy) componentHolder.DestroyImmediateIfAlive();
+        }
+
+        public void Remove(GameObject componentHolder, CelestialBody body)
+        {
+            RemoveSpheres(componentHolder, body, false);
+            RemoveCircles(componentHolder, body, false);
+            componentHolder.DestroyImmediateIfAlive();
+        }
+
+        public void Remove(GameObject componentHolder)
+        {
+            var resolveKvp = _bodyComponentHolders.FirstOrDefault(kvp => kvp.Value == componentHolder);
+            if (resolveKvp.Equals(default(KeyValuePair<(CelestialBody Body, ComponentHolderType Type), GameObject>))) throw new ArgumentException("componentHolder not found");
+            switch (resolveKvp.Key.Type)
+            {
+                case ComponentHolderType.Sphere:
+                    RemoveSpheres(componentHolder, resolveKvp.Key.Body);
+                    break;
+                case ComponentHolderType.Circle:
+                    RemoveCircles(componentHolder, resolveKvp.Key.Body);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            componentHolder.DestroyImmediateIfAlive();
         }
 
         public void RemoveAll()
         {
-            foreach (var key in _bodyComponentHolders.Keys)
+            foreach (var kvp in _bodyComponentHolders)
             {
-                RemoveComponentHolders(key.Body, key.Type);
+                Remove(kvp.Value, kvp.Key.Body);
             }
             _bodyComponentHolders.Clear();
         }

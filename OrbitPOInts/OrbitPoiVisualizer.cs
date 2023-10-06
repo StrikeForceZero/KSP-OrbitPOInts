@@ -608,27 +608,30 @@ namespace OrbitPOInts
             }
         }
 
+        [Obsolete]
         private void PurgeAllByBody(CelestialBody body)
         {
             _celestialBodyComponentManager.RemoveComponentHolders(body);
         }
 
+        [Obsolete]
         private void PurgeAllCirclesByBody(CelestialBody body)
         {
             var maybeBodyComponentHolder = _celestialBodyComponentManager.TryGetBodyComponentHolder(body, ComponentHolderType.Circle);
             if (maybeBodyComponentHolder.IsNone) return;
             var bodyComponentHolder = maybeBodyComponentHolder.Value;
             LogDebug($"[PurgeAllCirclesByBody] {body.name}");
-            _celestialBodyComponentManager.RemoveCircles(bodyComponentHolder);
+            _celestialBodyComponentManager.RemoveCircles(bodyComponentHolder, body);
         }
 
+        [Obsolete]
         private void PurgeAllSpheresByBody(CelestialBody body)
         {
             var maybeBodyComponentHolder = _celestialBodyComponentManager.TryGetBodyComponentHolder(body, ComponentHolderType.Sphere);
             if (maybeBodyComponentHolder.IsNone) return;
             var bodyComponentHolder = maybeBodyComponentHolder.Value;
             LogDebug($"[PurgeAllSpheresByBody] {body.name}");
-            _celestialBodyComponentManager.RemoveSpheres(bodyComponentHolder);
+            _celestialBodyComponentManager.RemoveSpheres(bodyComponentHolder, body);
         }
 
         // TODO: desperate times call for desperate measures
