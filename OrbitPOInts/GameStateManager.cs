@@ -52,13 +52,13 @@ namespace OrbitPOInts
     using Logger = Utils.Logger;
 
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
-    public class GameStateManager : MonoBehaviour
+    public class GameStateManager : MonoBehaviour, IHasGameState
     {
         public static GameStateManager Instance { get; private set; }
 
         private GameState _gameState;
         private Settings _settings;
-        private OrbitPoiVisualizer _visualizer;
+        private OrbitPoiVisualizer<GameStateManager> _visualizer;
 
         private bool _eventsRegistered;
 
@@ -81,30 +81,45 @@ namespace OrbitPOInts
 
         public Settings Settings => _settings;
         public GameState GameState => _gameState;
-        public OrbitPoiVisualizer Visualizer => _visualizer;
+        public OrbitPoiVisualizer<GameStateManager> Visualizer => _visualizer;
 
         #region Lifecycle Methods
 
         private void Awake()
         {
             Instance = this;
-            _visualizer = new OrbitPoiVisualizer(
-                gameState: GameState,
-                startCoroutine: StartCoroutine,
-                destroy: Destroy,
-                destroyImmediate: DestroyImmediate
-            );
+            _visualizer = new OrbitPoiVisualizer<GameStateManager>(this);
             var settings = Settings.Instance;
 
-            _settingsPropChangeMapper = new PropChangeMapper<Settings, OrbitPoiVisualizer>(
-                PropChangeMapping<Settings, OrbitPoiVisualizer>.From(s => s.AlignSpheres),
-                PropChangeMapping<Settings, OrbitPoiVisualizer>.From(s => s.EnableSpheres, v => v.DrawSpheres, () => Visualizer.DestroyAndRecreateBodySpheres(GameState.FocusedOrActiveBody)),
-                PropChangeMapping<Settings, OrbitPoiVisualizer>.From(s => s.EnableCircles, v => v.DrawCircles, () => Visualizer.DestroyAndRecreateBodyCircles(GameState.FocusedOrActiveBody)),
-                PropChangeMapping<Settings, OrbitPoiVisualizer>.From(s => s.FocusedBodyOnly, () => Visualizer.CurrentTargetRefresh())
+            _settingsPropChangeMapper = new PropChangeMapper<Settings, OrbitPoiVisualizer<GameStateManager>>(
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.AlignSpheres),
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.EnableSpheres, v => v.DrawSpheres, () => Visualizer.DestroyAndRecreateBodySpheres(GameState.FocusedOrActiveBody)),
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.EnableCircles, v => v.DrawCircles, () => Visualizer.DestroyAndRecreateBodyCircles(GameState.FocusedOrActiveBody)),
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.FocusedBodyOnly, () => Visualizer.CurrentTargetRefresh())
             );
 
             _poiPropChangeMapper = new PropChangeActionMapper<POI>(
-                PropChangeActionMapping<POI>.From(s => s.Color, (args) => { })
+                PropChangeActionMapping<POI>.From(s => s.Color, (args) =>
+                {
+                    foreach (var renderer in Visualizer.CelestialBodyComponentManager.GetRenderersForPoi(args.Source))
+                    {
+                        renderer.SetColor(args.Source.Color);
+                    }
+                }),
+                PropChangeActionMapping<POI>.From(s => s.LineWidth, (args) =>
+                {
+                    foreach (var renderer in Visualizer.CelestialBodyComponentManager.GetRenderersForPoi(args.Source))
+                    {
+                        renderer.SetWidth(args.Source.LineWidth);
+                    }
+                }),
+                PropChangeActionMapping<POI>.From(s => s.Enabled, (args) =>
+                {
+                    foreach (var renderer in Visualizer.CelestialBodyComponentManager.GetRenderersForPoi(args.Source))
+                    {
+                        renderer.SetEnabled(args.Source.Enabled);
+                    }
+                })
             );
 
             LogDebug("Awake");
@@ -257,7 +272,7 @@ namespace OrbitPOInts
             UpdatePropsFromSettings(settings);
         }
 
-        private PropChangeMapper<Settings, OrbitPoiVisualizer> _settingsPropChangeMapper;
+        private PropChangeMapper<Settings, OrbitPoiVisualizer<GameStateManager>> _settingsPropChangeMapper;
         private PropChangeActionMapper<POI> _poiPropChangeMapper;
 
         private void OnPropertyChanged(object senderSettings, PropertyChangedEventArgs args)

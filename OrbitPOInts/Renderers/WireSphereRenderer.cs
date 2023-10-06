@@ -22,15 +22,15 @@ namespace OrbitPOInts
     using GameScenes = KSP_GameScenes;
 
     [RequireComponent(typeof(LineRenderer))]
-    public class WireSphereRenderer : MonoBehaviour
+    public class WireSphereRenderer : MonoBehaviour, IRenderer
     {
-        public float radius = 1.0f;
+        public float radius { get; set; } = 1.0f;
         public int latitudeLines = 10;
         public int longitudeLines = 10;
         private GameObject[] lineObjects = { };
-        public Color wireframeColor = Color.green;
-        public float lineWidth = 0.1f;
-        public string uniqueGameObjectNamePrefix;
+        public Color wireframeColor { get; set; } = Color.green;
+        public float lineWidth { get; set; } = 0.1f;
+        public int groupId { get; set; }
         public bool IsDying { get; private set; }
 
         private void Awake()
@@ -162,7 +162,7 @@ namespace OrbitPOInts
         }
 
 
-        void SetColor(Color color)
+        public void SetColor(Color color)
         {
             foreach (var lineObject in lineObjects)
             {
@@ -171,9 +171,11 @@ namespace OrbitPOInts
                     line.SetColor(color);
                 }
             }
+
+            wireframeColor = color;
         }
 
-        void SetWidth(float width)
+        public void SetWidth(float width)
         {
             foreach (var lineObject in lineObjects)
             {
@@ -182,6 +184,8 @@ namespace OrbitPOInts
                     line.SetWidth(width);
                 }
             }
+
+            lineWidth = width;
         }
 
 
@@ -191,14 +195,14 @@ namespace OrbitPOInts
         {
             if (obj is WireSphereRenderer other)
             {
-                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+                return groupId == other.groupId;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
+            return groupId;
         }
     }
 }

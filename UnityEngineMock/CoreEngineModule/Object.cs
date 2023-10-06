@@ -4,16 +4,6 @@ namespace UnityEngineMock
     {
         public string name;
 
-        public void Destroy()
-        {
-
-        }
-
-        public void DestroyImmediate()
-        {
-
-        }
-
         public static void Destroy(object obj)
         {
 

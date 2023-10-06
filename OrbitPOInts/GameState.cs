@@ -48,6 +48,11 @@ namespace OrbitPOInts
 
     using Logger = Utils.Logger;
 
+    public interface IHasGameState
+    {
+        public GameState GameState { get; }
+    }
+
     public class GameState : INotifyPropertyChanged
     {
         private static bool _isSceneLoading;

@@ -22,14 +22,14 @@ namespace OrbitPOInts
     using GameScenes = KSP_GameScenes;
 
     [RequireComponent(typeof(LineRenderer))]
-    public class CircleRenderer : MonoBehaviour
+    public class CircleRenderer : MonoBehaviour, IRenderer
     {
-        public float radius = 1.0f;
-        public Color wireframeColor = Color.green;
-        public float lineWidth = 0.1f;
-        public int segments = 50;
+        public float radius { get; set; } = 1.0f;
+        public Color wireframeColor { get; set; } = Color.green;
+        public float lineWidth { get; set; } = 0.1f;
+        public int segments { get; set; } = 50;
         private GameObject lineObject;
-        public string uniqueGameObjectNamePrefix;
+        public int groupId  { get; set; }
         public bool IsDying { get; private set; }
 
         private void Awake()
@@ -92,20 +92,24 @@ namespace OrbitPOInts
             enabled = state;
         }
 
-        void SetColor(Color color)
+        public void SetColor(Color color)
         {
             foreach (var line in lineObject.GetComponents<LineRenderer>())
             {
                 line.SetColor(color);
             }
+
+            wireframeColor = color;
         }
 
-        void SetWidth(float width)
+        public void SetWidth(float width)
         {
             foreach (var line in lineObject.GetComponents<LineRenderer>())
             {
                 line.SetWidth(width);
             }
+
+            lineWidth = width;
         }
 
 
@@ -115,14 +119,14 @@ namespace OrbitPOInts
         {
             if (obj is CircleRenderer other)
             {
-                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+                return groupId == other.groupId;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
+            return groupId;
         }
     }
 }
