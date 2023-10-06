@@ -195,14 +195,14 @@ namespace OrbitPOInts
         {
             if (obj is WireSphereRenderer other)
             {
-                return groupId == other.groupId;
+                return GetInstanceID() == other.GetInstanceID();
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return groupId.GetHashCode();
+            return GetInstanceID();
         }
     }
 }
