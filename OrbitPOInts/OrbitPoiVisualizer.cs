@@ -369,7 +369,7 @@ namespace OrbitPOInts
             CelestialBody body,
             Color color,
             float radius,
-            int groupId,
+            string groupId,
             float width = 1f,
             int resolution = 50
         )
@@ -424,7 +424,7 @@ namespace OrbitPOInts
             CelestialBody body,
             Color color,
             float radius,
-            int groupId,
+            string groupId,
             float width = 1f,
             int segments = 360)
         {
@@ -466,13 +466,17 @@ namespace OrbitPOInts
         #endregion
 
         #region Components
-        private int GetComponentGroupId(POI poi)
+        private string GetComponentGroupId(CelestialBody body, PoiType type, double radius)
         {
-            // TODO: might not work
-            return PoiSameTargetComparer.StaticGetHashCode(poi);
+            return $"{body.Serialize()}_{type}_{radius}";
         }
 
-        private PoiCircleRenderer AddOrGetCircleComponent(CelestialBody body, int groupId)
+        private string GetComponentGroupId(POI poi)
+        {
+            return GetComponentGroupId(poi.Body, poi.Type, poi.Radius);
+        }
+
+        private PoiCircleRenderer AddOrGetCircleComponent(CelestialBody body, string groupId)
         {
             var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Circle);
             var components = target.GetComponents<PoiCircleRenderer>();
@@ -499,7 +503,7 @@ namespace OrbitPOInts
             return circle;
         }
 
-        private PoiWireSphereRenderer AddOrGetSphereComponent(CelestialBody body, int groupId)
+        private PoiWireSphereRenderer AddOrGetSphereComponent(CelestialBody body, string groupId)
         {
             var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Sphere);
             var components = target.GetComponents<PoiWireSphereRenderer>();
@@ -528,13 +532,13 @@ namespace OrbitPOInts
         #endregion
 
         #region PurgeMethods
-        private void PurgeAllByGroupId(int groupId)
+        private void PurgeAllByGroupId(string groupId)
         {
             PurgeAllCirclesByGroupId(groupId);
             PurgeAllSpheresByGroupId(groupId);
         }
 
-        private void PurgeAllCirclesByGroupId(int groupId)
+        private void PurgeAllCirclesByGroupId(string groupId)
         {
             foreach (var bodyComponentHolder in _celestialBodyComponentManager.AllComponentHolders())
             {
@@ -548,7 +552,7 @@ namespace OrbitPOInts
             }
         }
 
-        private void PurgeAllSpheresByGroupId(int groupId)
+        private void PurgeAllSpheresByGroupId(string groupId)
         {
             foreach (var bodyComponentHolder in _celestialBodyComponentManager.AllComponentHolders())
             {

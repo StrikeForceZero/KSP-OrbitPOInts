@@ -17,7 +17,7 @@ namespace OrbitPOInts
         public Color wireframeColor { get; set; }
         public float lineWidth { get; set; }
         public bool IsDying { get; }
-        public int groupId { get; }
+        public string groupId { get; }
         public void SetEnabled(bool state);
         public void SetColor(Color color);
         public void SetWidth(float width);

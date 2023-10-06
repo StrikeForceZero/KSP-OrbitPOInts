@@ -30,7 +30,7 @@ namespace OrbitPOInts
         private GameObject[] lineObjects = { };
         public Color wireframeColor { get; set; } = Color.green;
         public float lineWidth { get; set; } = 0.1f;
-        public int groupId { get; set; }
+        public string groupId { get; set; }
         public bool IsDying { get; private set; }
 
         private void Awake()
@@ -202,7 +202,7 @@ namespace OrbitPOInts
 
         public override int GetHashCode()
         {
-            return groupId;
+            return groupId.GetHashCode();
         }
     }
 }

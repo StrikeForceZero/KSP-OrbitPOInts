@@ -29,7 +29,7 @@ namespace OrbitPOInts
         public float lineWidth { get; set; } = 0.1f;
         public int segments { get; set; } = 50;
         private GameObject lineObject;
-        public int groupId  { get; set; }
+        public string groupId { get; set; }
         public bool IsDying { get; private set; }
 
         private void Awake()
@@ -126,7 +126,7 @@ namespace OrbitPOInts
 
         public override int GetHashCode()
         {
-            return groupId;
+            return groupId.GetHashCode();
         }
     }
 }
