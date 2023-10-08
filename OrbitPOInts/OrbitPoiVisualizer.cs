@@ -326,7 +326,17 @@ namespace OrbitPOInts
 
             if (poi.Type.IsStandard())
             {
-                poi.Color = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
+                var colorOverride = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
+                // this is only triggered if we are trying to draw the poi for a global
+                // and the specific body poi color has been user configured
+                if (poi.Color != colorOverride)
+                {
+                    // TODO: there is probably a better way to enforce color
+                    // clone so we don't create property change events
+                    poi = poi.Clone(true);
+                    LogDebug($"[CreateNewPoiRender] overriding color for {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} color: {poi.Color} -> {colorOverride}");
+                }
+                poi.Color = colorOverride;
             }
 
             onCreatePoi.Invoke(poi, CalcPoiEnabled(poi));
