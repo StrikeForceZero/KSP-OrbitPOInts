@@ -123,12 +123,14 @@ namespace OrbitPOInts
                 }),
                 PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
                 {
-                    Visualizer.PoiRenderReferenceManager.RemovePoiRenderReference(args.Source);
+                    Visualizer.RemovePoi(args.Source);
+                    Visualizer.AddPoi(args.Source);
                     Visualizer.CurrentTargetRefresh();
                 }),
                 PropChangeActionMapping<POI>.From(s => s.Radius, (args) =>
                 {
-                    Visualizer.PoiRenderReferenceManager.RemovePoiRenderReference(args.Source);
+                    Visualizer.RemovePoi(args.Source);
+                    Visualizer.AddPoi(args.Source);
                     Visualizer.CurrentTargetRefresh();
                 })
             );
