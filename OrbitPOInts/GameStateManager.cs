@@ -321,7 +321,7 @@ namespace OrbitPOInts
 
         private void OnConfiguredPoisCollectionChanged(object settings, NotifyCollectionChangedEventArgs args)
         {
-            LogDebug($"[OnConfiguredPoisCollectionChanged] Settings.{nameof(Settings.ConfiguredPois)} - ${args.Action}");
+            LogDebug($"[OnConfiguredPoisCollectionChanged] Settings.{nameof(Settings.ConfiguredPois)} - {args.Action}");
             foreach (var oldItem in args.OldItems)
             {
                 if (oldItem is not POI poi) continue;
