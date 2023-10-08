@@ -123,7 +123,7 @@ namespace OrbitPOInts
 
         public void RemovePoi(POI poi)
         {
-            LogDebug($"[RemovePoi] {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+            LogDebug($"[RemovePoi] {Logger.GetPoiLogId(poi)}");
             if (poi.Body == null)
             {
                 foreach (var body in FlightGlobals.Bodies)
@@ -138,7 +138,7 @@ namespace OrbitPOInts
 
         public void AddPoi(POI poi)
         {
-            LogDebug($"[AddPoi] {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+            LogDebug($"[AddPoi] {Logger.GetPoiLogId(poi)}");
             if (poi.Body == null)
             {
                 foreach (var body in FlightGlobals.Bodies)
@@ -161,16 +161,16 @@ namespace OrbitPOInts
 
         public void ResetStandardPoi(POI poi)
         {
-            LogDebug($"[ResetPoi] {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+            LogDebug($"[ResetPoi] {Logger.GetPoiLogId(poi)}");
             // TODO: in GameStateManager we have GetRenderReferencesForPoi to check if there are any render references
             // maybe we just move the check to the get method with an optional boolean to log error?
             foreach (var (poiRenderReference, renderer) in PoiRenderReferenceManager.GetAllRenderReferencesRendererTuplesForPoi(poi))
             {
-                LogDebug($"[ResetPoi] updating PoiRenderReference.Poi with {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                LogDebug($"[ResetPoi] updating PoiRenderReference.Poi with {Logger.GetPoiLogId(poi)}");
                 poiRenderReference.UpdatePoi(poi);
-                LogDebug($"[ResetPoi] resetting LineWidth for {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                LogDebug($"[ResetPoi] resetting LineWidth for {Logger.GetPoiLogId(poi)}");
                 renderer.SetWidth(ScaleLineWidth(poi.RadiusForRendering(), poi.LineWidth));
-                LogDebug($"[ResetPoi] resetting Color for {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                LogDebug($"[ResetPoi] resetting Color for {Logger.GetPoiLogId(poi)}");
                 renderer.SetColor(poi.Color);
             }
         }
@@ -356,7 +356,7 @@ namespace OrbitPOInts
                     // TODO: there is probably a better way to enforce color
                     // clone so we don't create property change events
                     poi = poi.Clone(true);
-                    LogDebug($"[CreateNewPoiRender] overriding color for {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} color: {poi.Color} -> {colorOverride}");
+                    LogDebug($"[CreateNewPoiRender] overriding color for {Logger.GetPoiLogId(poi)} color: {poi.Color} -> {colorOverride}");
                 }
                 poi.Color = colorOverride;
             }

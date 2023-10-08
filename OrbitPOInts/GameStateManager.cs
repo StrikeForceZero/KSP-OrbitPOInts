@@ -94,7 +94,7 @@ namespace OrbitPOInts
             var references = Enumerable.ToList(renderReferences);
             if (!references.Any())
             {
-                LogError($"{tag}[GetRenderReferencesForPoi] no render references! {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                LogError($"{tag}[GetRenderReferencesForPoi] no render references! {Logger.GetPoiLogId(poi)}");
             }
             return references;
         }
@@ -120,7 +120,7 @@ namespace OrbitPOInts
                 {
                     var poi = args.Source;
                     var sourceColor = poi.Color;
-                    LogDebug($"[PropChangeActionMapping:Color] processing Color change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} Color: {sourceColor}");
+                    LogDebug($"[PropChangeActionMapping:Color] processing Color change for {Logger.GetPoiLogId(poi)} Color: {sourceColor}");
                     foreach (var renderer in GetRenderReferencesForPoi(args.Source, "[PropChangeActionMapping:Color]"))
                     {
                         var targetColor = sourceColor;
@@ -131,7 +131,7 @@ namespace OrbitPOInts
                             if (sourceColor != overrideColor)
                             {
                                 LogDebug(
-                                    $"[PropChangeActionMapping:Color] overriding color for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} - color: {sourceColor} -> {overrideColor}");
+                                    $"[PropChangeActionMapping:Color] overriding color for {Logger.GetPoiLogId(poi)} - color: {sourceColor} -> {overrideColor}");
                                 targetColor = overrideColor;
                             }
                         }
@@ -141,7 +141,7 @@ namespace OrbitPOInts
                 PropChangeActionMapping<POI>.From(s => s.LineWidth, (args) =>
                 {
                     var poi = args.Source;
-                    LogDebug($"[PropChangeActionMapping:LineWidth] processing LineWidth change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} LineWidth: {poi.LineWidth}");
+                    LogDebug($"[PropChangeActionMapping:LineWidth] processing LineWidth change for {Logger.GetPoiLogId(poi)} LineWidth: {poi.LineWidth}");
                     foreach (var renderer in GetRenderReferencesForPoi(poi, "[PropChangeActionMapping:LineWidth]"))
                     {
                         renderer.SetWidth(args.Source.LineWidth);
@@ -150,7 +150,7 @@ namespace OrbitPOInts
                 PropChangeActionMapping<POI>.From(s => s.Enabled, (args) =>
                 {
                     var poi = args.Source;
-                    LogDebug($"[PropChangeActionMapping:Enabled] processing Enabled change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} Enabled: {poi.Enabled}");
+                    LogDebug($"[PropChangeActionMapping:Enabled] processing Enabled change for {Logger.GetPoiLogId(poi)} Enabled: {poi.Enabled}");
                     if (poi.Type.IsStandard())
                     {
                         // TODO: another state hack
@@ -356,7 +356,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            LogDebug($"[OnConfiguredPoiChanged] processing change {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+            LogDebug($"[OnConfiguredPoiChanged] processing change {Logger.GetPoiLogId(poi)}");
             _poiPropChangeMapper.Process(poi, args);
         }
 
@@ -373,12 +373,12 @@ namespace OrbitPOInts
                     {
                         Action<POI> resetPoi = defaultOrConfiguredPoi =>
                         {
-                            LogDebug($"[OnConfiguredPoisCollectionChanged] poi returned to default state (resetting) {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                            LogDebug($"[OnConfiguredPoisCollectionChanged] poi returned to default state (resetting) {Logger.GetPoiLogId(poi)}");
                             // since we know the poi was removed we can now retrieve the default poi
                             var overrideColor = Settings.GetPoiColorFor(defaultOrConfiguredPoi.Body, defaultOrConfiguredPoi.Type);
                             if (overrideColor != defaultOrConfiguredPoi.Color)
                             {
-                                LogDebug($"[OnConfiguredPoisCollectionChanged] overriding defaultPoi color for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(defaultOrConfiguredPoi)} color: {defaultOrConfiguredPoi.Color} -> {overrideColor}");
+                                LogDebug($"[OnConfiguredPoisCollectionChanged] overriding defaultPoi color for {Logger.GetPoiLogId(defaultOrConfiguredPoi)} color: {defaultOrConfiguredPoi.Color} -> {overrideColor}");
                                 // clone so we don't trigger property change events
                                 defaultOrConfiguredPoi = defaultOrConfiguredPoi.Clone(true);
                                 defaultOrConfiguredPoi.Color = overrideColor;
@@ -396,7 +396,7 @@ namespace OrbitPOInts
                         }
                         continue;
                     }
-                    LogDebug($"[OnConfiguredPoisCollectionChanged] removing {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                    LogDebug($"[OnConfiguredPoisCollectionChanged] removing {Logger.GetPoiLogId(poi)}");
                     Visualizer.RemovePoi(poi);
                 }
             }
@@ -406,7 +406,7 @@ namespace OrbitPOInts
                 foreach (var newItem in args.NewItems)
                 {
                     if (newItem is not POI poi) continue;
-                    LogDebug($"[OnConfiguredPoisCollectionChanged] adding {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                    LogDebug($"[OnConfiguredPoisCollectionChanged] adding {Logger.GetPoiLogId(poi)}");
                     Visualizer.AddPoi(poi);
                 }
             }

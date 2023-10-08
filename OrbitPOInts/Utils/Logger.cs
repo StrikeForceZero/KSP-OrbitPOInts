@@ -2,6 +2,8 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions.KSP;
 #if TEST
 using UnityEngineMock;
 
@@ -71,6 +73,17 @@ namespace OrbitPOInts.Utils
                 IEnumerable enumerable => HandleEnumerable(enumerable),
                 _ => value.ToString()
             };
+        }
+
+        public static string GetPoiLogId(POI poi)
+        {
+            var derivedTypeString = poi switch
+            {
+                ResettablePoi => nameof(ResettablePoi),
+                CustomPOI => nameof(CustomPOI),
+                _ => nameof(POI)
+            };
+            return $"{derivedTypeString}=({poi.Id}, {poi.Body.Serialize() ?? "[Global]"}, {poi.Type})";
         }
     }
 }
