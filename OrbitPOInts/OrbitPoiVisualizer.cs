@@ -121,6 +121,20 @@ namespace OrbitPOInts
             }
         }
 
+        public void RemovePoi(POI poi)
+        {
+            _poiRenderReferenceManager.RemovePoiRenderReference(poi);
+        }
+
+        public void AddPoi(POI poi)
+        {
+            CreateNewPoiRender(poi, (poi, enabled) =>
+            {
+                CreateCircleFromPoi(poi, enabled);
+                CreateWireSphereFromPoi(poi, enabled);
+            });
+        }
+
         public void SetEnabled(bool state)
         {
             RefreshCurrentRenderers();
@@ -239,36 +253,39 @@ namespace OrbitPOInts
         }
         #endregion
 
-        private void CreatePoisForBody(CelestialBody body, Action<POI> onCreatePoi)
+        private void CreateNewPoiRender(POI poi, Action<POI, bool> onCreatePoi)
+        {
+            if (poi.Type.IsNone()) return;
+
+            // check to make sure its not disabled in the global config
+            var globallyDisabled = !Settings.Instance.GetGlobalEnableFor(poi.Body, poi.Type);
+            var poiEnabled = poi.Enabled;
+
+            if (poi.Type.IsStandard())
+            {
+                poi.Color = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
+            }
+
+            switch (poi.Type)
+            {
+                case PoiType.MaxTerrainAltitude when poi.Body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
+                case PoiType.Atmosphere when !poi.Body.atmosphere:
+                    poiEnabled = false;
+                    break;
+                default:
+                    break;
+            }
+
+            onCreatePoi.Invoke(poi, !globallyDisabled && poiEnabled);
+        }
+
+        private void CreatePoisForBody(CelestialBody body, Action<POI, bool> onCreatePoi)
         {
             foreach (PoiType poiType in Enum.GetValues(typeof(PoiType)))
             {
                 if (poiType.IsNoneOrCustom()) continue;
-                // check to make sure its not disabled in the global config
-                if (!Settings.Instance.GetGlobalEnableFor(body, poiType))
-                {
-                    LogDebug($"[CreatePoisForBody] skipping - global disable for body:{body.Serialize()} type:{poiType}");
-                    continue;
-                }
                 var poi = Settings.Instance.GetStandardPoiFor(body, poiType);
-
-                // TODO: there is probably a better way to ensure the colors are respected in the correct order but this works for now
-                var poiColor = Settings.Instance.GetPoiColorFor(body, poiType);
-                // clone so we don't trigger a prop change event
-                poi = poi.Clone();
-                poi.Color = poiColor;
-
-                switch (poiType)
-                {
-                    case PoiType.MaxTerrainAltitude when body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
-                    case PoiType.Atmosphere when !body.atmosphere:
-                        LogDebug($"[CreatePoisForBody] skipping body:{body.Serialize()} type:{poiType} - atmosphere:{body.atmosphere} ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:{Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies}");
-                        continue;
-                    default:
-                        LogDebug($"[CreatePoisForBody] body:{body.Serialize()} type:{poi.Type} renderRadius:{poi.RadiusForRendering()} color:{poi.Color.Serialize()}");
-                        onCreatePoi.Invoke(poi);
-                        break;
-                }
+                CreateNewPoiRender(poi, onCreatePoi);
             }
 
             var globalCustomPois = Settings.Instance
@@ -277,12 +294,10 @@ namespace OrbitPOInts
 
             var customPois = Settings.Instance
                 .GetCustomPoisFor(body)
-                .Concat(globalCustomPois) // include global custom
-                .Where(poi => poi.Enabled && poi.RadiusForRendering() > 0); // only ones that are enabled and have a radius
+                .Concat(globalCustomPois); // include global custom
             foreach (var customPoi in customPois)
             {
-                LogDebug($"[CreatePoisForBody] body:{customPoi.Body.Serialize()} type:{customPoi.Type} renderRadius:{customPoi.RadiusForRendering()} color:{customPoi.Color.Serialize()}");
-                onCreatePoi.Invoke(customPoi);
+                onCreatePoi.Invoke(customPoi, customPoi.Enabled);
             }
         }
 
@@ -294,18 +309,18 @@ namespace OrbitPOInts
         }
         private void CreateBodyItems(CelestialBody body, CreateMode mode = CreateMode.All)
         {
-            CreatePoisForBody(body, poi =>
+            CreatePoisForBody(body, (poi, enabled) =>
             {
                 if (mode is CreateMode.All or CreateMode.Circles)
                 {
                     LogDebug($"[CreateBodyItems]: Generating circle around {body.name} {poi.Type} {poi.RadiusForRendering()}");
-                    CreateCircleFromPoi(poi);
+                    CreateCircleFromPoi(poi, enabled);
                 }
 
                 if (mode is CreateMode.All or CreateMode.Spheres)
                 {
                     LogDebug($"[CreateBodyItems]: Generating sphere around {body.name} {poi.Type} {poi.RadiusForRendering()}");
-                    CreateWireSphereFromPoi(poi);
+                    CreateWireSphereFromPoi(poi, enabled);
                 }
             });
         }
@@ -358,12 +373,13 @@ namespace OrbitPOInts
             CreateBodyItems(body, CreateMode.Spheres);
         }
 
-        private PoiRenderReference CreateWireSphereFromPoi(POI poi)
+        private PoiRenderReference CreateWireSphereFromPoi(POI poi, bool enabled = true)
         {
             LogDebug($"[CreateWireSphereFromPoi]: Generating spheres around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
             var poiRenderReference = _poiRenderReferenceManager.GetOrCreatePoiRenderReference(poi);
             var sphereRenderReference = poiRenderReference.CreateAndReplaceSphere();
             SetWireSphere(sphereRenderReference, poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth, poi.Resolution);
+            sphereRenderReference.SetEnabled(enabled);
             return poiRenderReference;
         }
 
@@ -388,8 +404,6 @@ namespace OrbitPOInts
             sphere.transform.localRotation = Quaternion.identity;
             sphere.transform.localScale = Vector3.one;
             sphere.transform.localPosition = Vector3.zero;
-
-            sphere.SetEnabled(DrawSpheres);
         }
 
         #endregion
@@ -420,12 +434,13 @@ namespace OrbitPOInts
             CreateBodyItems(body, CreateMode.Circles);
         }
 
-        private PoiRenderReference CreateCircleFromPoi(POI poi)
+        private PoiRenderReference CreateCircleFromPoi(POI poi, bool enabled = true)
         {
             LogDebug($"[CreateCircleFromPoi]: Generating circle around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
             var poiRenderReference = _poiRenderReferenceManager.GetOrCreatePoiRenderReference(poi);
             var circleRenderReference = poiRenderReference.CreateAndReplaceCircle();
             SetCircle(circleRenderReference, poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth);
+            circleRenderReference.SetEnabled(enabled);
             return poiRenderReference;
         }
 
@@ -446,8 +461,6 @@ namespace OrbitPOInts
             circle.transform.localRotation = Quaternion.identity;
             circle.transform.localScale = Vector3.one;
             circle.transform.localPosition = Vector3.zero;
-
-            circle.SetEnabled(DrawCircles);
         }
 
         #endregion

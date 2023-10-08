@@ -308,20 +308,29 @@ namespace OrbitPOInts
 
         private void OnConfiguredPoiChanged(object senderSettings, object senderPoi, PropertyChangedEventArgs args)
         {
-            if (senderSettings is POI poi)
+            Logger.LogPropertyChange<POI>(senderPoi, args, "[OnConfiguredPoiChanged]");
+            if (senderPoi is not POI poi)
             {
-                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}={Reflection.AccessProp(poi, args.PropertyName)}");
+                LogError($"[OnConfiguredPoiChanged] {nameof(senderPoi)} is not of type {nameof(POI)}");
+                return;
             }
-            else
-            {
-                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}");
-            }
-            Visualizer.CurrentTargetRefresh();
+
+            _poiPropChangeMapper.Process(poi, args);
         }
 
         private void OnConfiguredPoisCollectionChanged(object settings, NotifyCollectionChangedEventArgs args)
         {
             LogDebug($"[OnConfiguredPoisCollectionChanged] Settings.{nameof(Settings.ConfiguredPois)} - ${args.Action}");
+            foreach (var oldItem in args.OldItems)
+            {
+                if (oldItem is not POI poi) continue;
+                Visualizer.RemovePoi(poi);
+            }
+            foreach (var newItem in args.NewItems)
+            {
+                if (newItem is not POI poi) continue;
+                Visualizer.AddPoi(poi);
+            }
             Visualizer.CurrentTargetRefresh();
         }
 
