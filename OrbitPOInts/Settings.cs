@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -111,7 +112,9 @@ namespace OrbitPOInts
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            Logger.LogDebug($"[Settings][OnPropertyChanged] Settings.Instance.{propertyName}: {Reflection.GetMemberValue(_instance, propertyName)}");
+            var value = Reflection.GetMemberValue(_instance, propertyName);
+            var valueString = Logger.GetValueString(value);
+            Logger.LogDebug($"[Settings][OnPropertyChanged] Settings.Instance.{propertyName}: {valueString}");
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
