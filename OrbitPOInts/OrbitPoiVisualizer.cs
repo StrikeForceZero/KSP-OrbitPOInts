@@ -253,18 +253,11 @@ namespace OrbitPOInts
         }
         #endregion
 
-        private void CreateNewPoiRender(POI poi, Action<POI, bool> onCreatePoi)
+        private bool CalcPoiEnabled(POI poi)
         {
-            if (poi.Type.IsNone()) return;
-
             // check to make sure its not disabled in the global config
             var globallyDisabled = !Settings.Instance.GetGlobalEnableFor(poi.Body, poi.Type);
             var poiEnabled = poi.Enabled;
-
-            if (poi.Type.IsStandard())
-            {
-                poi.Color = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
-            }
 
             switch (poi.Type)
             {
@@ -276,7 +269,19 @@ namespace OrbitPOInts
                     break;
             }
 
-            onCreatePoi.Invoke(poi, !globallyDisabled && poiEnabled);
+            return !globallyDisabled && poiEnabled;
+        }
+
+        private void CreateNewPoiRender(POI poi, Action<POI, bool> onCreatePoi)
+        {
+            if (poi.Type.IsNone()) return;
+
+            if (poi.Type.IsStandard())
+            {
+                poi.Color = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
+            }
+
+            onCreatePoi.Invoke(poi, CalcPoiEnabled(poi));
         }
 
         private void CreatePoisForBody(CelestialBody body, Action<POI, bool> onCreatePoi)
@@ -329,14 +334,12 @@ namespace OrbitPOInts
         {
             foreach ((var poi, var render) in _poiRenderReferenceManager.GetAllRenderPoiReferenceRenderersTuples<TRenderer>())
             {
+                var isEnabled = state && CalcPoiEnabled(poi);
                 if (FocusedBodyOnly)
                 {
-                    render.SetEnabled(poi.Enabled && state && poi.Body == Context.GameState.FocusedOrActiveBody);
+                    isEnabled &= poi.Body == Context.GameState.FocusedOrActiveBody;
                 }
-                else
-                {
-                    render.SetEnabled(poi.Enabled && state);
-                }
+                render.SetEnabled(isEnabled);
             }
         }
 
