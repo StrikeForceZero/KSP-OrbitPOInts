@@ -90,27 +90,28 @@ namespace OrbitPOInts
         public void SetEnabled(bool state)
         {
             enabled = state;
+            if (!lineObject.IsAlive()) return;
             lineObject.SetActive(state);
         }
 
         public void SetColor(Color color)
         {
+            wireframeColor = color;
+            if (!lineObject.IsAlive()) return;
             foreach (var line in lineObject.GetComponents<LineRenderer>())
             {
                 line.SetColor(color);
             }
-
-            wireframeColor = color;
         }
 
         public void SetWidth(float width)
         {
+            lineWidth = width;
+            if (!lineObject.IsAlive()) return;
             foreach (var line in lineObject.GetComponents<LineRenderer>())
             {
                 line.SetWidth(width);
             }
-
-            lineWidth = width;
         }
 
 

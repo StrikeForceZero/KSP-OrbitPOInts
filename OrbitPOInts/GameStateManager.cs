@@ -88,9 +88,10 @@ namespace OrbitPOInts
 
         private void Awake()
         {
+            LogDebug("Awake");
             Instance = this;
+            _gameState = new GameState();
             _visualizer = new OrbitPoiVisualizer<GameStateManager>(this);
-            var settings = Settings.Instance;
 
             _settingsPropChangeMapper = new PropChangeMapper<Settings, OrbitPoiVisualizer<GameStateManager>>(
                 PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.AlignSpheres, v => v.AlignSpheres),
@@ -136,9 +137,7 @@ namespace OrbitPOInts
             );
 
             Visualizer.Init();
-
-            LogDebug("Awake");
-            CheckEnabled(settings);
+            CheckEnabled(Settings.Instance);
         }
 
         private void OnEnable()

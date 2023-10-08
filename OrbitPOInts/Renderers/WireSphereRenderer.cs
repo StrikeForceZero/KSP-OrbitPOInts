@@ -161,6 +161,7 @@ namespace OrbitPOInts
             enabled = state;
             foreach (var lineObject in lineObjects)
             {
+                if (!lineObject.IsAlive()) continue;
                 lineObject.SetActive(state);
             }
         }
@@ -168,28 +169,28 @@ namespace OrbitPOInts
 
         public void SetColor(Color color)
         {
+            wireframeColor = color;
             foreach (var lineObject in lineObjects)
             {
+                if (!lineObject.IsAlive()) continue;
                 foreach (var line in lineObject.GetComponents<LineRenderer>())
                 {
                     line.SetColor(color);
                 }
             }
-
-            wireframeColor = color;
         }
 
         public void SetWidth(float width)
         {
+            lineWidth = width;
             foreach (var lineObject in lineObjects)
             {
+                if (!lineObject.IsAlive()) continue;
                 foreach (var line in lineObject.GetComponents<LineRenderer>())
                 {
                     line.SetWidth(width);
                 }
             }
-
-            lineWidth = width;
         }
 
 
