@@ -123,11 +123,35 @@ namespace OrbitPOInts
 
         public void RemovePoi(POI poi)
         {
+            LogDebug($"[RemovePoi] {poi.Id}");
+            if (poi.Body == null)
+            {
+                foreach (var body in FlightGlobals.Bodies)
+                {
+                    poi = poi.CloneWith(body, true);
+                    _poiRenderReferenceManager.RemovePoiRenderReference(poi);
+                }
+                return;
+            }
             _poiRenderReferenceManager.RemovePoiRenderReference(poi);
         }
 
         public void AddPoi(POI poi)
         {
+            LogDebug($"[AddPoi] {poi.Id}");
+            if (poi.Body == null)
+            {
+                foreach (var body in FlightGlobals.Bodies)
+                {
+                    poi = poi.CloneWith(body, true);
+                    CreateNewPoiRender(poi, (poi, enabled) =>
+                    {
+                        CreateCircleFromPoi(poi, enabled);
+                        CreateWireSphereFromPoi(poi, enabled);
+                    });
+                }
+                return;
+            }
             CreateNewPoiRender(poi, (poi, enabled) =>
             {
                 CreateCircleFromPoi(poi, enabled);
