@@ -20,6 +20,8 @@ namespace OrbitPOInts.Data.POI
 
     public class PoiRenderReference
     {
+        // TODO: this POI reference is not guaranteed to be the original
+        // thanks to all the cloning hacks we have going around...
         public POI Poi { get; private set;  }
 
         [CanBeNull]
