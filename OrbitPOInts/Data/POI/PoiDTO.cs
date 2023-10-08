@@ -52,6 +52,7 @@ namespace OrbitPOInts.Data.POI
             AddValue(node, () => Radius);
             AddValue(node, () => Color, color => color.Serialize());
             AddValue(node, () => Type);
+            // TODO: this fails on globals because body is null?
             AddValue(node, () => Body, body => body.Serialize());
             AddValue(node, () => AddPlanetRadius);
             AddValue(node, () => LineWidth);
