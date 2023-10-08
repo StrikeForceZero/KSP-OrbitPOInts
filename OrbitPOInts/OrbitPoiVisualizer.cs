@@ -319,6 +319,10 @@ namespace OrbitPOInts
 
         private bool CalcPoiEnabled(POI poi)
         {
+            if (poi.IsGlobal())
+            {
+                throw new InvalidOperationException("CalcPoiEnabled should not be used for globals");
+            }
             // check to make sure its not disabled in the global config
             // ignore if its not a standard poi to prevent NRE
             var globallyDisabled = poi.Type.IsStandard() && !Settings.Instance.GetGlobalEnableFor(poi.Body, poi.Type);
