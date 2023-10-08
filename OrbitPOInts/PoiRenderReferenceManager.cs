@@ -66,7 +66,7 @@ namespace OrbitPOInts
             _bodyPoiRenderReferenceDictionary[poiRenderReference.Poi.Body] = poiRenderReferencesForBody;
         }
 
-        private void RemoveRenderReference(PoiRenderReference poiRenderReference, bool destroy = false)
+        private void RemoveRenderReference(PoiRenderReference poiRenderReference, bool destroy = true)
         {
             _poiPoiRenderReferenceDictionary.Remove(GetTupleKeyFromPoi(poiRenderReference.Poi));
             if (destroy) poiRenderReference.DestroyImmediate();
