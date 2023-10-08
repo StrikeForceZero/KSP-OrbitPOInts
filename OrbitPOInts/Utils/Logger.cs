@@ -1,4 +1,6 @@
 
+using System;
+using System.Collections;
 using System.ComponentModel;
 #if TEST
 using UnityEngineMock;
@@ -36,12 +38,39 @@ namespace OrbitPOInts.Utils
 
             if (sender is T castedSender)
             {
-                LogDebug($"{tag} {typeName}.{args.PropertyName}={Reflection.GetMemberValue(castedSender, args.PropertyName)}");
+                var value = Reflection.GetMemberValue(castedSender, args.PropertyName);
+                var valueString = GetValueString(value);
+                LogDebug($"{tag} {typeName}.{args.PropertyName}={valueString}");
             }
             else
             {
                 LogDebug($"{tag} {typeName}.{args.PropertyName} (sender was not of type {typeName})");
             }
+        }
+
+        public static string GetValueString<T>(T value)
+        {
+            string HandleEnumerable(IEnumerable enumerable)
+            {
+                var countString = "?";
+                // dont iterate unless LogDebugEnabled
+                if (Settings.Instance.LogDebugEnabled)
+                {
+                    var count = enumerable.Cast<object>().Count();
+                    countString = count.ToString();
+                }
+
+                return $"{enumerable.GetType()}[{countString}]";
+            }
+
+            return value switch
+            {
+                null => "null",
+                IDictionary dictionary => $"{value.GetType()}[{dictionary.Count}]",
+                ICollection collection => $"{value.GetType()}[{collection.Count}]",
+                IEnumerable enumerable => HandleEnumerable(enumerable),
+                _ => value.ToString()
+            };
         }
     }
 }
