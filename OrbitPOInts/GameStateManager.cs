@@ -371,7 +371,7 @@ namespace OrbitPOInts
                     // don't remove defaults or else they will disappear until a change is made
                     if (Settings.IsDefaultPoi(poi))
                     {
-                        Action<POI> resetPoi = defaultOrConfiguredPoi =>
+                        void ResetPoi(POI defaultOrConfiguredPoi)
                         {
                             LogDebug($"[OnConfiguredPoisCollectionChanged] poi returned to default state (resetting) {Logger.GetPoiLogId(poi)}");
                             // since we know the poi was removed we can now retrieve the default poi
@@ -383,8 +383,9 @@ namespace OrbitPOInts
                                 defaultOrConfiguredPoi = defaultOrConfiguredPoi.Clone(true);
                                 defaultOrConfiguredPoi.Color = overrideColor;
                             }
+
                             Visualizer.ResetStandardPoi(defaultOrConfiguredPoi);
-                        };
+                        }
 
                         var defaultOrConfiguredPois = poi.IsGlobal()
                             ? FlightGlobals.Bodies.Select(body => Settings.GetStandardPoiFor(body, poi.Type))
@@ -392,7 +393,7 @@ namespace OrbitPOInts
 
                         foreach (var defaultOrConfiguredPoi in defaultOrConfiguredPois)
                         {
-                            resetPoi(defaultOrConfiguredPoi);
+                            ResetPoi(defaultOrConfiguredPoi);
                         }
                         continue;
                     }
