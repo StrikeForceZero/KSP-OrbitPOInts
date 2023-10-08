@@ -52,6 +52,12 @@ namespace OrbitPOInts.Data.POI
             return new ResettablePoi(sourcePoi, seal);
         }
 
+        public static ResettablePoi LoadOrWrap(POI sourcePoi, bool sealIfNot = false)
+        {
+            if (sourcePoi is ResettablePoi resettablePoi) return resettablePoi;
+            return new ResettablePoi(sourcePoi, sealIfNot);
+        }
+
         private void OnBasePropertyChanged(object senderPoi, PropertyChangedEventArgs args)
         {
             if (!Sealed || IsResetting) return;
