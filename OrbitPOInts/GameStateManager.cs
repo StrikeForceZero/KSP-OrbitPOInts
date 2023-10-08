@@ -123,12 +123,17 @@ namespace OrbitPOInts
                     LogDebug($"[PropChangeActionMapping:Color] processing Color change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} Color: {sourceColor}");
                     foreach (var renderer in GetRenderReferencesForPoi(args.Source, "[PropChangeActionMapping:Color]"))
                     {
-                        var overrideColor = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
                         var targetColor = sourceColor;
-                        if (sourceColor != overrideColor)
+                        // only if standard poi - otherwise GetPoiColorFor will throw
+                        if (poi.Type.IsStandard())
                         {
-                            LogDebug($"[PropChangeActionMapping:Color] overriding color for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} - color: {sourceColor} -> {overrideColor}");
-                            targetColor = overrideColor;
+                            var overrideColor = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
+                            if (sourceColor != overrideColor)
+                            {
+                                LogDebug(
+                                    $"[PropChangeActionMapping:Color] overriding color for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} - color: {sourceColor} -> {overrideColor}");
+                                targetColor = overrideColor;
+                            }
                         }
                         renderer.SetColor(targetColor);
                     }

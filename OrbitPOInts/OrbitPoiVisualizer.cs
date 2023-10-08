@@ -340,6 +340,7 @@ namespace OrbitPOInts
         {
             if (poi.Type.IsNone()) return;
 
+            // only if standard poi - otherwise GetPoiColorFor will throw
             if (poi.Type.IsStandard())
             {
                 var colorOverride = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
