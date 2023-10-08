@@ -246,7 +246,7 @@ namespace OrbitPOInts
             if (poi.IsResetting) return;
             // clone it so we can keep listening to when defaults change
             // configured ones should mask default in UI
-            AddConfiguredPoi(poi.Clone());
+            AddConfiguredPoi(poi.Clone(true));
             poi.Reset();
         }
         private void RegisterForDefaultPoiPropChanges()
@@ -310,7 +310,7 @@ namespace OrbitPOInts
         private static IDictionary<PoiType, POI> CreateBodyPoiTypeDictionary(CelestialBody body)
         {
             return GetNewDefaultPoisFor(body)
-                .ToDictionary(poi => poi.Type, poi => poi.CloneWith(body));
+                .ToDictionary(poi => poi.Type, poi => poi.CloneWith(body, true));
         }
 
 #if TEST
@@ -454,7 +454,7 @@ namespace OrbitPOInts
 
         public static IEnumerable<POI> GetNewDefaultPoisFor(CelestialBody body)
         {
-            return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body));
+            return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body, true));
         }
 
         public static IEnumerable<ResettablePoi> GetDefaultPoisFor(CelestialBody body)

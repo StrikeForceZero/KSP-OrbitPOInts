@@ -68,7 +68,7 @@ namespace OrbitPOInts.Data.POI
         {
             if (Sealed) return;
             Sealed = true;
-            SealedState = Clone();
+            SealedState = Clone(true);
         }
 
         public void Reset()
