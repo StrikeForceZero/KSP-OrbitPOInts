@@ -477,7 +477,6 @@ namespace OrbitPOInts
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
-            sphere.lineWidth = width;
             sphere.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
             sphere.latitudeLines = resolution;
             sphere.longitudeLines = resolution;
