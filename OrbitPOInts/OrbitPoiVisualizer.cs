@@ -303,7 +303,12 @@ namespace OrbitPOInts
                 .Concat(globalCustomPois); // include global custom
             foreach (var customPoi in customPois)
             {
-                onCreatePoi.Invoke(customPoi, customPoi.Enabled);
+                var customPoiToRender = customPoi;
+                if (customPoiToRender.Body == null)
+                {
+                    customPoiToRender = customPoi.CloneWith(body);
+                }
+                onCreatePoi.Invoke(customPoiToRender, customPoiToRender.Enabled);
             }
         }
 
