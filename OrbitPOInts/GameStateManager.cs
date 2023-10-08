@@ -366,18 +366,29 @@ namespace OrbitPOInts
                     // don't remove defaults or else they will disappear until a change is made
                     if (Settings.IsDefaultPoi(poi))
                     {
-                        LogDebug($"[OnConfiguredPoisCollectionChanged] poi returned to default state (resetting) {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
-                        // since we know the poi was removed we can now retrieve the default poi
-                        var defaultPoi = Settings.GetStandardPoiFor(poi.Body, poi.Type);
-                        var overrideColor = Settings.GetPoiColorFor(defaultPoi.Body, defaultPoi.Type);
-                        if (overrideColor != defaultPoi.Color)
+                        Action<POI> resetPoi = defaultOrConfiguredPoi =>
                         {
-                            LogDebug($"[OnConfiguredPoisCollectionChanged] overriding defaultPoi color for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(defaultPoi)} color: {defaultPoi.Color} -> {overrideColor}");
-                            // clone so we don't trigger property change events
-                            defaultPoi = defaultPoi.Clone(true);
-                            defaultPoi.Color = overrideColor;
+                            LogDebug($"[OnConfiguredPoisCollectionChanged] poi returned to default state (resetting) {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                            // since we know the poi was removed we can now retrieve the default poi
+                            var overrideColor = Settings.GetPoiColorFor(defaultOrConfiguredPoi.Body, defaultOrConfiguredPoi.Type);
+                            if (overrideColor != defaultOrConfiguredPoi.Color)
+                            {
+                                LogDebug($"[OnConfiguredPoisCollectionChanged] overriding defaultPoi color for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(defaultOrConfiguredPoi)} color: {defaultOrConfiguredPoi.Color} -> {overrideColor}");
+                                // clone so we don't trigger property change events
+                                defaultOrConfiguredPoi = defaultOrConfiguredPoi.Clone(true);
+                                defaultOrConfiguredPoi.Color = overrideColor;
+                            }
+                            Visualizer.ResetStandardPoi(defaultOrConfiguredPoi);
+                        };
+
+                        var defaultOrConfiguredPois = poi.IsGlobal()
+                            ? FlightGlobals.Bodies.Select(body => Settings.GetStandardPoiFor(body, poi.Type))
+                            : new List<POI>() { Settings.GetStandardPoiFor(poi.Body, poi.Type) };
+
+                        foreach (var defaultOrConfiguredPoi in defaultOrConfiguredPois)
+                        {
+                            resetPoi(defaultOrConfiguredPoi);
                         }
-                        Visualizer.ResetStandardPoi(defaultPoi);
                         continue;
                     }
                     LogDebug($"[OnConfiguredPoisCollectionChanged] removing {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
