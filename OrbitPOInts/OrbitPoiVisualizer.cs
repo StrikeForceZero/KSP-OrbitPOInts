@@ -252,7 +252,14 @@ namespace OrbitPOInts
                 {
                     // TODO: even this is bugged
                     // if we dont set transform.rotation = Quaternion.identity directly some alignments will be off
-                    Context.StartCoroutine(DelayedAction.CreateCoroutine(() => transform.rotation = Quaternion.identity));
+                    Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
+                    {
+                        // we are calling from the previous frame
+                        // since things could have been destroyed and that's ok
+                        if (transform == null) return;
+                        // reset rotation
+                        transform.rotation = Quaternion.identity;
+                    }));
                 }
             }
 
@@ -264,24 +271,29 @@ namespace OrbitPOInts
 
         private void NextFrameAlignTransformToNormal(Transform transform, Vector3d normal)
         {
+            // this shouldn't be null, just a sanity check for other logging points
             if (transform == null)
             {
                 Logger.LogError($"[NextFrameAlignTransformToNormal] transform null!");
                 return;
             }
 
-            Context.StartCoroutine(DelayedAction.CreateCoroutine(() => AlignTransformToNormal(transform, normal), 1));
+            Context.StartCoroutine(DelayedAction.CreateCoroutine(() => AlignTransformToNormal(transform, normal, true), 1));
         }
 
-        private void AlignTransformToNormal(Transform transform, Vector3d normal)
+        private void AlignTransformToNormal(Transform transform, Vector3d normal, bool isCalledFromPreviousFrame = false)
         {
             if (!enabled)
             {
                 return;
             }
-            // TODO: sometimes the transform can be null
+            // sometimes the transform can be null if called from a previous frame
             if (transform == null)
             {
+                // don't log if we are calling this from a previous frame
+                // since things could have been destroyed and that's ok
+                if (isCalledFromPreviousFrame) return;
+                // but just in case, if we arent from the previous frame we need to know
                 Logger.LogError($"[AlignTransformToNormal] transform null!");
                 return;
             }
