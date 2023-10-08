@@ -166,10 +166,13 @@ namespace OrbitPOInts
                 .SelectMany(item => item.RenderReference.Renderers.Select(renderer => (item.Poi, render: renderer)));
         }
 
+        // TODO: rename?
         public IEnumerable<IRenderer> GetAllRenderReferencesRenderersForPoi(POI poi)
         {
-            return _poiPoiRenderReferenceDictionary.Values.Where(poirr => poirr.Poi == poi)
-                .SelectMany(poirr => poirr.GetRenderers());
+            _poiPoiRenderReferenceDictionary.TryGetValue(GetTupleKeyFromPoi(poi), out var renderReference);
+            return renderReference?.GetRenderers() ?? Enumerable.Empty<IRenderer>();
+            // return _poiPoiRenderReferenceDictionary.Values.Where(poirr => poirr.Poi == poi)
+            //     .SelectMany(poirr => poirr.GetRenderers());
         }
 
         private static void LogDebug(string message)
