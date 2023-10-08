@@ -376,7 +376,6 @@ namespace OrbitPOInts.UI
 
                 GUILayout.BeginVertical();
                     Settings.Instance.FocusedBodyOnly = GUILayout.Toggle(Settings.Instance.FocusedBodyOnly, "Focused Body Only");
-                    GUILayout.Label("(turning this off can have major performance impacts)");
                 GUILayout.EndVertical();
 
                 GUILayout.Space(10);
