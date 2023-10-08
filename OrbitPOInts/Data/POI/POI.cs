@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
@@ -35,7 +37,7 @@ namespace OrbitPOInts.Data.POI
         private float _lineWidth;
         private int _resolution;
 
-        public Guid Id { get; private set; } = Guid.NewGuid();
+        public Guid Id { get; private set; }
 
         public PoiType Type { get; protected set; }
 
@@ -154,6 +156,7 @@ namespace OrbitPOInts.Data.POI
         public POI(PoiType type, CelestialBody body = null)
         {
             Type = type;
+            Id = ResolveDefaultOrCreateIdFromType(type);
             Body = body;
         }
 
@@ -211,6 +214,24 @@ namespace OrbitPOInts.Data.POI
             var poi = dto.ToPoi();
             if (copyId) poi.Id = Id;
             return poi;
+        }
+
+        public static IReadOnlyDictionary<PoiType, Guid> DefaultIds = new ReadOnlyDictionary<PoiType, Guid>(
+            new Dictionary<PoiType, Guid>(){
+            { PoiType.HillSphere, Guid.NewGuid() },
+            { PoiType.SphereOfInfluence, Guid.NewGuid() },
+            { PoiType.Atmosphere, Guid.NewGuid() },
+            { PoiType.MinimumOrbit, Guid.NewGuid() },
+            { PoiType.MaxTerrainAltitude, Guid.NewGuid() },
+        });
+
+        public static Guid ResolveDefaultOrCreateIdFromType(PoiType type)
+        {
+            if (!DefaultIds.TryGetValue(type, out var id))
+            {
+                id = Guid.NewGuid();
+            }
+            return id;
         }
 
         public static double GetRadiusForType(CelestialBody body, PoiType type)
