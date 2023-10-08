@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
+using OrbitPOInts.Extensions.KSP;
 using OrbitPOInts.Extensions.Unity;
 using OrbitPOInts.Utils;
 
@@ -31,7 +32,8 @@ namespace OrbitPOInts
 
     public class PoiRenderReferenceManager<TContext> where TContext : MonoBehaviour
     {
-        private readonly Dictionary<(Guid Guid, CelestialBody Body), PoiRenderReference> _poiPoiRenderReferenceDictionary = new();
+        // TODO: can just use poi with custom compare using the same props to compare
+        private readonly Dictionary<(Guid Guid, CelestialBody Body, PoiType Type), PoiRenderReference> _poiPoiRenderReferenceDictionary = new();
         private readonly Dictionary<CelestialBody, HashSet<PoiRenderReference>> _bodyPoiRenderReferenceDictionary = new();
 
         private readonly TContext _context;
@@ -50,12 +52,13 @@ namespace OrbitPOInts
             }
 
             var poiRenderReference = new PoiRenderReference(poi);
+            _poiPoiRenderReferenceDictionary.Add(GetTupleKeyFromPoi(poi), poiRenderReference);
             return poiRenderReference;
         }
 
-        public (Guid Guid, CelestialBody Body) GetTupleKeyFromPoi(POI poi)
+        public (Guid Guid, CelestialBody Body, PoiType Type) GetTupleKeyFromPoi(POI poi)
         {
-            return (poi.Id, poi.Body);
+            return (poi.Id, poi.Body, poi.Type);
         }
 
         private void AddRenderReference(PoiRenderReference poiRenderReference)
