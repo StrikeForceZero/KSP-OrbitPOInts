@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.Unity;
 using OrbitPOInts.Helpers;
 using OrbitPOInts.Utils;
@@ -143,6 +144,14 @@ namespace OrbitPOInts
                 }),
                 PropChangeActionMapping<POI>.From(s => s.Enabled, (args) =>
                 {
+                    var poi = args.Source;
+                    LogDebug($"[PropChangeActionMapping:LineWidth] processing Enabled change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} Enabled: {poi.Enabled}");
+                    if (poi.Type.IsStandard())
+                    {
+                        // TODO: another state hack
+                        // this is required to make sure we are using the correct reference when a user configured poi is disabled
+                        Visualizer.ResetStandardPoi(poi);
+                    }
                     Visualizer.RefreshCurrentRenderers();
                 }),
                 PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
