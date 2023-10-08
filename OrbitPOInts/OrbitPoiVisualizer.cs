@@ -238,11 +238,11 @@ namespace OrbitPOInts
             }
             List<Transform> transformsNeedsUpdate = new();
 
-            DoActionOnSpheres(sphere => transformsNeedsUpdate.Add(sphere.transform));
+            DoActionOnCircles(circle => transformsNeedsUpdate.Add(circle.transform));
 
             if (AlignSpheres)
             {
-                DoActionOnCircles(circle => transformsNeedsUpdate.Add(circle.transform));
+                DoActionOnSpheres(sphere => transformsNeedsUpdate.Add(sphere.transform));
             }
 
             foreach (var transform in transformsNeedsUpdate)
