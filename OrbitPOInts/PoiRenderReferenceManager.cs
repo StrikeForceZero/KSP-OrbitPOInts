@@ -31,7 +31,7 @@ namespace OrbitPOInts
 
     public class PoiRenderReferenceManager<TContext> where TContext : MonoBehaviour
     {
-        private readonly Dictionary<POI, PoiRenderReference> _poiPoiRenderReferenceDictionary = new(new PoiComparer());
+        private readonly Dictionary<(Guid Guid, CelestialBody Body), PoiRenderReference> _poiPoiRenderReferenceDictionary = new();
         private readonly Dictionary<CelestialBody, HashSet<PoiRenderReference>> _bodyPoiRenderReferenceDictionary = new();
 
         private readonly TContext _context;
@@ -53,9 +53,14 @@ namespace OrbitPOInts
             return poiRenderReference;
         }
 
+        public (Guid Guid, CelestialBody Body) GetTupleKeyFromPoi(POI poi)
+        {
+            return (poi.Id, poi.Body);
+        }
+
         private void AddRenderReference(PoiRenderReference poiRenderReference)
         {
-            _poiPoiRenderReferenceDictionary.Add(poiRenderReference.Poi, poiRenderReference);
+            _poiPoiRenderReferenceDictionary.Add(GetTupleKeyFromPoi(poiRenderReference.Poi), poiRenderReference);
             var poiRenderReferencesForBody = _bodyPoiRenderReferenceDictionary.GetOrDefault(poiRenderReference.Poi.Body) ?? new HashSet<PoiRenderReference>();
             poiRenderReferencesForBody.Add(poiRenderReference);
             _bodyPoiRenderReferenceDictionary[poiRenderReference.Poi.Body] = poiRenderReferencesForBody;
@@ -63,7 +68,7 @@ namespace OrbitPOInts
 
         private void RemoveRenderReference(PoiRenderReference poiRenderReference, bool destroy = false)
         {
-            _poiPoiRenderReferenceDictionary.Remove(poiRenderReference.Poi);
+            _poiPoiRenderReferenceDictionary.Remove(GetTupleKeyFromPoi(poiRenderReference.Poi));
             if (destroy) poiRenderReference.DestroyImmediate();
             var hasBodyEntry =
                 _bodyPoiRenderReferenceDictionary.TryGetValue(poiRenderReference.Poi.Body,
@@ -81,7 +86,7 @@ namespace OrbitPOInts
 
         public Option<PoiRenderReference> TryGetPoiRenderReference(POI poi)
         {
-            return _poiPoiRenderReferenceDictionary.TryGet(poi);
+            return _poiPoiRenderReferenceDictionary.TryGet(GetTupleKeyFromPoi(poi));
         }
 
         public IEnumerable<PoiRenderReference> GetPoiRenderReferences(CelestialBody body)
@@ -91,7 +96,7 @@ namespace OrbitPOInts
 
         public void RemovePoiRenderReference(POI poi, bool destroy = true)
         {
-            if (!_poiPoiRenderReferenceDictionary.TryGetValue(poi, out var poiRenderReference)) return;
+            if (!_poiPoiRenderReferenceDictionary.TryGetValue(GetTupleKeyFromPoi(poi), out var poiRenderReference)) return;
             RemoveRenderReference(poiRenderReference, destroy);
         }
         
@@ -101,7 +106,7 @@ namespace OrbitPOInts
             if (poiRenderReferences == null) return;
             foreach (var poiRenderReference in poiRenderReferences)
             {
-                _poiPoiRenderReferenceDictionary.Remove(poiRenderReference.Poi);
+                _poiPoiRenderReferenceDictionary.Remove(GetTupleKeyFromPoi(poiRenderReference.Poi));
                 if (destroy) poiRenderReference.DestroyImmediate();
             }
             _bodyPoiRenderReferenceDictionary.Remove(body);

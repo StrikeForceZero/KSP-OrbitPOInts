@@ -296,19 +296,14 @@ namespace OrbitPOInts
 
             var globalCustomPois = Settings.Instance
                 .GetCustomPoisFor(null)
-                .Select(poi => poi.CloneWith(body)); // populate them with a body
+                .Select(poi => poi.CloneWith(body, true)); // populate them with a body
 
             var customPois = Settings.Instance
                 .GetCustomPoisFor(body)
                 .Concat(globalCustomPois); // include global custom
             foreach (var customPoi in customPois)
             {
-                var customPoiToRender = customPoi;
-                if (customPoiToRender.Body == null)
-                {
-                    customPoiToRender = customPoi.CloneWith(body);
-                }
-                onCreatePoi.Invoke(customPoiToRender, customPoiToRender.Enabled);
+                onCreatePoi.Invoke(customPoi, customPoi.Enabled);
             }
         }
 

@@ -35,6 +35,8 @@ namespace OrbitPOInts.Data.POI
         private float _lineWidth;
         private int _resolution;
 
+        public Guid Id { get; private set; } = Guid.NewGuid();
+
         public PoiType Type { get; protected set; }
 
         private string _resolveLabel()
@@ -188,14 +190,16 @@ namespace OrbitPOInts.Data.POI
             return poi;
         }
 
-        public POI Clone()
+        public POI Clone(bool copyId = false)
         {
             var dto = PoiDTO.FromPoi(this);
             dto.Color = dto.Color.Clone();
-            return dto.ToPoi();
+            var poi = dto.ToPoi();
+            if (copyId) poi.Id = Id;
+            return poi;
         }
 
-        public POI CloneWith(CelestialBody newBody)
+        public POI CloneWith(CelestialBody newBody, bool copyId = false)
         {
             var dto = PoiDTO.FromPoi(this);
             if (dto.Type is not PoiType.None and not PoiType.Custom)
@@ -204,7 +208,9 @@ namespace OrbitPOInts.Data.POI
             }
             dto.Color = dto.Color.Clone();
             dto.Body = newBody;
-            return dto.ToPoi();
+            var poi = dto.ToPoi();
+            if (copyId) poi.Id = Id;
+            return poi;
         }
 
         public static double GetRadiusForType(CelestialBody body, PoiType type)
