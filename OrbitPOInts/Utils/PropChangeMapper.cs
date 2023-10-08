@@ -20,7 +20,7 @@ namespace OrbitPOInts.Utils
             if (!PropChangeMap.TryGetValue(eventArgs.PropertyName, out var targetActionTuple)) return false;
             if (targetActionTuple.Item1 != null)
             {
-                var value = Reflection.AccessProp(sourceInstance, eventArgs.PropertyName);
+                var value = Reflection.GetMemberValue(sourceInstance, eventArgs.PropertyName);
                 Reflection.SetMemberValue(targetInstance, targetActionTuple.PropertyName, value);
             }
             targetActionTuple.Item2?.Invoke();

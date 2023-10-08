@@ -4,19 +4,30 @@ namespace OrbitPOInts.Utils
 {
     public static class Reflection
     {
-        public static object AccessProp<T>(T instance, string propertyName)
+        public static object GetMemberValue<T>(T instance, string propertyName)
         {
-            return AccessProp<object, T>(instance, propertyName);
+            return GetMemberValue<object, T>(instance, propertyName);
         }
 
-        public static V AccessProp<V, T>(T instance, string propertyName)
+        public static V GetMemberValue<V, T>(T instance, string memberName)
         {
-            var propertyInfo = typeof(T).GetProperty(propertyName);
-            if(propertyInfo == null)
+            var type = typeof(T);
+
+            // Try to get as property
+            var propertyInfo = type.GetProperty(memberName);
+            if (propertyInfo != null)
             {
-                throw new NullReferenceException($"{propertyName} is not a property of {typeof(T)}");
+                return (V)propertyInfo.GetValue(instance);
             }
-            return (V)propertyInfo.GetValue(instance);
+
+            // Try to get as field
+            var fieldInfo = type.GetField(memberName);
+            if (fieldInfo != null)
+            {
+                return (V)fieldInfo.GetValue(instance);
+            }
+
+            throw new ArgumentException($"'{memberName}' is neither a property nor a field of {type.FullName}");
         }
 
         public static void SetMemberValue(object obj, string memberName, object value)

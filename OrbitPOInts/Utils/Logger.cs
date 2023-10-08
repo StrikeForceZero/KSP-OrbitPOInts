@@ -36,7 +36,7 @@ namespace OrbitPOInts.Utils
 
             if (sender is T castedSender)
             {
-                LogDebug($"{tag} {typeName}.{args.PropertyName}={Reflection.AccessProp(castedSender, args.PropertyName)}");
+                LogDebug($"{tag} {typeName}.{args.PropertyName}={Reflection.GetMemberValue(castedSender, args.PropertyName)}");
             }
             else
             {

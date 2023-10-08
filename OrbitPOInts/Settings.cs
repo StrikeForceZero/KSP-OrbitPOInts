@@ -111,13 +111,13 @@ namespace OrbitPOInts
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            Logger.LogDebug($"[Settings][OnPropertyChanged] Settings.Instance.{propertyName}: {Reflection.AccessProp(_instance, propertyName)}");
+            Logger.LogDebug($"[Settings][OnPropertyChanged] Settings.Instance.{propertyName}: {Reflection.GetMemberValue(_instance, propertyName)}");
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected virtual void OnPoiPropChanged(object senderPoi, PropertyChangedEventArgs args)
         {
-            Logger.LogDebug($"[Settings][OnPoiPropChanged] POI.{args.PropertyName}: {(senderPoi is POI poi2 ? Reflection.AccessProp(poi2, args.PropertyName) : null)}");
+            Logger.LogDebug($"[Settings][OnPoiPropChanged] POI.{args.PropertyName}: {(senderPoi is POI poi2 ? Reflection.GetMemberValue(poi2, args.PropertyName) : null)}");
             ConfiguredPoiPropChanged?.Invoke(this, senderPoi, args);
             if (senderPoi is not POI poi) return;
             if (!IsDefaultPoi(poi)) return;

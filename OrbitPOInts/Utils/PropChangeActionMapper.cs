@@ -26,7 +26,7 @@ namespace OrbitPOInts.Utils
         public bool Process(TSource sourceInstance, PropertyChangedEventArgs eventArgs)
         {
             if (!PropChangeActionMap.TryGetValue(eventArgs.PropertyName, out var action)) return false;
-            var value = Reflection.AccessProp(sourceInstance, eventArgs.PropertyName);
+            var value = Reflection.GetMemberValue(sourceInstance, eventArgs.PropertyName);
             action.Invoke(new PropChangeEventArgs<TSource>() { Source = sourceInstance, PropertyArgs = eventArgs, Value = value });
             return true;
         }
