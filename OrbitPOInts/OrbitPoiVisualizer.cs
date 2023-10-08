@@ -123,7 +123,7 @@ namespace OrbitPOInts
 
         public void RemovePoi(POI poi)
         {
-            LogDebug($"[RemovePoi] {poi.Id}");
+            LogDebug($"[RemovePoi] {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
             if (poi.Body == null)
             {
                 foreach (var body in FlightGlobals.Bodies)
@@ -138,7 +138,7 @@ namespace OrbitPOInts
 
         public void AddPoi(POI poi)
         {
-            LogDebug($"[AddPoi] {poi.Id}");
+            LogDebug($"[AddPoi] {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
             if (poi.Body == null)
             {
                 foreach (var body in FlightGlobals.Bodies)
