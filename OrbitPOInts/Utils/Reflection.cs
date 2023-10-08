@@ -19,19 +19,34 @@ namespace OrbitPOInts.Utils
             return (V)propertyInfo.GetValue(instance);
         }
 
-        public static void SetProperty(object obj, string propertyName, object value)
+        public static void SetMemberValue(object obj, string memberName, object value)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            var prop = obj.GetType().GetProperty(propertyName);
-            if (prop == null)
-                throw new ArgumentException($"Property '{propertyName}' not found on type {obj.GetType().FullName}", nameof(propertyName));
+            var type = obj.GetType();
 
-            if (!prop.CanWrite)
-                throw new ArgumentException($"Property '{propertyName}' on type {obj.GetType().FullName} does not have a set accessor.");
+            // Try to set as property
+            var prop = type.GetProperty(memberName);
+            if (prop != null)
+            {
+                if (!prop.CanWrite)
+                    throw new ArgumentException($"Property '{memberName}' on type {type.FullName} does not have a set accessor.");
 
-            prop.SetValue(obj, value);
+                prop.SetValue(obj, value);
+                return;
+            }
+
+            // Try to set as field
+            var field = type.GetField(memberName);
+            if (field != null)
+            {
+                field.SetValue(obj, value);
+                return;
+            }
+
+            throw new ArgumentException($"Member '{memberName}' not found on type {type.FullName}", nameof(memberName));
+
         }
     }
 }

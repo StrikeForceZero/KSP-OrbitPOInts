@@ -21,7 +21,7 @@ namespace OrbitPOInts.Utils
             if (targetActionTuple.Item1 != null)
             {
                 var value = Reflection.AccessProp(sourceInstance, eventArgs.PropertyName);
-                Reflection.SetProperty(targetInstance, targetActionTuple.Item1, value);
+                Reflection.SetMemberValue(targetInstance, targetActionTuple.PropertyName, value);
             }
             targetActionTuple.Item2?.Invoke();
             return true;
