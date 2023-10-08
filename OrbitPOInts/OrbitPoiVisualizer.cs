@@ -169,7 +169,7 @@ namespace OrbitPOInts
                 LogDebug($"[ResetPoi] updating PoiRenderReference.Poi with {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
                 poiRenderReference.UpdatePoi(poi);
                 LogDebug($"[ResetPoi] resetting LineWidth for {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
-                renderer.SetWidth(poi.LineWidth);
+                renderer.SetWidth(ScaleLineWidth(poi.RadiusForRendering(), poi.LineWidth));
                 LogDebug($"[ResetPoi] resetting Color for {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
                 renderer.SetColor(poi.Color);
             }
@@ -477,7 +477,7 @@ namespace OrbitPOInts
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
-            sphere.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
+            sphere.lineWidth = ScaleLineWidth(radius, width);
             sphere.latitudeLines = resolution;
             sphere.longitudeLines = resolution;
 
@@ -539,7 +539,7 @@ namespace OrbitPOInts
         {
             circle.wireframeColor = color;
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
-            circle.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
+            circle.lineWidth = ScaleLineWidth(radius, width);
             circle.segments = segments;
 
             circle.transform.SetParent(body.MapObject.trf);
@@ -551,6 +551,12 @@ namespace OrbitPOInts
         #endregion
 
         #region MISC
+
+        private static float ScaleLineWidth(double radius, float width)
+        {
+            return (float)(radius / _standardLineWidthDistance) * width;
+        }
+
         private static double GetStandardLineWidthDistance()
         {
             return FlightGlobals.Bodies.Where(body => body.isHomeWorld).Select(body => body.minOrbitalDistance).FirstOrDefault();
