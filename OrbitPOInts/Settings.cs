@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
 using OrbitPOInts.Utils;
 using Logger = OrbitPOInts.Utils.Logger;
@@ -503,6 +504,8 @@ namespace OrbitPOInts
 
         public Color GetPoiColorFor(CelestialBody body, PoiType poiType)
         {
+            if (poiType.IsNoneOrCustom())
+                throw new ArgumentException($"{poiType} does not have an override");
             return GetConfiguredPoisFor(body) // configured body
                 .Concat(GetConfiguredPoisFor(null)) // configured globals
                 .Concat(GetDefaultPoisFor(body)) // defaults
@@ -512,6 +515,9 @@ namespace OrbitPOInts
         
         public bool GetGlobalEnableFor(CelestialBody body, PoiType poiType)
         {
+            // TODO: is returning true for this better than throwing?
+            if (poiType.IsNoneOrCustom())
+                throw new ArgumentException($"{poiType} does not have an override");
             return GetConfiguredPoisFor(null) // configured globals
                 .Concat(GetConfiguredPoisFor(body)) // configured body
                 .Concat(GetDefaultPoisFor(body)) // defaults
