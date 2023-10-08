@@ -31,7 +31,7 @@ namespace OrbitPOInts
 
     public class PoiRenderReferenceManager<TContext> where TContext : MonoBehaviour
     {
-        private readonly Dictionary<POI, PoiRenderReference> _poiPoiRenderReferenceDictionary = new();
+        private readonly Dictionary<POI, PoiRenderReference> _poiPoiRenderReferenceDictionary = new(new PoiComparer());
         private readonly Dictionary<CelestialBody, HashSet<PoiRenderReference>> _bodyPoiRenderReferenceDictionary = new();
 
         private readonly TContext _context;
