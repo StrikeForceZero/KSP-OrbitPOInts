@@ -150,7 +150,7 @@ namespace OrbitPOInts
                 PropChangeActionMapping<POI>.From(s => s.Enabled, (args) =>
                 {
                     var poi = args.Source;
-                    LogDebug($"[PropChangeActionMapping:LineWidth] processing Enabled change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} Enabled: {poi.Enabled}");
+                    LogDebug($"[PropChangeActionMapping:Enabled] processing Enabled change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} Enabled: {poi.Enabled}");
                     if (poi.Type.IsStandard())
                     {
                         // TODO: another state hack
