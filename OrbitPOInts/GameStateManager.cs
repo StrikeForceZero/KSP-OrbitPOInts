@@ -86,6 +86,18 @@ namespace OrbitPOInts
 
         #region Lifecycle Methods
 
+        private IEnumerable<IRenderer> GetRenderReferencesForPoi(POI poi, string tag = "")
+        {
+            var renderReferences =
+                Visualizer.PoiRenderReferenceManager.GetAllRenderReferencesRenderersForPoi(poi);
+            var references = Enumerable.ToList(renderReferences);
+            if (!references.Any())
+            {
+                LogError($"{tag}[GetRenderReferencesForPoi] no render references! {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+            }
+            return references;
+        }
+
         private void Awake()
         {
             LogDebug("Awake");
@@ -105,14 +117,19 @@ namespace OrbitPOInts
             _poiPropChangeMapper = new PropChangeActionMapper<POI>(
                 PropChangeActionMapping<POI>.From(s => s.Color, (args) =>
                 {
-                    foreach (var renderer in Visualizer.PoiRenderReferenceManager.GetAllRenderReferencesRenderersForPoi(args.Source))
+                    var poi = args.Source;
+                    var sourceColor = poi.Color;
+                    LogDebug($"[PropChangeActionMapping:Color] processing Color change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} Color: {sourceColor}");
+                    foreach (var renderer in GetRenderReferencesForPoi(args.Source, "[PropChangeActionMapping:Color]"))
                     {
-                        renderer.SetColor(args.Source.Color);
+                        renderer.SetColor(sourceColor);
                     }
                 }),
                 PropChangeActionMapping<POI>.From(s => s.LineWidth, (args) =>
                 {
-                    foreach (var renderer in Visualizer.PoiRenderReferenceManager.GetAllRenderReferencesRenderersForPoi(args.Source))
+                    var poi = args.Source;
+                    LogDebug($"[PropChangeActionMapping:LineWidth] processing LineWidth change for {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)} LineWidth: {poi.LineWidth}");
+                    foreach (var renderer in GetRenderReferencesForPoi(poi, "[PropChangeActionMapping:LineWidth]"))
                     {
                         renderer.SetWidth(args.Source.LineWidth);
                     }
@@ -292,15 +309,19 @@ namespace OrbitPOInts
         {
 
             Logger.LogPropertyChange<Settings>(senderSettings, args, "[OnPropertyChanged]");
-
-            if (args.PropertyName == nameof(Settings.ConfiguredPois)) return;
-
             if (senderSettings is not Settings settings)
             {
                 LogError($"[OnPropertyChanged] {nameof(senderSettings)} is not of type {nameof(Settings)}");
                 return;
             }
 
+            if (args.PropertyName == nameof(Settings.ConfiguredPois))
+            {
+                LogDebug($"[OnPropertyChanged] ignoring Settings.{args.PropertyName}");
+                return;
+            }
+
+            LogDebug($"[OnPropertyChanged] processing change Settings.{args.PropertyName}");
             UpdatePropsFromSettings(settings);
             _settingsPropChangeMapper.Process(settings, _visualizer, args);
         }
@@ -314,7 +335,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            LogDebug($"[OnConfiguredPoiChanged] change {poi.Id} {poi.Body}");
+            LogDebug($"[OnConfiguredPoiChanged] processing change {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
             _poiPropChangeMapper.Process(poi, args);
         }
 
@@ -327,8 +348,12 @@ namespace OrbitPOInts
                 {
                     if (oldItem is not POI poi) continue;
                     // don't remove defaults or else they will disappear until a change is made
-                    if (Settings.IsDefaultPoi(poi)) continue;
-                    LogDebug($"[OnConfiguredPoisCollectionChanged] removing {poi.Id} {poi.Body}");
+                    if (Settings.IsDefaultPoi(poi))
+                    {
+                        LogDebug($"[OnConfiguredPoisCollectionChanged] poi returned to default state (skipping) {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                        continue;
+                    }
+                    LogDebug($"[OnConfiguredPoisCollectionChanged] removing {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
                     Visualizer.RemovePoi(poi);
                 }
             }
