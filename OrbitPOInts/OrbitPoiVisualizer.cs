@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using OrbitPOInts.CelestialBodies;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
 using OrbitPOInts.Extensions;
@@ -58,12 +57,9 @@ namespace OrbitPOInts
 
     using Logger = Utils.Logger;
 
-    // [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class OrbitPoiVisualizer<TContext> where TContext : MonoBehaviour, IHasGameState
     {
-        private readonly CelestialBodyComponentManager<TContext> _celestialBodyComponentManager;
-        private readonly HashSet<PoiWireSphereRenderer> _drawnSpheres = new();
-        private readonly HashSet<PoiCircleRenderer> _drawnCircles = new();
+        private readonly PoiRenderReferenceManager<TContext> _poiRenderReferenceManager;
 
         public bool DrawSpheres;
         public bool DrawCircles;
@@ -77,12 +73,12 @@ namespace OrbitPOInts
         {
             Context = context;
             _standardLineWidthDistance = GetStandardLineWidthDistance();
-            _celestialBodyComponentManager = new CelestialBodyComponentManager<TContext>(context);
+            _poiRenderReferenceManager = new PoiRenderReferenceManager<TContext>(context);
         }
 
         private readonly TContext Context;
 
-        public CelestialBodyComponentManager<TContext> CelestialBodyComponentManager => _celestialBodyComponentManager;
+        public PoiRenderReferenceManager<TContext> PoiRenderReferenceManager => _poiRenderReferenceManager;
 
         private static void LogDebug(string message)
         {
@@ -99,29 +95,58 @@ namespace OrbitPOInts
             Logger.LogError($"[OrbitPoiVisualizer] {message}");
         }
 
-        public void SetEnabled(bool state)
+        private void DoActionOnSpheres(Action<WireSphereRenderer> action)
         {
-            foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
+            foreach (var sphere in _poiRenderReferenceManager.GetAllRenderReferenceRenderers<WireSphereRenderer>())
             {
                 if (!sphere.IsAlive() || sphere.IsDying)
                 {
-                    LogError($"[SetEnabled] sphere null or dying {index} / {_drawnSpheres.Count}");
+                    LogError($"[DoActionOnCircles] sphere null or dying");
                     continue;
                 }
-                sphere.SetEnabled(state);
+                action.Invoke(sphere);
             }
+        }
 
-            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
+        private void DoActionOnCircles(Action<CircleRenderer> action)
+        {
+            foreach (var circle in _poiRenderReferenceManager.GetAllRenderReferenceRenderers<CircleRenderer>())
             {
                 if (!circle.IsAlive() || circle.IsDying)
                 {
-                    LogError($"[SetEnabled] circle null or dying {index} / {_drawnCircles.Count}");
+                    LogError($"[DoActionOnCircles] circle null or dying");
                     continue;
                 }
-                circle.SetEnabled(state);
+                action.Invoke(circle);
+            }
+        }
+
+        public void SetEnabled(bool state)
+        {
+            DoActionOnSpheres(sphere => sphere.SetEnabled(state));
+            DoActionOnCircles(circle => circle.SetEnabled(state));
+            enabled = state;
+        }
+
+        private bool SafeToDraw(string tag = "")
+        {
+            if (!enabled)
+            {
+                LogError($"[SafeToDraw]{tag} UpdateBody called when not enabled!");
+                return false;
+            }
+            if (!SceneHelper.ViewingMapOrTrackingStation)
+            {
+                LogError($"[SafeToDraw]{tag} UpdateBody called not ViewingMapOrTrackingStation!");
+                return false;
+            }
+            if (Context.GameState.IsSceneLoading)
+            {
+                LogError($"[SafeToDraw]{tag} UpdateBody called when scene loading!");
+                return false;
             }
 
-            enabled = state;
+            return true;
         }
 
         #region Refresh
@@ -129,20 +154,8 @@ namespace OrbitPOInts
         public void UpdateBody(CelestialBody body)
         {
             LogDebug($"[UpdateBody] body: {body.name}");
-            PurgeAll();
-            if (!enabled)
+            if (!SafeToDraw("[UpdateBody]"))
             {
-                LogError("[UpdateBody] UpdateBody called when not enabled!");
-                return;
-            }
-            if (!SceneHelper.ViewingMapOrTrackingStation)
-            {
-                LogError("[UpdateBody] UpdateBody called not ViewingMapOrTrackingStation!");
-                return;
-            }
-            if (Context.GameState.IsSceneLoading)
-            {
-                LogError("[UpdateBody] UpdateBody called when scene loading!");
                 return;
             }
 
@@ -162,28 +175,18 @@ namespace OrbitPOInts
 
         public void Refresh(MapObject focusTarget)
         {
-            if (!enabled)
+            if (!SafeToDraw("[UpdateBody]"))
             {
-                LogError("[Refresh] refresh called when not enabled!");
-                return;
-            }
-            if (PurgeIfNotInMapOrTracking())
-            {
-                LogError("[Refresh] refresh called when not in map or tracking!");
-                return;
-            }
-            if (Context.GameState.IsSceneLoading)
-            {
-                LogError("[Refresh] refresh called when scene loading!");
                 return;
             }
 
             if (focusTarget == null)
             {
                 LogError("[Refresh] target is null!");
-                PurgeAll();
                 return;
             }
+
+            SetEnabled(true);
 
             var body = MapObjectHelper.GetTargetBody(focusTarget);
             LogDebug($"[Refresh] target: {MapObjectHelper.GetTargetName(focusTarget)}, body: {body.name}");
@@ -199,7 +202,7 @@ namespace OrbitPOInts
         // but for sanity sake we are just gonna purge everything until the state machine is rewritten
         internal void RemoveAll()
         {
-            PurgeAll();
+            _poiRenderReferenceManager.Clear();
         }
 
         #endregion
@@ -212,27 +215,12 @@ namespace OrbitPOInts
                 return;
             }
             List<Transform> transformsNeedsUpdate = new();
-            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
-            {
-                if (!circle.IsAlive() || circle.IsDying)
-                {
-                    LogError($"[UpdateNormals] circle null or dying {index} / {_drawnCircles.Count}");
-                    continue;
-                }
-                transformsNeedsUpdate.Add(circle.transform);
-            }
+
+            DoActionOnSpheres(sphere => transformsNeedsUpdate.Add(sphere.transform));
 
             if (AlignSpheres)
             {
-                foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
-                {
-                    if (!sphere.IsAlive() || sphere.IsDying)
-                    {
-                        LogError($"[UpdateNormals] sphere null or dying {index} / {_drawnSpheres.Count}");
-                        continue;
-                    }
-                    transformsNeedsUpdate.Add(sphere.transform);
-                }
+                DoActionOnCircles(circle => transformsNeedsUpdate.Add(circle.transform));
             }
 
             foreach (var transform in transformsNeedsUpdate)
@@ -328,15 +316,13 @@ namespace OrbitPOInts
                 if (mode is CreateMode.All or CreateMode.Circles)
                 {
                     LogDebug($"[CreateBodyItems]: Generating circle around {body.name} {poi.Type} {poi.RadiusForRendering()}");
-                    var renderer = CreateCircleFromPoi(poi);
-                    renderer.Poi = poi;
+                    CreateCircleFromPoi(poi);
                 }
 
                 if (mode is CreateMode.All or CreateMode.Spheres)
                 {
                     LogDebug($"[CreateBodyItems]: Generating sphere around {body.name} {poi.Type} {poi.RadiusForRendering()}");
-                    var renderer = CreateWireSphereFromPoi(poi);
-                    renderer.Poi = poi;
+                    CreateWireSphereFromPoi(poi);
                 }
             });
         }
@@ -351,7 +337,10 @@ namespace OrbitPOInts
 
         private void RemoveBodySpheres()
         {
-            PurgeSpheres();
+            foreach (var poiRenderReference in _poiRenderReferenceManager.AllPoiRenderReferences)
+            {
+                poiRenderReference.DestroySphereReference();
+            }
         }
 
         private void CreateBodySphere(CelestialBody body)
@@ -359,22 +348,24 @@ namespace OrbitPOInts
             CreateBodyItems(body, CreateMode.Spheres);
         }
 
-        private PoiWireSphereRenderer CreateWireSphereFromPoi(POI poi)
+        private PoiRenderReference CreateWireSphereFromPoi(POI poi)
         {
             LogDebug($"[CreateWireSphereFromPoi]: Generating spheres around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
-            return CreateWireSphere(poi.Body, poi.Color, (float)poi.RadiusForRendering(), GetComponentInstanceId(poi, ComponentHolderType.Sphere), poi.LineWidth, poi.Resolution);
+            var poiRenderReference = _poiRenderReferenceManager.GetOrCreatePoiRenderReference(poi);
+            var sphereRenderReference = poiRenderReference.CreateAndReplaceSphere();
+            SetWireSphere(sphereRenderReference, poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth, poi.Resolution);
+            return poiRenderReference;
         }
 
-        private PoiWireSphereRenderer CreateWireSphere(
+        private void SetWireSphere(
+            WireSphereRenderer sphere,
             CelestialBody body,
             Color color,
             float radius,
-            int instanceId,
             float width = 1f,
             int resolution = 50
         )
         {
-            var sphere = AddOrGetSphereComponent(body, instanceId);
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
@@ -389,9 +380,6 @@ namespace OrbitPOInts
             sphere.transform.localPosition = Vector3.zero;
 
             sphere.SetEnabled(true);
-            _drawnSpheres.Add(sphere);
-
-            return sphere;
         }
 
         #endregion
@@ -406,7 +394,10 @@ namespace OrbitPOInts
 
         private void RemoveBodyCircles()
         {
-            PurgeCircles();
+            foreach (var poiRenderReference in _poiRenderReferenceManager.AllPoiRenderReferences)
+            {
+                poiRenderReference.DestroyCircleReference();
+            }
         }
 
         private void CreateBodyCircle(CelestialBody body)
@@ -414,22 +405,23 @@ namespace OrbitPOInts
             CreateBodyItems(body, CreateMode.Circles);
         }
 
-        private PoiCircleRenderer CreateCircleFromPoi(POI poi)
+        private PoiRenderReference CreateCircleFromPoi(POI poi)
         {
             LogDebug($"[CreateCircleFromPoi]: Generating circle around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
-            return CreateCircle(poi.Body, poi.Color, (float)poi.RadiusForRendering(), GetComponentInstanceId(poi, ComponentHolderType.Circle), poi.LineWidth);
+            var poiRenderReference = _poiRenderReferenceManager.GetOrCreatePoiRenderReference(poi);
+            var circleRenderReference = poiRenderReference.CreateAndReplaceCircle();
+            SetCircle(circleRenderReference, poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth);
+            return poiRenderReference;
         }
 
-        private PoiCircleRenderer CreateCircle(
+        private void SetCircle(
+            CircleRenderer circle,
             CelestialBody body,
             Color color,
             float radius,
-            int instanceId,
             float width = 1f,
             int segments = 360)
         {
-            var circle = AddOrGetCircleComponent(body, instanceId);
-
             circle.wireframeColor = color;
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
             circle.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
@@ -441,248 +433,14 @@ namespace OrbitPOInts
             circle.transform.localPosition = Vector3.zero;
 
             circle.SetEnabled(true);
-            _drawnCircles.Add(circle);
-
-            return circle;
         }
 
         #endregion
 
         #region MISC
-
-        public bool PurgeIfNotInMapOrTracking()
-        {
-            if (SceneHelper.ViewingMapOrTrackingStation) return false;
-            // if for some reason we end up here and we arent in the mapview or tracking station we should purge
-            LogDebug("[PurgeIfNotInMapOrTracking] Purging");
-            PurgeAll();
-            return true;
-        }
-
         private static double GetStandardLineWidthDistance()
         {
             return FlightGlobals.Bodies.Where(body => body.isHomeWorld).Select(body => body.minOrbitalDistance).FirstOrDefault();
-        }
-        #endregion
-
-        #region Components
-        private string GetComponentGroupId(CelestialBody body, PoiType type, double radius)
-        {
-            return $"{body.Serialize()}_{type}_{radius}";
-        }
-
-        private string GetComponentGroupId(POI poi)
-        {
-            return GetComponentGroupId(poi.Body, poi.Type, poi.Radius);
-        }
-
-        private int GetComponentInstanceId(POI poi, ComponentHolderType componentHolderType)
-        {
-            return componentHolderType switch
-            {
-                ComponentHolderType.Sphere => _drawnSpheres.FirstOrDefault(r => r.Poi.Equals(poi))?.GetInstanceID(),
-                ComponentHolderType.Circle => _drawnCircles.FirstOrDefault(r => r.Poi.Equals(poi))?.GetInstanceID(),
-                _ => throw new ArgumentOutOfRangeException(nameof(componentHolderType), componentHolderType, null)
-            } ?? -1;
-        }
-
-        [Obsolete]
-        private PoiCircleRenderer AddOrGetCircleComponent(CelestialBody body, string groupId)
-        {
-            var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Circle);
-            var components = target.GetComponents<PoiCircleRenderer>();
-            foreach (var component in components)
-            {
-                if (component.IsAlive() && !component.IsDying && component.groupId == groupId)
-                {
-                    LogDebug($"[AddOrGetCircleComponent] Reusing: {groupId}");
-                    return component;
-                }
-
-                if(component.IsAlive() && component.IsDying && component.groupId == groupId)
-                {
-                    LogDebug($"[AddOrGetCircleComponent] Skipping dying component: {groupId}");
-                    continue;
-                }
-
-                LogDebug("[AddOrGetCircleComponent] Skipping unknown dead component");
-            }
-
-            LogDebug($"[AddOrGetCircleComponent] Creating new component {groupId}");
-            var circle = target.AddComponent<PoiCircleRenderer>();
-            circle.groupId = groupId;
-            return circle;
-        }
-
-        private PoiCircleRenderer AddOrGetCircleComponent(CelestialBody body, int instanceId)
-        {
-            var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Circle);
-            var existingComponent = _drawnCircles.FirstOrDefault(c => c.GetInstanceID() == instanceId);
-            if (existingComponent is { IsDying: false })
-            {
-                LogDebug($"[AddOrGetCircleComponent] Reusing: {instanceId}");
-                return existingComponent;
-            }
-
-
-            LogDebug($"[AddOrGetCircleComponent] Creating new component {instanceId}");
-            var circle = target.AddComponent<PoiCircleRenderer>();
-            return circle;
-        }
-
-        [Obsolete]
-        private PoiWireSphereRenderer AddOrGetSphereComponent(CelestialBody body, string groupId)
-        {
-            var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Sphere);
-            var components = target.GetComponents<PoiWireSphereRenderer>();
-            foreach (var component in components)
-            {
-                if (component.IsAlive() && !component.IsDying && component.groupId == groupId)
-                {
-                    LogDebug($"[AddOrGetSphereComponent] Reusing: {groupId}");
-                    return component;
-                }
-
-                if(component.IsAlive() && component.IsDying && component.groupId == groupId)
-                {
-                    LogDebug($"[AddOrGetSphereComponent] Skipping dying component: {groupId}");
-                    continue;
-                }
-
-                LogDebug("[AddOrGetSphereComponent] Skipping unknown dead component");
-            }
-
-            LogDebug($"[AddOrGetSphereComponent] Creating new component {groupId}");
-            var sphere = target.AddComponent<PoiWireSphereRenderer>();
-            sphere.groupId = groupId;
-            return sphere;
-        }
-
-        private PoiWireSphereRenderer AddOrGetSphereComponent(CelestialBody body, int instanceId)
-        {
-            var target = _celestialBodyComponentManager.GetOrCreateBodyComponentHolder(body, ComponentHolderType.Sphere);
-            var existingComponent = _drawnSpheres.FirstOrDefault(c => c.GetInstanceID() == instanceId);
-            if (existingComponent is { IsDying: false })
-            {
-                LogDebug($"[AddOrGetSphereComponent] Reusing: {instanceId}");
-                return existingComponent;
-            }
-            LogDebug($"[AddOrGetSphereComponent] Creating new component {instanceId}");
-            var sphere = target.AddComponent<PoiWireSphereRenderer>();
-            return sphere;
-        }
-        #endregion
-
-        #region PurgeMethods
-        private void PurgeAllByGroupId(string groupId)
-        {
-            PurgeAllCirclesByGroupId(groupId);
-            PurgeAllSpheresByGroupId(groupId);
-        }
-
-        private void PurgeAllCirclesByGroupId(string groupId)
-        {
-            foreach (var bodyComponentHolder in _celestialBodyComponentManager.AllComponentHolders())
-            {
-                var components = bodyComponentHolder.GetComponents<PoiCircleRenderer>().Where(c => c.groupId == groupId);
-                var PoiCircleRenderers = components.ToList();
-                LogDebug($"[PurgeAllCirclesByNamePrefix] {groupId} - {PoiCircleRenderers.Count()}");
-                foreach (var component in PoiCircleRenderers)
-                {
-                    component.DestroyImmediateIfAlive();
-                }
-            }
-        }
-
-        private void PurgeAllSpheresByGroupId(string groupId)
-        {
-            foreach (var bodyComponentHolder in _celestialBodyComponentManager.AllComponentHolders())
-            {
-                var components = bodyComponentHolder.GetComponents<PoiWireSphereRenderer>().Where(c => c.groupId == groupId);
-                var PoiWireSphereRenderers = components.ToList();
-                LogDebug($"[PurgeAllSpheresByNamePrefix] {groupId} - {PoiWireSphereRenderers.Count()}");
-                foreach (var component in PoiWireSphereRenderers)
-                {
-                    component.DestroyImmediateIfAlive();
-                }
-            }
-        }
-
-        [Obsolete]
-        private void PurgeAllByBody(CelestialBody body)
-        {
-            _celestialBodyComponentManager.RemoveComponentHolders(body);
-        }
-
-        [Obsolete]
-        private void PurgeAllCirclesByBody(CelestialBody body)
-        {
-            var maybeBodyComponentHolder = _celestialBodyComponentManager.TryGetBodyComponentHolder(body, ComponentHolderType.Circle);
-            if (maybeBodyComponentHolder.IsNone) return;
-            var bodyComponentHolder = maybeBodyComponentHolder.Value;
-            LogDebug($"[PurgeAllCirclesByBody] {body.name}");
-            _celestialBodyComponentManager.RemoveCircles(bodyComponentHolder, body);
-        }
-
-        [Obsolete]
-        private void PurgeAllSpheresByBody(CelestialBody body)
-        {
-            var maybeBodyComponentHolder = _celestialBodyComponentManager.TryGetBodyComponentHolder(body, ComponentHolderType.Sphere);
-            if (maybeBodyComponentHolder.IsNone) return;
-            var bodyComponentHolder = maybeBodyComponentHolder.Value;
-            LogDebug($"[PurgeAllSpheresByBody] {body.name}");
-            _celestialBodyComponentManager.RemoveSpheres(bodyComponentHolder, body);
-        }
-
-        // TODO: desperate times call for desperate measures
-        internal void PurgeAll()
-        {
-            LogDebug("=== PURGING ALL ===");
-
-            PurgeSpheres();
-            PurgeCircles();
-            PurgeBodyHolders();
-        }
-
-        private void PurgeBodyHolders()
-        {
-            LogDebug("=== PURGING BODY HOLDERS ===");
-            _celestialBodyComponentManager.RemoveAll();
-            foreach (var body in FlightGlobals.Bodies)
-            {
-                foreach (ComponentHolderType type in Enum.GetValues(typeof(ComponentHolderType)))
-                {
-                    GameObject.Find(_celestialBodyComponentManager.GetComponentHolderName(body, type)).DestroyImmediateIfAlive();
-                }
-            }
-        }
-
-        internal void PurgeSpheres()
-        {
-            LogDebug("=== PURGING SPHERES ===");
-            _drawnSpheres.Clear();
-            foreach (var component in GameObject.FindObjectsOfType<PoiWireSphereRenderer>())
-            {
-                component.DestroyImmediateIfAlive();
-            }
-            foreach (var lineRenderer in GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == PoiWireSphereRenderer.NameKey))
-            {
-                lineRenderer.DestroyImmediateIfAlive();
-            }
-        }
-
-        internal void PurgeCircles()
-        {
-            LogDebug("=== PURGING CIRCLES ===");
-            _drawnCircles.Clear();
-            foreach (var component in GameObject.FindObjectsOfType<PoiCircleRenderer>())
-            {
-                component.DestroyImmediateIfAlive();
-            }
-            foreach (var lineRenderer in GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == PoiCircleRenderer.NameKey))
-            {
-                lineRenderer.DestroyImmediateIfAlive();
-            }
         }
         #endregion
     }

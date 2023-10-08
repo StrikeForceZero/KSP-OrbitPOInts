@@ -8,6 +8,8 @@ namespace UnityEngineMock
         public Transform transform;
         public GameObject gameObject;
 
+        public extern void SetActive(bool state);
+
         public extern Component GetComponent(Type type);
         public extern T GetComponent<T>();
 

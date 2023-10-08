@@ -90,6 +90,7 @@ namespace OrbitPOInts
         public void SetEnabled(bool state)
         {
             enabled = state;
+            lineObject.SetActive(state);
         }
 
         public void SetColor(Color color)

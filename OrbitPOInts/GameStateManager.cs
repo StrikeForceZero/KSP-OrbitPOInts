@@ -102,36 +102,34 @@ namespace OrbitPOInts
             _poiPropChangeMapper = new PropChangeActionMapper<POI>(
                 PropChangeActionMapping<POI>.From(s => s.Color, (args) =>
                 {
-                    foreach (var renderer in Visualizer.CelestialBodyComponentManager.GetRenderersForPoi(args.Source))
+                    foreach (var renderer in Visualizer.PoiRenderReferenceManager.GetAllRenderReferencesRenderersForPoi(args.Source))
                     {
                         renderer.SetColor(args.Source.Color);
                     }
                 }),
                 PropChangeActionMapping<POI>.From(s => s.LineWidth, (args) =>
                 {
-                    foreach (var renderer in Visualizer.CelestialBodyComponentManager.GetRenderersForPoi(args.Source))
+                    foreach (var renderer in Visualizer.PoiRenderReferenceManager.GetAllRenderReferencesRenderersForPoi(args.Source))
                     {
                         renderer.SetWidth(args.Source.LineWidth);
                     }
                 }),
                 PropChangeActionMapping<POI>.From(s => s.Enabled, (args) =>
                 {
-                    foreach (var renderer in Visualizer.CelestialBodyComponentManager.GetRenderersForPoi(args.Source))
+                    foreach (var renderer in Visualizer.PoiRenderReferenceManager.GetAllRenderReferencesRenderersForPoi(args.Source))
                     {
                         renderer.SetEnabled(args.Source.Enabled);
                     }
                 }),
                 PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
                 {
+                    Visualizer.PoiRenderReferenceManager.RemovePoiRenderReference(args.Source);
                     Visualizer.CurrentTargetRefresh();
                 }),
                 PropChangeActionMapping<POI>.From(s => s.Radius, (args) =>
                 {
-                    foreach (var bodyComponentHolder in Visualizer.CelestialBodyComponentManager.TryGetBodyComponentHolders(args.Source))
-                    {
-                        Visualizer.CelestialBodyComponentManager.Remove(bodyComponentHolder, args.Source.Body);
-                        // TODO: recreate
-                    }
+                    Visualizer.PoiRenderReferenceManager.RemovePoiRenderReference(args.Source);
+                    Visualizer.CurrentTargetRefresh();
                 })
             );
 
@@ -160,7 +158,7 @@ namespace OrbitPOInts
             // we'll pass the responsibility to the UI
             UnregisterSettings();
             RegisterEvents(false);
-            Visualizer.PurgeAll();
+            Visualizer.SetEnabled(false);
         }
 
         private void OnDestroy()
@@ -168,7 +166,8 @@ namespace OrbitPOInts
             LogDebug("OnDestroy");
             UnregisterSettings();
             RegisterEvents(false);
-            Visualizer.PurgeAll();
+            Visualizer.SetEnabled(false);
+            Visualizer.PoiRenderReferenceManager.Clear();
         }
 
         private void RegisterEvents(bool register = true)
@@ -339,9 +338,10 @@ namespace OrbitPOInts
                 {
                     LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {SceneHelper.GetSceneName(scenes)}");
                     GameState.IsSceneLoading = false;
-                    if (Visualizer.PurgeIfNotInMapOrTracking())
+                    if (!SceneHelper.ViewingMapOrTrackingStation)
                     {
-                        LogDebug("[OnGameSceneLoadedGUIReady] purge complete");
+                        LogDebug("[OnGameSceneLoadedGUIReady] not in map or tracking - hiding");
+                        Visualizer.SetEnabled(false);
                         return;
                     }
 
@@ -356,24 +356,20 @@ namespace OrbitPOInts
             var target = PlanetariumCamera.fetch.target;
             LogDebug($"[OnMapEntered] focus on {MapObjectHelper.GetTargetName(target)}");
 
+            Visualizer.SetEnabled(true);
             Visualizer.Refresh(target);
         }
 
         private void OnMapExited()
         {
             LogDebug($"[OnMapExited]");
-            Visualizer.PurgeAll();
+            Visualizer.SetEnabled(false);
         }
 
         private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
         {
             LogDebug($"[OnVesselSOIChange] soi changed: {data.from.name} -> {data.to.name}");
-            if (Visualizer.PurgeIfNotInMapOrTracking())
-            {
-                // TODO: this might be ok if our SOI changes while flying
-                LogError("[OnVesselSOIChange] OnVesselSOIChange called when not in map or tracking!");
-                return;
-            }
+            if (GameState.IsSceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             Visualizer.UpdateBody(data.to);
         }
 
@@ -381,14 +377,6 @@ namespace OrbitPOInts
         {
             if (GameState.IsSceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             UpdateTargets(vessel.mapObject);
-
-            if (Visualizer.PurgeIfNotInMapOrTracking())
-            {
-                // TODO: this might be ok if we are flightview and switch ships
-                LogError("[OnVesselChange] OnVesselChange called when not in map or tracking!");
-                return;
-            }
-
             Visualizer.UpdateBody(vessel.mainBody);
             Visualizer.UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
         }
@@ -398,11 +386,6 @@ namespace OrbitPOInts
             if (GameState.IsSceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             LogDebug($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
             // TODO: this gets called when loading a save and we dont want to generate anything unless in map
-            if (Visualizer.PurgeIfNotInMapOrTracking())
-            {
-                LogError("[OnMapFocusChange] OnMapFocusChange called when not in map or tracking!");
-                return;
-            }
             Visualizer.Refresh(focusTarget);
         }
 
@@ -432,11 +415,11 @@ namespace OrbitPOInts
             // check to make sure we still enabled after loading settings
             if (!enabled)
             {
-                Visualizer.PurgeAll();
+                Visualizer.SetEnabled(false);
                 return;
             }
-
-            Visualizer.PurgeIfNotInMapOrTracking();
+            var canDraw = !GameState.IsSceneLoading && SceneHelper.ViewingMapOrTrackingStation;
+            Visualizer.SetEnabled(canDraw);
             RegisterEvents();
         }
 

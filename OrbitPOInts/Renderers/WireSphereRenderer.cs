@@ -159,6 +159,10 @@ namespace OrbitPOInts
         public void SetEnabled(bool state)
         {
             enabled = state;
+            foreach (var lineObject in lineObjects)
+            {
+                lineObject.SetActive(state);
+            }
         }
 
 
