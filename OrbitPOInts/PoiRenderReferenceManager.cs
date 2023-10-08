@@ -127,10 +127,24 @@ namespace OrbitPOInts
                 .Select(poirr => poirr.GetRenderReference<TRender>())
                 .Where(rr => rr != null);
         }
+
+        public IEnumerable<(POI Poi, RenderReference<TRender> RenderReference)> GetAllPoiRenderReferenceTuples<TRender>() where TRender : MonoBehaviour, IRenderer
+        {
+            return AllPoiRenderReferences
+                .Select(poirr => (poirr.Poi, RendererReference: poirr.GetRenderReference<TRender>()))
+                .Where(item => item.RendererReference != null);
+        }
+
         public IEnumerable<TRender> GetAllRenderReferenceRenderers<TRender>() where TRender : MonoBehaviour, IRenderer
         {
             return GetAllRenderReferences<TRender>()
                 .SelectMany(rr => rr.Renderers);
+        }
+
+        public IEnumerable<(POI Poi, TRender Renderer)> GetAllRenderPoiReferenceRenderersTuples<TRender>() where TRender : MonoBehaviour, IRenderer
+        {
+            return GetAllPoiRenderReferenceTuples<TRender>()
+                .SelectMany(item => item.RenderReference.Renderers.Select(renderer => (item.Poi, render: renderer)));
         }
 
         public IEnumerable<IRenderer> GetAllRenderReferencesRenderersForPoi(POI poi)

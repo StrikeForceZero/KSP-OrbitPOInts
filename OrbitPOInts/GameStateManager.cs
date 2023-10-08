@@ -93,10 +93,10 @@ namespace OrbitPOInts
             var settings = Settings.Instance;
 
             _settingsPropChangeMapper = new PropChangeMapper<Settings, OrbitPoiVisualizer<GameStateManager>>(
-                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.AlignSpheres),
-                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.EnableSpheres, v => v.DrawSpheres, () => Visualizer.DestroyAndRecreateBodySpheres(GameState.FocusedOrActiveBody)),
-                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.EnableCircles, v => v.DrawCircles, () => Visualizer.DestroyAndRecreateBodyCircles(GameState.FocusedOrActiveBody)),
-                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.FocusedBodyOnly, () => Visualizer.CurrentTargetRefresh())
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.AlignSpheres, v => v.AlignSpheres),
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.EnableSpheres, v => v.DrawSpheres, () => Visualizer.SetEnabledSpheres(Visualizer.DrawSpheres)),
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.EnableCircles, v => v.DrawCircles, () => Visualizer.SetEnabledCircles(Visualizer.DrawCircles)),
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.FocusedBodyOnly, v => v.FocusedBodyOnly, () => Visualizer.RefreshCurrentRenderers())
             );
 
             _poiPropChangeMapper = new PropChangeActionMapper<POI>(

@@ -159,18 +159,7 @@ namespace OrbitPOInts
                 return;
             }
 
-            if (FocusedBodyOnly)
-            {
-                DestroyAndRecreateBodySpheres(body);
-                DestroyAndRecreateBodyCircles(body);
-                return;
-            }
-
-            // TODO: this is more of a bad hack since we are still using purge methods
-            foreach (var curBody in FlightGlobals.Bodies)
-            {
-                CreateBodyItems(body);
-            }
+            RefreshCurrentRenderers();
         }
 
         public void Refresh(MapObject focusTarget)
@@ -327,7 +316,33 @@ namespace OrbitPOInts
             });
         }
 
+        public void SetEnabledRenderers<TRenderer>(bool state) where TRenderer : MonoBehaviour, IRenderer
+        {
+            foreach ((var poi, var render) in _poiRenderReferenceManager.GetAllRenderPoiReferenceRenderersTuples<TRenderer>())
+            {
+                if (FocusedBodyOnly)
+                {
+                    render.SetEnabled(poi.Enabled && state && poi.Body == Context.GameState.FocusedOrActiveBody);
+                }
+                else
+                {
+                    render.SetEnabled(poi.Enabled && state);
+                }
+            }
+        }
+
+        public void RefreshCurrentRenderers()
+        {
+            SetEnabledCircles(DrawCircles);
+            SetEnabledSpheres(DrawSpheres);
+        }
+
         #region Spheres
+
+        public void SetEnabledSpheres(bool state)
+        {
+            SetEnabledRenderers<WireSphereRenderer>(state);
+        }
 
         public void DestroyAndRecreateBodySpheres(CelestialBody targetObject)
         {
@@ -379,12 +394,17 @@ namespace OrbitPOInts
             sphere.transform.localScale = Vector3.one;
             sphere.transform.localPosition = Vector3.zero;
 
-            sphere.SetEnabled(true);
+            sphere.SetEnabled(DrawSpheres);
         }
 
         #endregion
 
         #region Circles
+
+        public void SetEnabledCircles(bool state)
+        {
+            SetEnabledRenderers<CircleRenderer>(state);
+        }
 
         public void DestroyAndRecreateBodyCircles(CelestialBody targetObject)
         {
@@ -432,7 +452,7 @@ namespace OrbitPOInts
             circle.transform.localScale = Vector3.one;
             circle.transform.localPosition = Vector3.zero;
 
-            circle.SetEnabled(true);
+            circle.SetEnabled(DrawCircles);
         }
 
         #endregion
