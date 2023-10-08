@@ -53,7 +53,7 @@ namespace OrbitPOInts
             }
             LogDebug($"[GetOrCreatePoiRenderReference] {GetKeyStringFromPoi(poi)} creating");
             var poiRenderReference = new PoiRenderReference(poi);
-            _poiPoiRenderReferenceDictionary.Add(GetTupleKeyFromPoi(poi), poiRenderReference);
+            AddRenderReference(poiRenderReference);
             return poiRenderReference;
         }
 
