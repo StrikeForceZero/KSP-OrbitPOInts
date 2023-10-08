@@ -96,12 +96,14 @@ namespace OrbitPOInts.Data.POI
 
         public void DestroySphereReference()
         {
+            Utils.Logger.LogDebug($"[PoiRenderReference][DestroySphereReference] destroying {Poi.Id} ${Poi.Body}");
             Sphere?.DestroyImmediate();
             Sphere = null;
         }
 
         public void DestroyCircleReference()
         {
+            Utils.Logger.LogDebug($"[PoiRenderReference][DestroySphereReference] destroying {Poi.Id} ${Poi.Body}");
             Circle?.DestroyImmediate();
             Circle = null;
         }
@@ -126,6 +128,7 @@ namespace OrbitPOInts.Data.POI
 
         public void DestroyImmediate()
         {
+            Utils.Logger.LogDebug($"[PoiRenderReference][DestroyImmediate] destroying {Poi.Id} ${Poi.Body}");
             DestroySphereReference();
             DestroyCircleReference();
         }

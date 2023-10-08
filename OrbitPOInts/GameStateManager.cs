@@ -314,6 +314,7 @@ namespace OrbitPOInts
                 return;
             }
 
+            LogDebug($"[OnConfiguredPoiChanged] change {poi.Id} {poi.Body}");
             _poiPropChangeMapper.Process(poi, args);
         }
 
@@ -325,12 +326,14 @@ namespace OrbitPOInts
                 foreach (var oldItem in args.OldItems)
                 {
                     if (oldItem is not POI poi) continue;
+                    LogDebug($"[OnConfiguredPoisCollectionChanged] removing {poi.Id} {poi.Body}");
                     Visualizer.RemovePoi(poi);
                 }
             }
             foreach (var newItem in args.NewItems)
             {
                 if (newItem is not POI poi) continue;
+                LogDebug($"[OnConfiguredPoisCollectionChanged] adding {poi.Id} {poi.Body}");
                 Visualizer.AddPoi(poi);
             }
             Visualizer.CurrentTargetRefresh();

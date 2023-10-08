@@ -30,8 +30,10 @@ namespace OrbitPOInts
 
         public void RenderersDestroyImmediate()
         {
+            Utils.Logger.LogDebug("[RenderReference][RenderersDestroyImmediate]");
             foreach (var renderer in Renderers)
             {
+                Utils.Logger.LogDebug($"[RenderReference][RenderersDestroyImmediate] {renderer.GetInstanceID()}");
                 renderer.DestroyImmediateIfAlive();
             }
         }
@@ -39,6 +41,7 @@ namespace OrbitPOInts
         public void DestroyImmediate()
         {
             RenderersDestroyImmediate();
+            Utils.Logger.LogDebug($"[RenderReference][DestroyImmediate] {Root.GetInstanceID()}");
             Root.DestroyImmediateIfAlive();
         }
 
