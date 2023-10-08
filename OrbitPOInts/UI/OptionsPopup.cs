@@ -65,6 +65,19 @@ namespace OrbitPOInts.UI
 
                 GUILayout.Label("Misc");
                 Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
+                if (Settings.Instance.LogDebugEnabled)
+                {
+                    GUILayout.Space(10);
+                    GUILayout.BeginHorizontal();
+                        GUILayout.Space(20);
+                        if (GUILayout.Button("Add Log Marker", GUILayout.ExpandWidth(false)))
+                        {
+                            Log(
+                                "==================================================================================== MARKER");
+                        }
+                    GUILayout.EndHorizontal();
+                    GUILayout.Space(10);
+                }
                 Settings.Instance.UseSkin = GUILayout.Toggle(Settings.Instance.UseSkin, "Use Skin");
                 Settings.Instance.UseOpaqueBackgroundOverride = GUILayout.Toggle(Settings.Instance.UseOpaqueBackgroundOverride, "Use Opaque Background Override");
                 Settings.Instance.UseTopRightCloseButton = GUILayout.Toggle(Settings.Instance.UseTopRightCloseButton, "Use Top Right Close Button");
