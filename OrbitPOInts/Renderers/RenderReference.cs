@@ -19,21 +19,26 @@ namespace OrbitPOInts
 
         public RenderReference(GameObject root)
         {
+            Utils.Logger.LogDebug($"[RenderReference][Constructor] {typeof(TRenderer).Name} {root.GetInstanceID()}");
             Root = root;
         }
 
         public TRenderer NewRenderer(bool destroyOld = false)
         {
+            Utils.Logger.LogDebug($"[RenderReference][NewRenderer] {typeof(TRenderer).Name}");
             if (destroyOld) RenderersDestroyImmediate();
-            return Root.AddComponent<TRenderer>();
+            var renderer = Root.AddComponent<TRenderer>();
+            Utils.Logger.LogDebug($"[RenderReference][NewRenderer] {typeof(TRenderer).Name} {renderer.GetInstanceID()}");
+            Utils.Logger.LogDebug($"[RenderReference][NewRenderer] {typeof(TRenderer).Name}:{Renderers.Length} {renderer.GetInstanceID()}");
+            return renderer;
         }
 
         public void RenderersDestroyImmediate()
         {
-            Utils.Logger.LogDebug("[RenderReference][RenderersDestroyImmediate]");
+            Utils.Logger.LogDebug($"[RenderReference][RenderersDestroyImmediate] {typeof(TRenderer).Name}:{Renderers.Length}");
             foreach (var renderer in Renderers)
             {
-                Utils.Logger.LogDebug($"[RenderReference][RenderersDestroyImmediate] {renderer.GetInstanceID()}");
+                Utils.Logger.LogDebug($"[RenderReference][RenderersDestroyImmediate] {typeof(TRenderer).Name} {renderer.GetInstanceID()}");
                 renderer.DestroyImmediateIfAlive();
             }
         }
@@ -41,14 +46,16 @@ namespace OrbitPOInts
         public void DestroyImmediate()
         {
             RenderersDestroyImmediate();
-            Utils.Logger.LogDebug($"[RenderReference][DestroyImmediate] {Root.GetInstanceID()}");
+            Utils.Logger.LogDebug($"[RenderReference][DestroyImmediate] {typeof(TRenderer).Name} {Root.GetInstanceID()}");
             Root.DestroyImmediateIfAlive();
         }
 
         public void SetEnabled(bool state)
         {
+            Utils.Logger.LogDebug($"[RenderReference][SetEnabled] {state} {typeof(TRenderer).Name} {Renderers.Length}");
             foreach (var renderer in Renderers)
             {
+                Utils.Logger.LogDebug($"[RenderReference][SetEnabled] {state} {typeof(TRenderer).Name} {renderer.GetInstanceID()}");
                 renderer.enabled = state;
             }
         }

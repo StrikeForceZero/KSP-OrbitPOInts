@@ -48,9 +48,10 @@ namespace OrbitPOInts
             var poiRenderReferenceOption = TryGetPoiRenderReference(poi);
             if (poiRenderReferenceOption.IsSome)
             {
+                LogDebug($"[GetOrCreatePoiRenderReference] {GetKeyStringFromPoi(poi)} reusing");
                 return poiRenderReferenceOption.Value;
             }
-
+            LogDebug($"[GetOrCreatePoiRenderReference] {GetKeyStringFromPoi(poi)} creating");
             var poiRenderReference = new PoiRenderReference(poi);
             _poiPoiRenderReferenceDictionary.Add(GetTupleKeyFromPoi(poi), poiRenderReference);
             return poiRenderReference;
@@ -59,6 +60,11 @@ namespace OrbitPOInts
         public (Guid Guid, CelestialBody Body, PoiType Type) GetTupleKeyFromPoi(POI poi)
         {
             return (poi.Id, poi.Body, poi.Type);
+        }
+
+        public string GetKeyStringFromPoi(POI poi)
+        {
+            return $"({poi.Id}, {poi.Body.Serialize()}, {poi.Type})";
         }
 
         private void AddRenderReference(PoiRenderReference poiRenderReference)
@@ -99,7 +105,12 @@ namespace OrbitPOInts
 
         public void RemovePoiRenderReference(POI poi, bool destroy = true)
         {
-            if (!_poiPoiRenderReferenceDictionary.TryGetValue(GetTupleKeyFromPoi(poi), out var poiRenderReference)) return;
+            if (!_poiPoiRenderReferenceDictionary.TryGetValue(GetTupleKeyFromPoi(poi), out var poiRenderReference))
+            {
+                LogDebug($"[RemovePoiRenderReference] {GetKeyStringFromPoi(poi)} not found");
+                return;
+            };
+            LogDebug($"[RemovePoiRenderReference] {GetKeyStringFromPoi(poi)} removing");
             RemoveRenderReference(poiRenderReference, destroy);
         }
         
