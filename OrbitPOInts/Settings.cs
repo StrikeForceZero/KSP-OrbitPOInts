@@ -106,8 +106,8 @@ namespace OrbitPOInts
 
         protected virtual void NotifyCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            var numberRemoved = args.OldItems?.Count;
-            var numberAdded = args.NewItems?.Count;
+            var numberRemoved = args.OldItems?.Count ?? 0;
+            var numberAdded = args.NewItems?.Count ?? 0;
             Logger.LogDebug($"[Settings][NotifyCollectionChanged] {nameof(ConfiguredPois)}:{args.Action} removed: {numberRemoved}, added: {numberAdded}");
             OnPropertyChanged(nameof(ConfiguredPois));
             ConfiguredPoisCollectionChanged?.Invoke(sender, args);
