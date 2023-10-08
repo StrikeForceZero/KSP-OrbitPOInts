@@ -97,7 +97,8 @@ namespace OrbitPOInts
                 PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.AlignSpheres, v => v.AlignSpheres),
                 PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.EnableSpheres, v => v.DrawSpheres, () => Visualizer.SetEnabledSpheres(Visualizer.DrawSpheres)),
                 PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.EnableCircles, v => v.DrawCircles, () => Visualizer.SetEnabledCircles(Visualizer.DrawCircles)),
-                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.FocusedBodyOnly, v => v.FocusedBodyOnly, () => Visualizer.RefreshCurrentRenderers())
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.FocusedBodyOnly, v => v.FocusedBodyOnly, () => Visualizer.RefreshCurrentRenderers()),
+                PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, () => Visualizer.RefreshCurrentRenderers())
             );
 
             _poiPropChangeMapper = new PropChangeActionMapper<POI>(
