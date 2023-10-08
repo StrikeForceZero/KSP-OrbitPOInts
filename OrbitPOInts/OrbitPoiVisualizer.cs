@@ -244,6 +244,17 @@ namespace OrbitPOInts
             {
                 DoActionOnSpheres(sphere => transformsNeedsUpdate.Add(sphere.transform));
             }
+            else
+            {
+                List<Transform> transformsToRest = new();
+                DoActionOnSpheres(sphere => transformsToRest.Add(sphere.transform));
+                foreach (var transform in transformsToRest)
+                {
+                    // TODO: even this is bugged
+                    // if we dont set transform.rotation = Quaternion.identity directly some alignments will be off
+                    Context.StartCoroutine(DelayedAction.CreateCoroutine(() => transform.rotation = Quaternion.identity));
+                }
+            }
 
             foreach (var transform in transformsNeedsUpdate)
             {
