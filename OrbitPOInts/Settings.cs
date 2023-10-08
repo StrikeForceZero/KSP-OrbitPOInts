@@ -350,7 +350,7 @@ namespace OrbitPOInts
                 oldItems = _configuredPois.ToList();
             }
 
-            foreach (var oldPoi in _configuredPois)
+            foreach (var oldPoi in oldItems)
             {
                 UnRegisterPoi(oldPoi);
             }
