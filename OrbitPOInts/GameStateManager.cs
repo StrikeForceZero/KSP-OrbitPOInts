@@ -118,10 +118,7 @@ namespace OrbitPOInts
                 }),
                 PropChangeActionMapping<POI>.From(s => s.Enabled, (args) =>
                 {
-                    foreach (var renderer in Visualizer.PoiRenderReferenceManager.GetAllRenderReferencesRenderersForPoi(args.Source))
-                    {
-                        renderer.SetEnabled(args.Source.Enabled);
-                    }
+                    Visualizer.RefreshCurrentRenderers();
                 }),
                 PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
                 {
