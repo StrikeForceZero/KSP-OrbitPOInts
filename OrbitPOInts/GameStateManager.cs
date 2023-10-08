@@ -364,11 +364,15 @@ namespace OrbitPOInts
                     Visualizer.RemovePoi(poi);
                 }
             }
-            foreach (var newItem in args.NewItems)
+
+            if (args.NewItems != null)
             {
-                if (newItem is not POI poi) continue;
-                LogDebug($"[OnConfiguredPoisCollectionChanged] adding {poi.Id} {poi.Body}");
-                Visualizer.AddPoi(poi);
+                foreach (var newItem in args.NewItems)
+                {
+                    if (newItem is not POI poi) continue;
+                    LogDebug($"[OnConfiguredPoisCollectionChanged] adding {Visualizer.PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                    Visualizer.AddPoi(poi);
+                }
             }
             Visualizer.CurrentTargetRefresh();
         }
