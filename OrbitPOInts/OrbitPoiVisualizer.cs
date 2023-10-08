@@ -177,8 +177,8 @@ namespace OrbitPOInts
 
         public void SetEnabled(bool state)
         {
-            RefreshCurrentRenderers();
             enabled = state;
+            RefreshCurrentRenderers();
         }
 
         private bool SafeToDraw(string tag = "")
