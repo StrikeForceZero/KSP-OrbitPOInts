@@ -145,17 +145,17 @@ namespace OrbitPOInts
         {
             if (!enabled)
             {
-                LogError($"[SafeToDraw]{tag} UpdateBody called when not enabled!");
+                LogError($"[SafeToDraw]{tag} called when not enabled!");
                 return false;
             }
             if (!SceneHelper.ViewingMapOrTrackingStation)
             {
-                LogError($"[SafeToDraw]{tag} UpdateBody called not ViewingMapOrTrackingStation!");
+                LogError($"[SafeToDraw]{tag} called not ViewingMapOrTrackingStation!");
                 return false;
             }
             if (Context.GameState.IsSceneLoading)
             {
-                LogError($"[SafeToDraw]{tag} UpdateBody called when scene loading!");
+                LogError($"[SafeToDraw]{tag} called when scene loading!");
                 return false;
             }
 
@@ -164,6 +164,7 @@ namespace OrbitPOInts
 
         public void Init()
         {
+            LogDebug("[Init]");
             foreach (var body in FlightGlobals.Bodies)
             {
                 CreateBodyItems(body);
@@ -345,6 +346,7 @@ namespace OrbitPOInts
 
         public void RefreshCurrentRenderers()
         {
+            LogDebug("[RefreshCurrentRenderers]");
             var safeToDraw = SafeToDraw("[RefreshCurrentRenderers]");
             SetEnabledCircles(safeToDraw && DrawCircles);
             SetEnabledSpheres(safeToDraw && DrawSpheres);
@@ -381,6 +383,10 @@ namespace OrbitPOInts
             LogDebug($"[CreateWireSphereFromPoi]: Generating spheres around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
             var poiRenderReference = _poiRenderReferenceManager.GetOrCreatePoiRenderReference(poi);
             var sphereRenderReference = poiRenderReference.CreateAndReplaceSphere();
+            if (sphereRenderReference == null)
+            {
+                LogError("circleRenderReference null wtf");
+            }
             SetWireSphere(sphereRenderReference, poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth, poi.Resolution);
             sphereRenderReference.SetEnabled(enabled);
             return poiRenderReference;
@@ -442,6 +448,10 @@ namespace OrbitPOInts
             LogDebug($"[CreateCircleFromPoi]: Generating circle around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
             var poiRenderReference = _poiRenderReferenceManager.GetOrCreatePoiRenderReference(poi);
             var circleRenderReference = poiRenderReference.CreateAndReplaceCircle();
+            if (circleRenderReference == null)
+            {
+                LogError("circleRenderReference null wtf");
+            }
             SetCircle(circleRenderReference, poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth);
             circleRenderReference.SetEnabled(enabled);
             return poiRenderReference;

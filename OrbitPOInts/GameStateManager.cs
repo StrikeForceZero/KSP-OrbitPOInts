@@ -92,6 +92,7 @@ namespace OrbitPOInts
             Instance = this;
             _gameState = new GameState();
             _visualizer = new OrbitPoiVisualizer<GameStateManager>(this);
+            Visualizer.Init();
 
             _settingsPropChangeMapper = new PropChangeMapper<Settings, OrbitPoiVisualizer<GameStateManager>>(
                 PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.AlignSpheres, v => v.AlignSpheres),
@@ -134,21 +135,20 @@ namespace OrbitPOInts
                 })
             );
 
-            Visualizer.Init();
             CheckEnabled(Settings.Instance);
         }
 
         private void OnEnable()
         {
             LogDebug("OnEnable");
-            CheckEnabled(_settings);
+            CheckEnabled(Settings.Instance);
             if (enabled) Visualizer.CurrentTargetRefresh();
         }
 
         private void Start()
         {
             LogDebug("Start");
-            CheckEnabled(_settings);
+            CheckEnabled(Settings.Instance);
         }
 
         private void OnDisable()
@@ -320,10 +320,13 @@ namespace OrbitPOInts
         private void OnConfiguredPoisCollectionChanged(object settings, NotifyCollectionChangedEventArgs args)
         {
             LogDebug($"[OnConfiguredPoisCollectionChanged] Settings.{nameof(Settings.ConfiguredPois)} - {args.Action}");
-            foreach (var oldItem in args.OldItems)
+            if (args.OldItems != null)
             {
-                if (oldItem is not POI poi) continue;
-                Visualizer.RemovePoi(poi);
+                foreach (var oldItem in args.OldItems)
+                {
+                    if (oldItem is not POI poi) continue;
+                    Visualizer.RemovePoi(poi);
+                }
             }
             foreach (var newItem in args.NewItems)
             {
