@@ -33,6 +33,13 @@ namespace OrbitPOInts.Data.POI
             Poi = poi;
         }
 
+        // TODO: this a bit weird exposing this
+        // and we should probably include a function reference that we call when this is called to fix the renderers
+        public void UpdatePoi(POI poi)
+        {
+            Poi = poi;
+        }
+
         private static void DynamicReferenceDestroy<TRenderer>([CanBeNull] RenderReference<TRenderer> oldRenderReference, RenderReference<TRenderer> newRenderReference) where TRenderer : MonoBehaviour, IRenderer
         {
             if (oldRenderReference == null) return;

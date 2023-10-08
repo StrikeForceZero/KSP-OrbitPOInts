@@ -175,6 +175,17 @@ namespace OrbitPOInts
             //     .SelectMany(poirr => poirr.GetRenderers());
         }
 
+        public IEnumerable<(PoiRenderReference PoiRenderReference, IRenderer Renderer)> GetAllRenderReferencesRendererTuplesForPoi(POI poi)
+        {
+            if (!_poiPoiRenderReferenceDictionary.TryGetValue(GetTupleKeyFromPoi(poi), out var renderReference))
+            {
+                return Enumerable.Empty<(PoiRenderReference, IRenderer)>();
+            }
+
+            var renderers = renderReference?.GetRenderers() ?? Enumerable.Empty<IRenderer>();
+            return renderers.Select(renderer => (PoiRenderReference: renderReference, Renderer: renderer));
+        }
+
         private static void LogDebug(string message)
         {
             Logger.LogDebug($"[CelestialBodyComponentManager] {message}");

@@ -159,6 +159,22 @@ namespace OrbitPOInts
             });
         }
 
+        public void ResetStandardPoi(POI poi)
+        {
+            LogDebug($"[ResetPoi] {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+            // TODO: in GameStateManager we have GetRenderReferencesForPoi to check if there are any render references
+            // maybe we just move the check to the get method with an optional boolean to log error?
+            foreach (var (poiRenderReference, renderer) in PoiRenderReferenceManager.GetAllRenderReferencesRendererTuplesForPoi(poi))
+            {
+                LogDebug($"[ResetPoi] updating PoiRenderReference.Poi with {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                poiRenderReference.UpdatePoi(poi);
+                LogDebug($"[ResetPoi] resetting LineWidth for {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                renderer.SetWidth(poi.LineWidth);
+                LogDebug($"[ResetPoi] resetting Color for {PoiRenderReferenceManager.GetKeyStringFromPoi(poi)}");
+                renderer.SetColor(poi.Color);
+            }
+        }
+
         public void SetEnabled(bool state)
         {
             RefreshCurrentRenderers();
