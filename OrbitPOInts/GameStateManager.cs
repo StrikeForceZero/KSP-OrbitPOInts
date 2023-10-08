@@ -151,7 +151,9 @@ namespace OrbitPOInts
                 {
                     var poi = args.Source;
                     LogDebug($"[PropChangeActionMapping:Enabled] processing Enabled change for {Logger.GetPoiLogId(poi)} Enabled: {poi.Enabled}");
-                    if (poi.Type.IsStandard())
+                    // skip custom as they wont need reset
+                    // skip global as they will ignore user configured overrides
+                    if (poi.Type.IsStandard() && !poi.IsGlobal())
                     {
                         // TODO: another state hack
                         // this is required to make sure we are using the correct reference when a user configured poi is disabled
