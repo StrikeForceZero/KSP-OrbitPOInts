@@ -123,8 +123,7 @@ namespace OrbitPOInts
 
         public void SetEnabled(bool state)
         {
-            DoActionOnSpheres(sphere => sphere.SetEnabled(state));
-            DoActionOnCircles(circle => circle.SetEnabled(state));
+            RefreshCurrentRenderers();
             enabled = state;
         }
 
@@ -149,22 +148,19 @@ namespace OrbitPOInts
             return true;
         }
 
-        #region Refresh
-
-        public void UpdateBody(CelestialBody body)
+        public void Init()
         {
-            LogDebug($"[UpdateBody] body: {body.name}");
-            if (!SafeToDraw("[UpdateBody]"))
+            foreach (var body in FlightGlobals.Bodies)
             {
-                return;
+                CreateBodyItems(body);
             }
-
             RefreshCurrentRenderers();
         }
 
+        #region Refresh
         public void Refresh(MapObject focusTarget)
         {
-            if (!SafeToDraw("[UpdateBody]"))
+            if (!SafeToDraw("[Refresh]"))
             {
                 return;
             }
@@ -175,11 +171,9 @@ namespace OrbitPOInts
                 return;
             }
 
-            SetEnabled(true);
-
             var body = MapObjectHelper.GetTargetBody(focusTarget);
             LogDebug($"[Refresh] target: {MapObjectHelper.GetTargetName(focusTarget)}, body: {body.name}");
-            UpdateBody(body);
+            RefreshCurrentRenderers();
         }
 
         public void CurrentTargetRefresh()
@@ -333,8 +327,9 @@ namespace OrbitPOInts
 
         public void RefreshCurrentRenderers()
         {
-            SetEnabledCircles(DrawCircles);
-            SetEnabledSpheres(DrawSpheres);
+            var safeToDraw = SafeToDraw("[RefreshCurrentRenderers]");
+            SetEnabledCircles(safeToDraw && DrawCircles);
+            SetEnabledSpheres(safeToDraw && DrawSpheres);
         }
 
         #region Spheres

@@ -133,6 +133,8 @@ namespace OrbitPOInts
                 })
             );
 
+            Visualizer.Init();
+
             LogDebug("Awake");
             CheckEnabled(settings);
         }
@@ -234,7 +236,7 @@ namespace OrbitPOInts
 
             if (UpdateTargets())
             {
-                Visualizer.Refresh(GameState.CurrentTarget);
+                Visualizer.CurrentTargetRefresh();
             }
 
             Visualizer.UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(GameState.FocusedOrActiveVessel));
@@ -353,11 +355,10 @@ namespace OrbitPOInts
 
         private void OnMapEntered()
         {
-            var target = PlanetariumCamera.fetch.target;
-            LogDebug($"[OnMapEntered] focus on {MapObjectHelper.GetTargetName(target)}");
-
+            UpdateTargets();
+            LogDebug($"[OnMapEntered] focus on {MapObjectHelper.GetTargetName(GameState.CurrentTarget)}");
             Visualizer.SetEnabled(true);
-            Visualizer.Refresh(target);
+            Visualizer.CurrentTargetRefresh();
         }
 
         private void OnMapExited()
@@ -370,14 +371,15 @@ namespace OrbitPOInts
         {
             LogDebug($"[OnVesselSOIChange] soi changed: {data.from.name} -> {data.to.name}");
             if (GameState.IsSceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
-            Visualizer.UpdateBody(data.to);
+            UpdateTargets();
+            Visualizer.CurrentTargetRefresh();
         }
 
         private void OnVesselChange(Vessel vessel)
         {
             if (GameState.IsSceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             UpdateTargets(vessel.mapObject);
-            Visualizer.UpdateBody(vessel.mainBody);
+            Visualizer.CurrentTargetRefresh();
             Visualizer.UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
         }
 
@@ -386,7 +388,8 @@ namespace OrbitPOInts
             if (GameState.IsSceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
             LogDebug($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
             // TODO: this gets called when loading a save and we dont want to generate anything unless in map
-            Visualizer.Refresh(focusTarget);
+            UpdateTargets(focusTarget);
+            Visualizer.CurrentTargetRefresh();
         }
 
         #endregion
