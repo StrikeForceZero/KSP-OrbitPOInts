@@ -320,7 +320,8 @@ namespace OrbitPOInts
         private bool CalcPoiEnabled(POI poi)
         {
             // check to make sure its not disabled in the global config
-            var globallyDisabled = !Settings.Instance.GetGlobalEnableFor(poi.Body, poi.Type);
+            // ignore if its not a standard poi to prevent NRE
+            var globallyDisabled = poi.Type.IsStandard() && !Settings.Instance.GetGlobalEnableFor(poi.Body, poi.Type);
             var poiEnabled = poi.Enabled;
 
             switch (poi.Type)
