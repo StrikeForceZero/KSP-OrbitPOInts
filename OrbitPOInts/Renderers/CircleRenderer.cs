@@ -49,7 +49,6 @@ namespace OrbitPOInts
         private Material GetMaterial()
         {
             var mapViewReady = MapView.fetch != null;
-            Utils.Logger.LogDebug("MapView.fetch is null, defaulting to fallback material");
             return mapViewReady ? MapView.fetch.orbitLinesMaterial : new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
         }
 
