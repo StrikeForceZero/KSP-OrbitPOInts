@@ -106,7 +106,9 @@ namespace OrbitPOInts
 
         protected virtual void NotifyCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            Logger.LogDebug($"[Settings][NotifyCollectionChanged] ConfiguredPois:{args.Action}");
+            var numberRemoved = args.OldItems?.Count;
+            var numberAdded = args.NewItems?.Count;
+            Logger.LogDebug($"[Settings][NotifyCollectionChanged] {nameof(ConfiguredPois)}:{args.Action} removed: {numberRemoved}, added: {numberAdded}");
             OnPropertyChanged(nameof(ConfiguredPois));
             ConfiguredPoisCollectionChanged?.Invoke(sender, args);
         }
@@ -115,17 +117,29 @@ namespace OrbitPOInts
         {
             var value = Reflection.GetMemberValue(_instance, propertyName);
             var valueString = Logger.GetValueString(value);
-            Logger.LogDebug($"[Settings][OnPropertyChanged] Settings.Instance.{propertyName}: {valueString}");
+            Logger.LogDebug($"[Settings][OnPropertyChanged] Settings.Instance.{propertyName}={valueString}");
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected virtual void OnPoiPropChanged(object senderPoi, PropertyChangedEventArgs args)
         {
-            Logger.LogDebug($"[Settings][OnPoiPropChanged] POI.{args.PropertyName}: {(senderPoi is POI poi2 ? Reflection.GetMemberValue(poi2, args.PropertyName) : null)}");
+            var poiValueString = "?";
+            var poiId = "?";
+            {
+                if (senderPoi is POI poi)
+                {
+                    poiId = Logger.GetPoiLogId(poi);
+                    var value = Reflection.GetMemberValue(poi, args.PropertyName);
+                    poiValueString = Logger.GetValueString(value);
+                }
+            }
+            Logger.LogDebug($"[Settings][OnPoiPropChanged] {poiId} POI.{args.PropertyName}={poiValueString}");
             ConfiguredPoiPropChanged?.Invoke(this, senderPoi, args);
-            if (senderPoi is not POI poi) return;
-            if (!IsDefaultPoi(poi)) return;
-            RemoveConfiguredPoi(poi);
+            {
+                if (senderPoi is not POI poi) return;
+                if (!IsDefaultPoi(poi)) return;
+                RemoveConfiguredPoi(poi);
+            }
         }
 
         public static Settings Instance
