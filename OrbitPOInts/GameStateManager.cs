@@ -326,6 +326,8 @@ namespace OrbitPOInts
                 foreach (var oldItem in args.OldItems)
                 {
                     if (oldItem is not POI poi) continue;
+                    // don't remove defaults or else they will disappear until a change is made
+                    if (Settings.IsDefaultPoi(poi)) continue;
                     LogDebug($"[OnConfiguredPoisCollectionChanged] removing {poi.Id} {poi.Body}");
                     Visualizer.RemovePoi(poi);
                 }
