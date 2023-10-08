@@ -82,6 +82,16 @@ namespace OrbitPOInts.Data.POI
             Dirty = false;
         }
 
+        public void Save()
+        {
+            if (!Dirty) return;
+
+            // if this is a problem we can add a lock
+            if (IsResetting) throw new InvalidOperationException("Tried calling Save() during reset!");
+            SealedState = this;
+            Dirty = false;
+        }
+
         private void CopyFromPoi(POI poi)
         {
             Label = poi.Label;
