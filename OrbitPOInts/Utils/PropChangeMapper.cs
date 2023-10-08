@@ -8,7 +8,7 @@ namespace OrbitPOInts.Utils
 {
     public class PropChangeMapper<TSource, TTarget>
     {
-        private IReadOnlyDictionary<string, (string, Action)> PropChangeMap { get; }
+        private IReadOnlyDictionary<string, (string PropertyName, Action Action)> PropChangeMap { get; }
 
         public PropChangeMapper(params PropChangeMapping<TSource, TTarget>[] mappings)
         {
@@ -18,12 +18,12 @@ namespace OrbitPOInts.Utils
         public bool Process(TSource sourceInstance, TTarget targetInstance, PropertyChangedEventArgs eventArgs)
         {
             if (!PropChangeMap.TryGetValue(eventArgs.PropertyName, out var targetActionTuple)) return false;
-            if (targetActionTuple.Item1 != null)
+            if (targetActionTuple.PropertyName != null)
             {
                 var value = Reflection.GetMemberValue(sourceInstance, eventArgs.PropertyName);
                 Reflection.SetMemberValue(targetInstance, targetActionTuple.PropertyName, value);
             }
-            targetActionTuple.Item2?.Invoke();
+            targetActionTuple.Action?.Invoke();
             return true;
         }
 
