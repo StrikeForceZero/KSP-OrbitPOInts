@@ -92,6 +92,7 @@
         <Compile Include="Data\POI\ResettablePoi.cs" />
         <Compile Include="Extensions\IDictionaryExtensions.cs" />
         <Compile Include="Extensions\FloatExtensions.cs" />
+        <Compile Include="Extensions\IRendererExtensions.cs" />
         <Compile Include="Extensions\KSP\CelestialBodyExtensions.cs" />
         <Compile Include="Extensions\EnumerableExtensions.cs" />
         <Compile Include="Extensions\PoiExtensions.cs" />
