@@ -322,15 +322,21 @@ namespace OrbitPOInts
 
         private void NextFrameAlignRendererTransformToNormal(IRenderer renderer, Vector3d normal)
         {
-            // this shouldn't be null, just a sanity check for other logging points
-            if (!renderer.IsAliveAndEnabled() || renderer.GetTransform() == null)
+            if (renderer == null)
             {
-                Logger.LogError($"[NextFrameAlignRendererTransformToNormal] transform null!");
-                return;
+               throw new ArgumentNullException(nameof(renderer), "Renderer cannot be null");
             }
 
             // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
-            if (!renderer.enabled) return;
+            if (!renderer.IsAliveAndEnabled())
+            {
+                throw new InvalidOperationException("Renderer is not alive or enabled. Operation cannot proceed.");
+            }
+
+            if (renderer.GetTransform() == null)
+            {
+                throw new InvalidOperationException("Renderer's transform is null. Operation cannot proceed.");
+            }
 
             Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
             {
