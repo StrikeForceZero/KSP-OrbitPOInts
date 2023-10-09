@@ -71,7 +71,7 @@ namespace OrbitPOInts.UI
                     GUILayout.Space(10);
                     GUILayout.BeginHorizontal();
                         GUILayout.Space(20);
-                        if (GUILayout.Button("Add Log Marker", GUILayout.ExpandWidth(false)))
+                        if (CWIL.WrapButton("Add Log Marker", CWIL.StandardButton(GUILayout.ExpandWidth(false))))
                         {
                             Log(
                                 "==================================================================================== MARKER");
