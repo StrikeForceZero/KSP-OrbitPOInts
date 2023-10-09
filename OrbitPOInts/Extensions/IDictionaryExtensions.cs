@@ -14,5 +14,10 @@ namespace OrbitPOInts.Extensions
         {
             return dictionary.TryGetValue(key, out var value) ? new Option<V>(value) : new Option<V>();
         }
+
+        public static V GetOrDefault<K, V>(this IDictionary<K, V> dictionary, K key)
+        {
+            return dictionary.TryGetValue(key, out var value) ? value : default;
+        }
     }
 }
