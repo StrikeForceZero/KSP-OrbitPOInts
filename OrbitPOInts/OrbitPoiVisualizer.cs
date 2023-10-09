@@ -305,7 +305,7 @@ namespace OrbitPOInts
                         // also we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
                         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                         // ReSharper disable once MergeIntoNegatedPattern
-                        if (renderer == null || !renderer.enabled || renderer.GetTransform() == null) return;
+                        if (!renderer.IsAliveAndEnabled() || renderer.GetTransform() == null) return;
                         // reset rotation
                         renderer.GetTransform().localRotation = Quaternion.identity;
                     }));
@@ -321,7 +321,7 @@ namespace OrbitPOInts
         private void NextFrameAlignRendererTransformToNormal(IRenderer renderer, Vector3d normal)
         {
             // this shouldn't be null, just a sanity check for other logging points
-            if (renderer == null || renderer.GetTransform() == null)
+            if (!renderer.IsAliveAndEnabled() || renderer.GetTransform() == null)
             {
                 Logger.LogError($"[NextFrameAlignRendererTransformToNormal] transform null!");
                 return;
@@ -335,7 +335,7 @@ namespace OrbitPOInts
                 // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 // ReSharper disable once MergeIntoNegatedPattern
-                if (renderer == null || !renderer.enabled || renderer.GetTransform() == null) return;
+                if (!renderer.IsAliveAndEnabled() || renderer.GetTransform() == null) return;
                 AlignTransformToNormal(renderer.GetTransform(), normal, true);
             }, 1));
         }
