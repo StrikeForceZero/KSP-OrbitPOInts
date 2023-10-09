@@ -100,6 +100,7 @@
         <Compile Include="Extensions\Unity\LineRendererExtensions.cs" />
         <Compile Include="Extensions\Unity\MonoBehaviourExtensions.cs" />
         <Compile Include="GameState.cs" />
+        <Compile Include="GameStateManager.cs" />
         <Compile Include="Helpers\MapObjectHelper.cs" />
         <Compile Include="Helpers\OrbitHelpers.cs" />
         <Compile Include="Helpers\SceneHelper.cs" />
