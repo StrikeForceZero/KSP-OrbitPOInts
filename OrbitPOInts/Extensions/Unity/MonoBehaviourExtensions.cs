@@ -27,5 +27,13 @@ namespace OrbitPOInts.Extensions.Unity
         {
             return monoBehaviour;
         }
+
+        public static void DestroyImmediateIfAlive(this MonoBehaviour monoBehaviour)
+        {
+            if (monoBehaviour.IsAlive())
+            {
+                Object.DestroyImmediate(monoBehaviour);
+            }
+        }
     }
 }
