@@ -118,6 +118,8 @@
         <Compile Include="Utils\DelayedAction.cs" />
         <Compile Include="Utils\Logger.cs" />
         <Compile Include="Utils\Option.cs" />
+        <Compile Include="Utils\PropChangeActionMapper.cs" />
+        <Compile Include="Utils\PropChangeMapper.cs" />
         <Compile Include="Utils\Reflection.cs" />
     </ItemGroup>
     <ItemGroup>
