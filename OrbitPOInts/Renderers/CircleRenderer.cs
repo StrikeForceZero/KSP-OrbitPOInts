@@ -46,11 +46,17 @@ namespace OrbitPOInts
             }
         }
 
+        private Material GetMaterial()
+        {
+            var mapViewReady = MapView.fetch != null;
+            return mapViewReady ? MapView.fetch.orbitLinesMaterial : new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
+        }
+
         void Start()
         {
             lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
-            line.material = MapView.fetch.orbitLinesMaterial;
+            line.material = GetMaterial();
             line.receiveShadows = false;
             line.useWorldSpace = false;
             line.positionCount = segments + 1; // +1 to close the circle

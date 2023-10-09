@@ -85,12 +85,18 @@ namespace OrbitPOInts
             }
         }
 
+        private Material GetMaterial()
+        {
+            var mapViewReady = MapView.fetch != null;
+            return mapViewReady ? MapView.fetch.orbitLinesMaterial : new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
+        }
+
         void DrawLatitudeLine(int index, float height, float circleRadius)
         {
             var lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
-            line.material = MapView.fetch.orbitLinesMaterial;
+            line.material = GetMaterial();
             line.receiveShadows = false;
             // line.material = new Material(Shader.Find("Sprites/Default"));
             line.useWorldSpace = false;
@@ -122,7 +128,7 @@ namespace OrbitPOInts
             var lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
-            line.material = MapView.fetch.orbitLinesMaterial;
+            line.material = GetMaterial();
             line.receiveShadows = false;
             // line.material = new Material(Shader.Find("Sprites/Default"));
             line.useWorldSpace = false;
