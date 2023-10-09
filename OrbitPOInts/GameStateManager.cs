@@ -119,11 +119,10 @@ namespace OrbitPOInts
                 PropChangeActionMapping<POI>.From(s => s.Color, (args) =>
                 {
                     var poi = args.Source;
-                    var sourceColor = poi.Color;
-                    LogDebug($"[PropChangeActionMapping:Color] processing Color change for {Logger.GetPoiLogId(poi)} Color: {sourceColor}");
-                    foreach (var renderer in GetRenderReferencesForPoi(args.Source, "[PropChangeActionMapping:Color]"))
+                    LogDebug($"[PropChangeActionMapping:Color] processing Color change for {Logger.GetPoiLogId(poi)} Color: {poi.Color}");
+                    foreach (var renderer in GetRenderReferencesForPoi(poi, "[PropChangeActionMapping:Color]"))
                     {
-                        renderer.SetColor(sourceColor);
+                        renderer.SetColor(poi.Color);
                     }
                 }),
                 PropChangeActionMapping<POI>.From(s => s.LineWidth, (args) =>
@@ -132,7 +131,7 @@ namespace OrbitPOInts
                     LogDebug($"[PropChangeActionMapping:LineWidth] processing LineWidth change for {Logger.GetPoiLogId(poi)} LineWidth: {poi.LineWidth}");
                     foreach (var renderer in GetRenderReferencesForPoi(poi, "[PropChangeActionMapping:LineWidth]"))
                     {
-                        renderer.SetWidth(args.Source.LineWidth);
+                        renderer.SetWidth(poi.LineWidth);
                     }
                 }),
                 PropChangeActionMapping<POI>.From(s => s.Enabled, (args) =>
@@ -152,14 +151,16 @@ namespace OrbitPOInts
                 }),
                 PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
                 {
-                    Visualizer.RemovePoi(args.Source);
-                    Visualizer.AddPoi(args.Source);
+                    var poi = args.Source;
+                    Visualizer.RemovePoi(poi);
+                    Visualizer.AddPoi(poi);
                     Visualizer.CurrentTargetRefresh();
                 }),
                 PropChangeActionMapping<POI>.From(s => s.Radius, (args) =>
                 {
-                    Visualizer.RemovePoi(args.Source);
-                    Visualizer.AddPoi(args.Source);
+                    var poi = args.Source;
+                    Visualizer.RemovePoi(poi);
+                    Visualizer.AddPoi(poi);
                     Visualizer.CurrentTargetRefresh();
                 })
             );
