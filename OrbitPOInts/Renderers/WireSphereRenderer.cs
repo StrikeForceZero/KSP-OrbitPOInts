@@ -1,3 +1,5 @@
+using OrbitPOInts.Extensions.Unity;
+
 #if TEST
 using KSPMock;
 using UnityEngineMock;
@@ -159,6 +161,11 @@ namespace OrbitPOInts
         public void SetEnabled(bool state)
         {
             enabled = state;
+            foreach (var lineObject in lineObjects)
+            {
+                if (!lineObject.IsAlive()) continue;
+                lineObject.SetActive(state);
+            }
         }
 
         public void SetColor(Color color)
