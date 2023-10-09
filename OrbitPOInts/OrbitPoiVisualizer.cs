@@ -412,7 +412,7 @@ namespace OrbitPOInts
 
         public void SetEnabledRenderers<TRenderer>(bool state) where TRenderer : MonoBehaviour, IRenderer
         {
-            foreach ((var poi, var render) in _poiRenderReferenceManager.GetAllRenderPoiReferenceRenderersTuples<TRenderer>())
+            foreach (var (poi, render) in _poiRenderReferenceManager.GetAllRenderPoiReferenceRenderersTuples<TRenderer>())
             {
                 var isEnabled = state && CalcPoiEnabled(poi);
                 if (FocusedBodyOnly)
