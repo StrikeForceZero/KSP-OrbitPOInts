@@ -145,6 +145,7 @@ namespace OrbitPOInts
                 PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
                 {
                     var poi = args.Source;
+                    LogDebug($"[PropChangeActionMapping:AddPlanetRadius] processing AddPlanetRadius change for {Logger.GetPoiLogId(poi)} AddPlanetRadius: {poi.AddPlanetRadius}");
                     Visualizer.RemovePoi(poi);
                     Visualizer.AddPoi(poi);
                     Visualizer.CurrentTargetRefresh();
@@ -152,6 +153,7 @@ namespace OrbitPOInts
                 PropChangeActionMapping<POI>.From(s => s.Radius, (args) =>
                 {
                     var poi = args.Source;
+                    LogDebug($"[PropChangeActionMapping:Radius] processing Radius change for {Logger.GetPoiLogId(poi)} Radius: {poi.Radius}");
                     Visualizer.RemovePoi(poi);
                     Visualizer.AddPoi(poi);
                     Visualizer.CurrentTargetRefresh();
