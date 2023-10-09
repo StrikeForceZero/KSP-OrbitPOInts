@@ -16,6 +16,7 @@ namespace OrbitPOInts
         public float radius { get; set; }
         public Color wireframeColor { get; set; }
         public float lineWidth { get; set; }
+        public bool enabled { get; set; }
         public bool IsDying { get; }
         public string groupId { get; }
         public void SetEnabled(bool state);
