@@ -154,10 +154,12 @@ namespace OrbitPOInts
                     // skip custom as they wont need reset
                     if (poi.Type.IsStandard())
                     {
+                        LogDebug($"[PropChangeActionMapping:Enabled] resetting standard poi {Logger.GetPoiLogId(poi)}");
                         // TODO: another state hack
                         // this is required to make sure we are using the correct reference when a user configured poi is disabled
                         Visualizer.ResetStandardPoi(poi);
                     }
+                    LogDebug($"[PropChangeActionMapping:Enabled] refreshing renderers {Logger.GetPoiLogId(poi)}");
                     Visualizer.RefreshCurrentRenderers();
                 }),
                 PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
