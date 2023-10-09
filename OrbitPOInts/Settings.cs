@@ -341,7 +341,7 @@ namespace OrbitPOInts
 
         internal void ClearConfiguredPois(IEnumerable<POI> pois = null)
         {
-            pois ??= Enumerable.Empty<POI>();
+            var newPois = (pois ?? Enumerable.Empty<POI>()).ToList();
             var oldItems = Enumerable.Empty<POI>();
 
             if(_configuredPois != null)
@@ -350,20 +350,20 @@ namespace OrbitPOInts
                 oldItems = _configuredPois.ToList();
             }
 
-            foreach (var oldPoi in _configuredPois)
+            foreach (var oldPoi in oldItems)
             {
                 UnRegisterPoi(oldPoi);
             }
 
-            foreach (var newPoi in pois)
+            foreach (var newPoi in newPois)
             {
                 RegisterPoi(newPoi);
             }
 
-            _configuredPois = new ObservableCollection<POI>(pois);
+            _configuredPois = new ObservableCollection<POI>(newPois);
             _configuredPois.CollectionChanged += NotifyCollectionChanged;
             // we are opting to combine Reset + Add into Replace to prevent multiple events for the same action overall
-            NotifyCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, pois, oldItems, 0));
+            NotifyCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newPois, oldItems, 0));
         }
 
         internal void UpdateConfiguredPois(IEnumerable<POI> pois)
