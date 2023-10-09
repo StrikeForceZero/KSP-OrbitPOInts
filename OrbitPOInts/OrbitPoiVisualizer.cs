@@ -159,6 +159,7 @@ namespace OrbitPOInts
             });
         }
 
+        // TODO: this needs a unit test...
         public void ResetStandardPoi(POI maybeUnpatchedPoi)
         {
             LogDebug($"[ResetPoi] {Logger.GetPoiLogId(maybeUnpatchedPoi)}");
