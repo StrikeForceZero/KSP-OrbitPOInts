@@ -297,6 +297,7 @@ namespace OrbitPOInts
                 DoActionOnSpheres(sphere => rendererThatNeedTransformsReset.Add(sphere));
                 foreach (var renderer in rendererThatNeedTransformsReset)
                 {
+                    if (!renderer.IsAliveAndActiveWithTransform()) continue;
                     // if we dont set transform.rotation = Quaternion.identity directly some alignments will be off
                     Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
                     {
@@ -305,7 +306,7 @@ namespace OrbitPOInts
                         // also we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
                         // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                         // ReSharper disable once MergeIntoNegatedPattern
-                        if (!renderer.IsAliveAndEnabled() || renderer.GetTransform() == null) return;
+                        if (!renderer.IsAliveAndActiveWithTransform()) return;
                         // reset rotation
                         renderer.GetTransform().localRotation = Quaternion.identity;
                     }));
@@ -314,6 +315,7 @@ namespace OrbitPOInts
 
             foreach (var renderer in renderersThatNeedTransformsAligned)
             {
+                if (!renderer.IsAliveAndActiveWithTransform()) continue;
                 NextFrameAlignRendererTransformToNormal(renderer, normal);
             }
         }
@@ -335,7 +337,7 @@ namespace OrbitPOInts
                 // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 // ReSharper disable once MergeIntoNegatedPattern
-                if (!renderer.IsAliveAndEnabled() || renderer.GetTransform() == null) return;
+                if (!renderer.IsAliveAndActiveWithTransform()) return;
                 AlignTransformToNormal(renderer.GetTransform(), normal, true);
             }, 1));
         }
