@@ -295,9 +295,9 @@ namespace OrbitPOInts
             }
             else
             {
-                List<Transform> transformsToRest = new();
-                DoActionOnSpheres(sphere => transformsToRest.Add(sphere.transform));
-                foreach (var transform in transformsToRest)
+                List<Transform> transformsToReset = new();
+                DoActionOnSpheres(sphere => transformsToReset.Add(sphere.transform));
+                foreach (var transform in transformsToReset)
                 {
                     // TODO: even this is bugged
                     // if we dont set transform.rotation = Quaternion.identity directly some alignments will be off
