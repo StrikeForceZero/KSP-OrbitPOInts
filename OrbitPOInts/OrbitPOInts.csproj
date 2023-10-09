@@ -85,6 +85,7 @@
         <Compile Include="Data\POI\PoiDTOComparer.cs" />
         <Compile Include="Data\POI\PoiDTOSameTargetComparer.cs" />
         <Compile Include="Data\POI\PoiIdBodyComparer.cs" />
+        <Compile Include="Data\POI\PoiRenderReference.cs" />
         <Compile Include="Data\POI\PoiSameTargetComparer.cs" />
         <Compile Include="Data\POI\PoiType.cs" />
         <Compile Include="Data\POI\ResettablePoi.cs" />
