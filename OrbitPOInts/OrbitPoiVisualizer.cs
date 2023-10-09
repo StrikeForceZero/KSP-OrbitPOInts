@@ -160,52 +160,63 @@ namespace OrbitPOInts
         }
 
         // TODO: this needs a unit test...
-        public void ResetStandardPoi(POI maybeUnpatchedPoi)
+        public void ResetStandardPoi(POI poi)
         {
-            LogDebug($"[ResetPoi] {Logger.GetPoiLogId(maybeUnpatchedPoi)}");
-            // we need to patch in the body to accept global pois
-            var patchedPois = maybeUnpatchedPoi.IsGlobal()
-                // need to patch
-                ? FlightGlobals.Bodies.Select(body =>
-                {
-                    LogDebug($"[ResetPoi] patching global poi {Logger.GetPoiLogId(maybeUnpatchedPoi)} with body {body.Serialize()}");
-                    return maybeUnpatchedPoi.CloneWith(body, true);
-                })
-                // not global, no need to patch
-                : new List<POI> { maybeUnpatchedPoi };
+            LogDebug($"[ResetPoi] {Logger.GetPoiLogId(poi)}");
+
+            var patchedPois = GetPatchedPois(poi);
             foreach (var patchedPoi in patchedPois)
             {
-                // redundant but just in case because tracking these state issues down gives you gray hairs
-                if (patchedPoi.IsGlobal())
-                {
-                    throw new ApplicationException("encountered un-patched global poi!");
-                }
+                var renderReferences = PoiRenderReferenceManager.GetAllRenderReferencesRendererTuplesForPoi(patchedPoi);
 
-                LogDebug($"[ResetPoi] {Logger.GetPoiLogId(patchedPoi)} getting renderers");
-                // TODO: in GameStateManager we have GetRenderReferencesForPoi to check if there are any render references
-                // maybe we just move the check to the get method with an optional boolean to log error?
-                foreach (var (poiRenderReference, renderer) in PoiRenderReferenceManager.GetAllRenderReferencesRendererTuplesForPoi(patchedPoi))
-                {
-                    var poi = patchedPoi;
-                    if (patchedPoi.Type.IsStandard())
-                    {
-                        poi = Settings.Instance.GetConfiguredOrDefaultPoiFor(patchedPoi.Body, patchedPoi.Type);
-                        // if we get a global again then just reset it back to patchedPoi
-                        // TODO: this is really ugly, need to investigate
-                        if (poi.IsGlobal())
-                        {
-                            poi = patchedPoi;
-                        }
-                    }
-
-                    LogDebug($"[ResetPoi] updating PoiRenderReference.Poi with {Logger.GetPoiLogId(poi)}");
-                    poiRenderReference.UpdatePoi(poi);
-                    LogDebug($"[ResetPoi] resetting LineWidth for {Logger.GetPoiLogId(poi)}");
-                    renderer.SetWidth(ScaleLineWidth(poi.RadiusForRendering(), poi.LineWidth));
-                    LogDebug($"[ResetPoi] resetting Color for {Logger.GetPoiLogId(poi)}");
-                    renderer.SetColor(poi.Color);
-                }
+                UpdateRenderers(patchedPoi, renderReferences);
             }
+        }
+
+        private static IEnumerable<POI> GetPatchedPois(POI poi)
+        {
+            return poi.IsGlobal()
+                ? FlightGlobals.Bodies.Select(body => PatchGlobalPoi(poi, body))
+                : new List<POI> { poi };
+        }
+
+        private static POI PatchGlobalPoi(POI poi, CelestialBody body)
+        {
+            LogDebug($"[ResetPoi] patching global poi {Logger.GetPoiLogId(poi)} with body {body.Serialize()}");
+            return poi.CloneWith(body, true);
+        }
+
+        private static void UpdateRenderers(POI newPoi, IEnumerable<(PoiRenderReference, IRenderer)> renderReferences)
+        {
+            foreach (var (poiRenderReference, renderer) in renderReferences)
+            {
+                var poi = DeterminePoiForRendering(newPoi);
+
+                LogDebug($"[ResetPoi] updating PoiRenderReference.Poi with {Logger.GetPoiLogId(poi)}");
+                poiRenderReference.UpdatePoi(poi);
+
+                UpdateRenderer(renderer, poi);
+            }
+        }
+
+        private static POI DeterminePoiForRendering(POI poi)
+        {
+            // skip non standard pois
+            if (!poi.Type.IsStandard()) return poi;
+
+            var configuredOrDefaultPoi = Settings.Instance.GetConfiguredOrDefaultPoiFor(poi.Body, poi.Type);
+            // since we don't want to return global, attempt to use the one provided
+            return configuredOrDefaultPoi.IsGlobal() ? poi : configuredOrDefaultPoi;
+
+        }
+
+        private static void UpdateRenderer(IRenderer renderer, POI poi)
+        {
+            LogDebug($"[ResetPoi] resetting LineWidth for {Logger.GetPoiLogId(poi)}");
+            renderer.SetWidth(ScaleLineWidth(poi.RadiusForRendering(), poi.LineWidth));
+
+            LogDebug($"[ResetPoi] resetting Color for {Logger.GetPoiLogId(poi)}");
+            renderer.SetColor(poi.Color);
         }
 
         public void SetEnabled(bool state)
