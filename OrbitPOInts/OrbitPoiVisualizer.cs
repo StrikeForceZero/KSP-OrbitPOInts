@@ -316,7 +316,9 @@ namespace OrbitPOInts
                         // we are calling from the previous frame
                         // since things could have been destroyed and that's ok
                         // also we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
-                        if (renderer is not { enabled: true } || renderer.GetTransform() == null) return;
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                        // ReSharper disable once MergeIntoNegatedPattern
+                        if (renderer == null || !renderer.enabled || renderer.GetTransform() == null) return;
                         // reset rotation
                         renderer.GetTransform().localRotation = Quaternion.identity;
                     }));
@@ -344,7 +346,9 @@ namespace OrbitPOInts
             Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
             {
                 // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
-                if (renderer is not { enabled: true } || renderer.GetTransform() == null) return;
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                // ReSharper disable once MergeIntoNegatedPattern
+                if (renderer == null || !renderer.enabled || renderer.GetTransform() == null) return;
                 AlignTransformToNormal(renderer.GetTransform(), normal, true);
             }, 1));
         }
