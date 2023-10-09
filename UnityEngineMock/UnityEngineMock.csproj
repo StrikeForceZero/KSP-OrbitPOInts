@@ -62,6 +62,7 @@
         <Compile Include="CoreEngineModule\Renderer.cs" />
         <Compile Include="CoreEngineModule\RequireComponent.cs" />
         <Compile Include="CoreEngineModule\Screen.cs" />
+        <Compile Include="CoreEngineModule\Shader.cs" />
         <Compile Include="CoreEngineModule\Texture.cs" />
         <Compile Include="CoreEngineModule\Texture2D.cs" />
         <Compile Include="CoreEngineModule\Time.cs" />
