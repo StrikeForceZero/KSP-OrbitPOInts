@@ -114,6 +114,7 @@
         <Compile Include="Renderers\RenderReference.cs" />
         <Compile Include="Renderers\WireSphereRenderer.cs" />
         <Compile Include="Settings.cs" />
+        <Compile Include="UI\ControlWrapperInteractionLogger.cs" />
         <Compile Include="UI\Controls.cs" />
         <Compile Include="UI\OptionsPopup.cs" />
         <Compile Include="UI\SimpleColorPicker.cs" />
