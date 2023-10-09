@@ -7,5 +7,10 @@ namespace OrbitPOInts.Extensions
             // ReSharper disable once MergeIntoPattern
             return renderer != null && !renderer.IsDying && renderer.enabled;
         }
+
+        public static bool IsAliveAndActiveWithTransform(this IRenderer renderer)
+        {
+            return renderer.IsAliveAndEnabled() && renderer.GetTransform() != null;
+        }
     }
 }
