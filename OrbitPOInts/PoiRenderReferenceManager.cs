@@ -177,17 +177,17 @@ namespace OrbitPOInts
 
         private static void LogDebug(string message)
         {
-            Logger.LogDebug($"[CelestialBodyComponentManager] {message}");
+            Logger.LogDebug($"[PoiRenderReferenceManager] {message}");
         }
 
         private static void Log(string message)
         {
-            Logger.Log($"[CelestialBodyComponentManager] {message}");
+            Logger.Log($"[PoiRenderReferenceManager] {message}");
         }
 
         private static void LogError(string message)
         {
-            Logger.LogError($"[CelestialBodyComponentManager] {message}");
+            Logger.LogError($"[PoiRenderReferenceManager] {message}");
         }
     }
 }
