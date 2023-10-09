@@ -15,6 +15,7 @@ namespace OrbitPOInts.UI
 {
     using HighLogic = KSP_HighLogic;
     using Logger = Utils.Logger;
+    using CWIL = ControlWrapperInteractionLogger;
 
     // using instance and calling OnGUI()
     // [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
@@ -37,6 +38,7 @@ namespace OrbitPOInts.UI
         public void OpenColorPicker(Color initialColor, Color defaultColor, string title)
         {
             LogDebug($"[OpenColorPicker]");
+            OnColorPickerClosed = null;
             _title = title;
             _initialColor = initialColor;
             _defaultColor = defaultColor;
@@ -91,13 +93,23 @@ namespace OrbitPOInts.UI
 
             GUILayout.Space(10);
 
+            var standardButton = CWIL.StandardButton();
             GUILayout.BeginHorizontal();
-                var cancelButtonClicked = GUILayout.Button("Cancel");
-                var defaultButtonClicked = GUILayout.Button("Default");
-                var saveButtonClicked = GUILayout.Button("Save");
-                if (cancelButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(_initialColor));
-                if (defaultButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(_defaultColor));
-                if (saveButtonClicked) CloseWindow(() => OnColorPickerClosed?.Invoke(GetCurrentColor()));
+                CWIL.WrapButton(
+                    "Cancel",
+                    standardButton,
+                    () => CloseWindow(() => OnColorPickerClosed?.Invoke(_initialColor))
+                );
+                CWIL.WrapButton(
+                    "Default",
+                    standardButton,
+                    () => CloseWindow(() => OnColorPickerClosed?.Invoke(_defaultColor))
+                );
+                CWIL.WrapButton(
+                    "Save",
+                    standardButton,
+                    () => CloseWindow(() => OnColorPickerClosed?.Invoke(GetCurrentColor()))
+                );
             GUILayout.EndHorizontal();
 
             GUILayout.EndVertical();

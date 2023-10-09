@@ -12,6 +12,8 @@ using UnityEngine.Events;
 
 namespace OrbitPOInts.UI
 {
+    using CWIL = ControlWrapperInteractionLogger;
+
     public static class Controls
     {
         const int closeButtonSize = 25;
@@ -35,11 +37,16 @@ namespace OrbitPOInts.UI
 
                 GUILayout.FlexibleSpace(); // Pushes the following items to the right
 
-                if (GUILayout.Button(closeButtonLabel, GUILayout.Width(closeButtonSize)))
-                {
-                    LogDebug("[StandardCloseButton][GUI] StandardCloseButton normal click");
-                    onCloseButtonClick.Invoke();
-                }
+                CWIL.WrapButton(
+                    closeButtonLabel,
+                    CWIL.StandardButton(GUILayout.Width(closeButtonSize)),
+                    () =>
+                    {
+                        LogDebug("[StandardCloseButton][GUI] StandardCloseButton normal click");
+                        onCloseButtonClick.Invoke();
+                    }
+                );
+
 
             GUILayout.EndHorizontal();
         }
@@ -50,14 +57,15 @@ namespace OrbitPOInts.UI
 
             const float padding = 5; // Padding from the edge of the window
             var closeButtonRect = new Rect(windowRect.width - closeButtonSize - padding, padding, closeButtonSize, closeButtonSize);
-            var closeButtonClicked = GUI.Button(closeButtonRect, closeButtonLabel);
-
-            if (closeButtonClicked)
-            {
-                LogDebug("[TopRightCloseButton][GUI] TopRightCloseButton normal click");
-                onCloseButtonClick.Invoke();
-                return;
-            }
+            CWIL.WrapButton(
+                closeButtonLabel,
+                label => GUI.Button(closeButtonRect, label),
+                () =>
+                {
+                    LogDebug("[TopRightCloseButton][GUI] TopRightCloseButton normal click");
+                    onCloseButtonClick.Invoke();
+                }
+            );
 
             // GUI.Button never captures the mouse when rendered on top of GUILayout
             if (Event.current.type != EventType.MouseDown) return;
