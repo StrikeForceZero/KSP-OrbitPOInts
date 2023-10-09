@@ -12,6 +12,7 @@ using KSP_MapView = MapView;
 using KSP_HighLogic = HighLogic;
 using KSP_GameScenes = GameScenes;
 #endif
+using OrbitPOInts.Extensions.Unity;
 
 namespace OrbitPOInts
 {
@@ -20,15 +21,14 @@ namespace OrbitPOInts
     using GameScenes = KSP_GameScenes;
 
     [RequireComponent(typeof(LineRenderer))]
-    public class WireSphereRenderer : MonoBehaviour
+    public class WireSphereRenderer : MonoBehaviour, IRenderer
     {
-        public float radius = 1.0f;
+        public float radius { get; set; } = 1.0f;
         public int latitudeLines = 10;
         public int longitudeLines = 10;
         private GameObject[] lineObjects = { };
-        public Color wireframeColor = Color.green;
-        public float lineWidth = 0.1f;
-        public string uniqueGameObjectNamePrefix;
+        public Color wireframeColor { get; set; } = Color.green;
+        public float lineWidth { get; set; } = 0.1f;
         public bool IsDying { get; private set; }
 
         private void Awake()
@@ -161,20 +161,46 @@ namespace OrbitPOInts
             enabled = state;
         }
 
+        public void SetColor(Color color)
+        {
+            wireframeColor = color;
+            foreach (var lineObject in lineObjects)
+            {
+                if (!lineObject.IsAlive()) continue;
+                foreach (var line in lineObject.GetComponents<LineRenderer>())
+                {
+                    line.SetColor(color);
+                }
+            }
+        }
+
+        public void SetWidth(float width)
+        {
+            lineWidth = width;
+            foreach (var lineObject in lineObjects)
+            {
+                if (!lineObject.IsAlive()) continue;
+                foreach (var line in lineObject.GetComponents<LineRenderer>())
+                {
+                    line.SetWidth(width);
+                }
+            }
+        }
+
         public static string NameKey => "WireSphereLine";
 
         public override bool Equals(object obj)
         {
             if (obj is WireSphereRenderer other)
             {
-                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+                return GetInstanceID() == other.GetInstanceID();
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
+            return GetInstanceID();
         }
     }
 }
