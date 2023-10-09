@@ -498,6 +498,15 @@ namespace OrbitPOInts
             // priority: configured > default
         }
 
+        // TODO: test me
+        public POI GetConfiguredOrDefaultPoiFor(CelestialBody body, PoiType poiType)
+        {
+            return GetConfiguredPoisFor(body) // configured body
+                .Concat(GetConfiguredPoisFor(null)) // global
+                .Concat(GetDefaultPoisFor(body)) // defaults
+                .FirstOrDefault(poi => poi.Type == poiType); // priority: configured > global > default
+        }
+
         public POI GetStandardPoiFor(CelestialBody body, PoiType poiType)
         {
             return GetConfiguredPoisFor(body) // configured body
