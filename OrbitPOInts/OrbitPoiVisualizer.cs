@@ -139,24 +139,14 @@ namespace OrbitPOInts
         public void AddPoi(POI poi)
         {
             LogDebug($"[AddPoi] {Logger.GetPoiLogId(poi)}");
-            if (poi.Body == null)
+            foreach (var patchedPoi in PoiUtils.GetPatchedPois(poi))
             {
-                foreach (var body in FlightGlobals.Bodies)
+                CreateNewPoiRender(patchedPoi, (poi, enabled) =>
                 {
-                    poi = poi.CloneWith(body, true);
-                    CreateNewPoiRender(poi, (poi, enabled) =>
-                    {
-                        CreateCircleFromPoi(poi, enabled);
-                        CreateWireSphereFromPoi(poi, enabled);
-                    });
-                }
-                return;
+                    CreateCircleFromPoi(poi, enabled);
+                    CreateWireSphereFromPoi(poi, enabled);
+                });
             }
-            CreateNewPoiRender(poi, (poi, enabled) =>
-            {
-                CreateCircleFromPoi(poi, enabled);
-                CreateWireSphereFromPoi(poi, enabled);
-            });
         }
 
         // TODO: this needs a unit test...
