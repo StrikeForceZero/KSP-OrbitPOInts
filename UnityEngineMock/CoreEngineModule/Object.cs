@@ -4,7 +4,7 @@ namespace UnityEngineMock
 {
     public class Object
     {
-        public string name;
+        public string name { get; set; }
 
         public static void Destroy(object obj)
         {
