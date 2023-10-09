@@ -173,19 +173,31 @@ namespace OrbitPOInts
                 })
                 // not global, no need to patch
                 : new List<POI> { maybeUnpatchedPoi };
-            foreach (var poi in patchedPois)
+            foreach (var patchedPoi in patchedPois)
             {
                 // redundant but just in case because tracking these state issues down gives you gray hairs
-                if (poi.IsGlobal())
+                if (patchedPoi.IsGlobal())
                 {
                     throw new ApplicationException("encountered un-patched global poi!");
                 }
 
-                LogDebug($"[ResetPoi] {Logger.GetPoiLogId(poi)} getting renderers");
+                LogDebug($"[ResetPoi] {Logger.GetPoiLogId(patchedPoi)} getting renderers");
                 // TODO: in GameStateManager we have GetRenderReferencesForPoi to check if there are any render references
                 // maybe we just move the check to the get method with an optional boolean to log error?
-                foreach (var (poiRenderReference, renderer) in PoiRenderReferenceManager.GetAllRenderReferencesRendererTuplesForPoi(poi))
+                foreach (var (poiRenderReference, renderer) in PoiRenderReferenceManager.GetAllRenderReferencesRendererTuplesForPoi(patchedPoi))
                 {
+                    var poi = patchedPoi;
+                    if (patchedPoi.Type.IsStandard())
+                    {
+                        poi = Settings.Instance.GetConfiguredOrDefaultPoiFor(patchedPoi.Body, patchedPoi.Type);
+                        // if we get a global again then just reset it back to patchedPoi
+                        // TODO: this is really ugly, need to investigate
+                        if (poi.IsGlobal())
+                        {
+                            poi = patchedPoi;
+                        }
+                    }
+
                     LogDebug($"[ResetPoi] updating PoiRenderReference.Poi with {Logger.GetPoiLogId(poi)}");
                     poiRenderReference.UpdatePoi(poi);
                     LogDebug($"[ResetPoi] resetting LineWidth for {Logger.GetPoiLogId(poi)}");
