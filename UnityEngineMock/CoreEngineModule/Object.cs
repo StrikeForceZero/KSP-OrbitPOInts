@@ -6,6 +6,11 @@ namespace UnityEngineMock
     {
         public string name { get; set; }
 
+        public int GetInstanceID()
+        {
+            throw new NotImplementedException();
+        }
+
         public static void Destroy(object obj)
         {
 
