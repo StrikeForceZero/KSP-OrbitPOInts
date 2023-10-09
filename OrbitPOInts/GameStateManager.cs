@@ -144,7 +144,7 @@ namespace OrbitPOInts
                         LogDebug($"[PropChangeActionMapping:Enabled] resetting standard poi {Logger.GetPoiLogId(poi)}");
                         // TODO: another state hack
                         // this is required to make sure we are using the correct reference when a user configured poi is disabled
-                        Visualizer.ResetStandardPoi(poi);
+                        Visualizer.ResetPoi(poi);
                     }
                     LogDebug($"[PropChangeActionMapping:Enabled] refreshing renderers {Logger.GetPoiLogId(poi)}");
                     Visualizer.RefreshCurrentRenderers();
@@ -371,7 +371,7 @@ namespace OrbitPOInts
                         foreach (var defaultOrConfiguredPoi in defaultOrConfiguredPois)
                         {
                             LogDebug($"[OnConfiguredPoisCollectionChanged] resetting: {Logger.GetPoiLogId(defaultOrConfiguredPoi)}");
-                            Visualizer.ResetStandardPoi(defaultOrConfiguredPoi);
+                            Visualizer.ResetPoi(defaultOrConfiguredPoi);
                         }
                         continue;
                     }

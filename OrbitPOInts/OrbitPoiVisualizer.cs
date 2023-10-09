@@ -160,7 +160,7 @@ namespace OrbitPOInts
         }
 
         // TODO: this needs a unit test...
-        public void ResetStandardPoi(POI poi)
+        public void ResetPoi(POI poi)
         {
             LogDebug($"[ResetPoi] {Logger.GetPoiLogId(poi)}");
 
