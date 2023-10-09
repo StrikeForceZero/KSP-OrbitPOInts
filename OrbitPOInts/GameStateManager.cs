@@ -115,39 +115,32 @@ namespace OrbitPOInts
                 PropChangeMapping<Settings, OrbitPoiVisualizer<GameStateManager>>.From(s => s.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, () => Visualizer.RefreshCurrentRenderers())
             );
 
+            void ResetPoiAndRefreshRenderers(POI poi)
+            {
+                LogDebug($"resetting poi {Logger.GetPoiLogId(poi)}");
+                // TODO: another state hack because we are using clones
+                // this is required to make sure we are using the correct reference when a user configured poi color is set
+                Visualizer.ResetPoi(poi);
+                Visualizer.RefreshCurrentRenderers();
+            }
             _poiPropChangeMapper = new PropChangeActionMapper<POI>(
                 PropChangeActionMapping<POI>.From(s => s.Color, (args) =>
                 {
                     var poi = args.Source;
                     LogDebug($"[PropChangeActionMapping:Color] processing Color change for {Logger.GetPoiLogId(poi)} Color: {poi.Color}");
-                    foreach (var renderer in GetRenderReferencesForPoi(poi, "[PropChangeActionMapping:Color]"))
-                    {
-                        renderer.SetColor(poi.Color);
-                    }
+                    ResetPoiAndRefreshRenderers(poi);
                 }),
                 PropChangeActionMapping<POI>.From(s => s.LineWidth, (args) =>
                 {
                     var poi = args.Source;
                     LogDebug($"[PropChangeActionMapping:LineWidth] processing LineWidth change for {Logger.GetPoiLogId(poi)} LineWidth: {poi.LineWidth}");
-                    foreach (var renderer in GetRenderReferencesForPoi(poi, "[PropChangeActionMapping:LineWidth]"))
-                    {
-                        renderer.SetWidth(poi.LineWidth);
-                    }
+                    ResetPoiAndRefreshRenderers(poi);
                 }),
                 PropChangeActionMapping<POI>.From(s => s.Enabled, (args) =>
                 {
                     var poi = args.Source;
                     LogDebug($"[PropChangeActionMapping:Enabled] processing Enabled change for {Logger.GetPoiLogId(poi)} Enabled: {poi.Enabled}");
-                    // skip custom as they wont need reset
-                    if (poi.Type.IsStandard())
-                    {
-                        LogDebug($"[PropChangeActionMapping:Enabled] resetting standard poi {Logger.GetPoiLogId(poi)}");
-                        // TODO: another state hack
-                        // this is required to make sure we are using the correct reference when a user configured poi is disabled
-                        Visualizer.ResetPoi(poi);
-                    }
-                    LogDebug($"[PropChangeActionMapping:Enabled] refreshing renderers {Logger.GetPoiLogId(poi)}");
-                    Visualizer.RefreshCurrentRenderers();
+                    ResetPoiAndRefreshRenderers(poi);
                 }),
                 PropChangeActionMapping<POI>.From(s => s.AddPlanetRadius, (args) =>
                 {
