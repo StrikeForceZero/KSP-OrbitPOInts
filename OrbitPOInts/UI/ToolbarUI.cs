@@ -47,6 +47,7 @@ namespace OrbitPOInts.UI
     using MapView = KSP_MapView;
 
     using Logger = Utils.Logger;
+    using CWIL = ControlWrapperInteractionLogger;
 
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class ToolbarUI : MonoBehaviour
@@ -233,6 +234,11 @@ namespace OrbitPOInts.UI
             }
         }
 
+        private static GUILayoutOption[] MergeOptions(GUILayoutOption[] optionsA, params GUILayoutOption[] optionsB) => optionsA.Concat(optionsB).ToArray();
+        private static CWIL.RenderButton StandardButtonNoExpand(params GUILayoutOption[] options) => CWIL.StandardButton(MergeOptions(options, GUILayout.ExpandWidth(false)));
+        private static CWIL.RenderToggle StandardToggleNoExpand(params GUILayoutOption[] options) => CWIL.StandardToggle(MergeOptions(options, GUILayout.ExpandWidth(false)));
+        private static CWIL.RenderTextField StandardTextFieldNoExpand(params GUILayoutOption[] options) => CWIL.StandardTextField(MergeOptions(options, GUILayout.ExpandWidth(false)));
+
         // TODO: needs moar abstraction!
         private void CustomPoiHandler(POI poi)
         {
@@ -248,10 +254,10 @@ namespace OrbitPOInts.UI
             poi.Enabled = newPoiRadius > 0 && (poiChanged || customPoiRadiusInput.Enabled);
             customPoiRadiusInput.Text = newPoiRadius.ToString("N", CultureInfo.CurrentCulture);
 
-            poi.AddPlanetRadius = GUILayout.Toggle(poi.AddPlanetRadius, "+ PR", GUILayout.ExpandWidth(false));
+            poi.AddPlanetRadius = CWIL.WrapToggle(poi.AddPlanetRadius, "+ PR", StandardToggleNoExpand());
             GUILayout.Space(50);
 
-            if (GUILayout.Button("Remove", GUILayout.ExpandWidth(false)))
+            if (CWIL.WrapButton("Remove", StandardButtonNoExpand()))
             {
                 LogDebug($"[GUI] Remove poi clicked: {poi.Label}");
                 Settings.Instance.RemoveConfiguredPoi(poi, true);
@@ -273,7 +279,7 @@ namespace OrbitPOInts.UI
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
-            var result = GUILayout.TextField(text);
+            var result = CWIL.WrapTextField(text, label);
             GUILayout.EndHorizontal();
             return result;
         }
@@ -282,9 +288,9 @@ namespace OrbitPOInts.UI
         {
             var result = ToggleTextFieldResult.Default;
             GUILayout.BeginHorizontal();
-            result.Enabled = GUILayout.Toggle(toggled, label, GUILayout.ExpandWidth(false));
+            result.Enabled = CWIL.WrapToggle(toggled, label, StandardToggleNoExpand());
             GUILayout.Space(75);
-            result.Text = GUILayout.TextField(text, GUILayout.ExpandWidth(false), GUILayout.Width(100));
+            result.Text = CWIL.WrapTextField(text, label, StandardTextFieldNoExpand(GUILayout.Width(100)));
             GUILayout.EndHorizontal();
             return result;
         }
@@ -292,18 +298,21 @@ namespace OrbitPOInts.UI
         private delegate void OnColorChangedAction(Color color);
         private void CustomColorButton(string name, Color initialColor, Color defaultColor, OnColorChangedAction onColorChangedAction)
         {
-            var customColorButtonClicked = GUILayout.Button("Color", GUILayout.ExpandWidth(false));
-            if (customColorButtonClicked)
-            {
-                LogDebug($"customColorButtonClicked {initialColor}");
-                _colorPicker.OpenColorPicker(initialColor, defaultColor, $"Edit {name} color");
-                _colorPicker.OnColorPickerClosed += color =>
+            CWIL.WrapButton(
+                "Color",
+                StandardButtonNoExpand(),
+                () =>
                 {
-                    LogDebug($"color picker closed {initialColor} -> {color}");
-                    if (color == initialColor) return;
-                    onColorChangedAction.Invoke(color);
-                };
-            }
+                    LogDebug($"customColorButtonClicked {initialColor}");
+                    _colorPicker.OpenColorPicker(initialColor, defaultColor, $"Edit {name} color");
+                    _colorPicker.OnColorPickerClosed += color =>
+                    {
+                        LogDebug($"color picker closed {initialColor} -> {color}");
+                        if (color == initialColor) return;
+                        onColorChangedAction.Invoke(color);
+                    };
+                }
+            );
         }
 
         private delegate void Children();
@@ -332,7 +341,7 @@ namespace OrbitPOInts.UI
             {
                 PoiContainer(poi, () =>
                     {
-                        poi.Enabled = GUILayout.Toggle(poi.Enabled, poi.Label, GUILayout.ExpandWidth(false));
+                        poi.Enabled = CWIL.WrapToggle(poi.Enabled, poi.Label, StandardToggleNoExpand());
                         GUILayout.FlexibleSpace();
                     }
                 );
@@ -350,7 +359,7 @@ namespace OrbitPOInts.UI
                 CustomPoiGUI(poi);
             }
 
-            if (GUILayout.Button("Add Custom POI"))
+            if (CWIL.WrapButton("Add Custom POI"))
             {
                 Settings.Instance.AddConfiguredPoi(POI.DefaultFrom(body, PoiType.Custom));
             }
@@ -362,7 +371,7 @@ namespace OrbitPOInts.UI
 
                 Controls.StandardCloseButton(CloseWindow, !Settings.Instance.UseTopRightCloseButton);
 
-                Settings.Instance.GlobalEnable = GUILayout.Toggle(Settings.Instance.GlobalEnable, "Enabled");
+                Settings.Instance.GlobalEnable = CWIL.WrapToggle(Settings.Instance.GlobalEnable,"Enabled");
                 if (Settings.Instance.GlobalEnable)
                 {
                     if (!GameStateManager.Instance.enabled)
@@ -375,16 +384,16 @@ namespace OrbitPOInts.UI
                 GUILayout.Space(10);
 
                 GUILayout.BeginVertical();
-                    Settings.Instance.FocusedBodyOnly = GUILayout.Toggle(Settings.Instance.FocusedBodyOnly, "Focused Body Only");
+                    Settings.Instance.FocusedBodyOnly = CWIL.WrapToggle(Settings.Instance.FocusedBodyOnly, "Focused Body Only");
                 GUILayout.EndVertical();
 
                 GUILayout.Space(10);
 
-                Settings.Instance.EnableSpheres = GUILayout.Toggle(Settings.Instance.EnableSpheres, "Draw Spheres");
-                Settings.Instance.AlignSpheres = GUILayout.Toggle(Settings.Instance.AlignSpheres, "Align Spheres");
-                Settings.Instance.EnableCircles = GUILayout.Toggle(Settings.Instance.EnableCircles, "Draw Circles");
+                Settings.Instance.EnableSpheres = CWIL.WrapToggle(Settings.Instance.EnableSpheres, "Draw Spheres");
+                Settings.Instance.AlignSpheres = CWIL.WrapToggle(Settings.Instance.AlignSpheres, "Align Spheres");
+                Settings.Instance.EnableCircles = CWIL.WrapToggle(Settings.Instance.EnableCircles, "Draw Circles");
 
-                Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, "Show POI Max Terrain Altitude On Atmospheric Bodies");
+                Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = CWIL.WrapToggle(Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, "Show POI Max Terrain Altitude On Atmospheric Bodies");
                 
                 GUILayout.Space(10);
 
@@ -395,7 +404,7 @@ namespace OrbitPOInts.UI
 
                 GUILayout.Space(10);
 
-                var resetBodyPoiClicked = GUILayout.Button($"Reset POIs for {selectedBodyName} to defaults");
+                var resetBodyPoiClicked = CWIL.WrapButton($"Reset POIs for {selectedBodyName} to defaults");
                 if (resetBodyPoiClicked)
                 {
                     LogDebug($"[GUI] Reset POIs for Body Clicked: {selectedBodyName}");
@@ -434,7 +443,7 @@ namespace OrbitPOInts.UI
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20);
 
-                var showOptionsButtonClicked = GUILayout.Button("Show Options");
+                var showOptionsButtonClicked = CWIL.WrapButton("Show Options");
                 if (showOptionsButtonClicked)
                 {
                     LogDebug($"[GUI] Show Options Button clicked");

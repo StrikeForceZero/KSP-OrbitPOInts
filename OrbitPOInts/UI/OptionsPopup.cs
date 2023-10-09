@@ -16,6 +16,7 @@ namespace OrbitPOInts.UI
 {
     using HighLogic = KSP_HighLogic;
     using Logger = Utils.Logger;
+    using CWIL = ControlWrapperInteractionLogger;
 
     // using instance and calling OnGUI()
     // [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
@@ -64,7 +65,7 @@ namespace OrbitPOInts.UI
                 Controls.StandardCloseButton(CloseWindow, !Settings.Instance.UseTopRightCloseButton);
 
                 GUILayout.Label("Misc");
-                Settings.Instance.LogDebugEnabled = GUILayout.Toggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
+                Settings.Instance.LogDebugEnabled = CWIL.WrapToggle(Settings.Instance.LogDebugEnabled, "Enable Debug Level Logging");
                 if (Settings.Instance.LogDebugEnabled)
                 {
                     GUILayout.Space(10);
@@ -78,9 +79,9 @@ namespace OrbitPOInts.UI
                     GUILayout.EndHorizontal();
                     GUILayout.Space(10);
                 }
-                Settings.Instance.UseSkin = GUILayout.Toggle(Settings.Instance.UseSkin, "Use Skin");
-                Settings.Instance.UseOpaqueBackgroundOverride = GUILayout.Toggle(Settings.Instance.UseOpaqueBackgroundOverride, "Use Opaque Background Override");
-                Settings.Instance.UseTopRightCloseButton = GUILayout.Toggle(Settings.Instance.UseTopRightCloseButton, "Use Top Right Close Button");
+                Settings.Instance.UseSkin = CWIL.WrapToggle(Settings.Instance.UseSkin, "Use Skin");
+                Settings.Instance.UseOpaqueBackgroundOverride = CWIL.WrapToggle(Settings.Instance.UseOpaqueBackgroundOverride, "Use Opaque Background Override");
+                Settings.Instance.UseTopRightCloseButton = CWIL.WrapToggle(Settings.Instance.UseTopRightCloseButton, "Use Top Right Close Button");
 
                 if (Settings.Instance.UseOpaqueBackgroundOverride)
                 {
@@ -94,7 +95,7 @@ namespace OrbitPOInts.UI
                 GUILayout.Space(50);
 
                 GUILayout.Label("-- Danger Zone -- (no confirmation and no undo)");
-                var resetAllStandardPOIsButtonClicked = GUILayout.Button("Reset All Standard POIs to defaults");
+                var resetAllStandardPOIsButtonClicked = CWIL.WrapButton("Reset All Standard POIs to defaults");
                 if (resetAllStandardPOIsButtonClicked)
                 {
                     LogDebug("[GUI] Reset All Standard POIs to defaults clicked");
@@ -105,7 +106,7 @@ namespace OrbitPOInts.UI
 
                 GUILayout.Space(10);
 
-                var removeAllCustomPOIsButtonClicked = GUILayout.Button("Remove All Custom POIs");
+                var removeAllCustomPOIsButtonClicked = CWIL.WrapButton("Remove All Custom POIs");
                 if (removeAllCustomPOIsButtonClicked)
                 {
                     LogDebug("[GUI] Remove All Custom POIs clicked");
