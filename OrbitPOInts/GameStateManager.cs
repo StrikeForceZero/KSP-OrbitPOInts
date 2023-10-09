@@ -402,7 +402,7 @@ namespace OrbitPOInts
         private void OnGameSceneLoadedGUIReady(GameScenes scenes)
         {
             LogDebug($"[OnGameSceneLoadedGUIReady] {SceneHelper.GetSceneName(scenes)}");
-            // TOD: this might not be the same on all systems
+            // TODO: this might not be the same on all systems
             StartCoroutine(DelayedAction.CreateCoroutine(() =>
                 {
                     LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {SceneHelper.GetSceneName(scenes)}");
