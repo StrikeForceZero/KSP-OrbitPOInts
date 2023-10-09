@@ -374,29 +374,15 @@ namespace OrbitPOInts
                     // don't remove defaults or else they will disappear until a change is made
                     if (Settings.IsDefaultPoi(poi))
                     {
-                        void ResetPoi(POI defaultOrConfiguredPoi)
-                        {
-                            LogDebug($"[OnConfiguredPoisCollectionChanged] poi returned to default state (resetting) {Logger.GetPoiLogId(poi)}");
-                            // since we know the poi was removed we can now retrieve the default poi
-                            var overrideColor = Settings.GetPoiColorFor(defaultOrConfiguredPoi.Body, defaultOrConfiguredPoi.Type);
-                            if (overrideColor != defaultOrConfiguredPoi.Color)
-                            {
-                                LogDebug($"[OnConfiguredPoisCollectionChanged] overriding defaultPoi color for {Logger.GetPoiLogId(defaultOrConfiguredPoi)} color: {defaultOrConfiguredPoi.Color} -> {overrideColor}");
-                                // clone so we don't trigger property change events
-                                defaultOrConfiguredPoi = defaultOrConfiguredPoi.Clone(true);
-                                defaultOrConfiguredPoi.Color = overrideColor;
-                            }
-
-                            Visualizer.ResetStandardPoi(defaultOrConfiguredPoi);
-                        }
-
+                        LogDebug($"[OnConfiguredPoisCollectionChanged] poi returned to default state (resetting) {Logger.GetPoiLogId(poi)}");
                         var defaultOrConfiguredPois = poi.IsGlobal()
-                            ? FlightGlobals.Bodies.Select(body => Settings.GetStandardPoiFor(body, poi.Type))
-                            : new List<POI>() { Settings.GetStandardPoiFor(poi.Body, poi.Type) };
+                            ? FlightGlobals.Bodies.Select(body => Settings.GetConfiguredOrDefaultPoiFor(body, poi.Type))
+                            : new List<POI>() { Settings.GetConfiguredOrDefaultPoiFor(poi.Body, poi.Type) };
 
                         foreach (var defaultOrConfiguredPoi in defaultOrConfiguredPois)
                         {
-                            ResetPoi(defaultOrConfiguredPoi);
+                            LogDebug($"[OnConfiguredPoisCollectionChanged] resetting: {Logger.GetPoiLogId(defaultOrConfiguredPoi)}");
+                            Visualizer.ResetStandardPoi(defaultOrConfiguredPoi);
                         }
                         continue;
                     }
