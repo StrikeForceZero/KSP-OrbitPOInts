@@ -37,6 +37,7 @@ namespace OrbitPOInts.UI
         public void OpenColorPicker(Color initialColor, Color defaultColor, string title)
         {
             LogDebug($"[OpenColorPicker]");
+            OnColorPickerClosed = null;
             _title = title;
             _initialColor = initialColor;
             _defaultColor = defaultColor;
