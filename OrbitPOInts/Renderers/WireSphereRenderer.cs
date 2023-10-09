@@ -101,10 +101,9 @@ namespace OrbitPOInts
             // line.material = new Material(Shader.Find("Sprites/Default"));
             line.useWorldSpace = false;
             line.positionCount = longitudeLines + 1;
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
@@ -133,10 +132,9 @@ namespace OrbitPOInts
             // line.material = new Material(Shader.Find("Sprites/Default"));
             line.useWorldSpace = false;
             line.positionCount = latitudeLines; // Making longitude lines conform to the curvature
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 

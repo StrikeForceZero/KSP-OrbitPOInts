@@ -60,10 +60,9 @@ namespace OrbitPOInts
             line.receiveShadows = false;
             line.useWorldSpace = false;
             line.positionCount = segments + 1; // +1 to close the circle
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
