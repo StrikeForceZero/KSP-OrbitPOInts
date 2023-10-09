@@ -198,6 +198,11 @@ namespace OrbitPOInts
             }
         }
 
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
         public static string NameKey => "WireSphereLine";
 
         public override bool Equals(object obj)

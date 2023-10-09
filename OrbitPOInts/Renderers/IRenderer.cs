@@ -20,6 +20,7 @@ namespace OrbitPOInts
         public void SetEnabled(bool state);
         public void SetColor(Color color);
         public void SetWidth(float width);
+        public Transform GetTransform();
         public bool Equals(object obj);
         public int GetHashCode();
     }
