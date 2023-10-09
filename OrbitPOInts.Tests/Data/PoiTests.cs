@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions;
 using OrbitPOInts.Tests.Mocks;
 using UnityEngineMock;
 
@@ -120,6 +121,131 @@ namespace OrbitPOInts.Tests.Data
 
             var poi2 = poi.Clone();
             Assert.That(poi, Is.EqualTo(poi2).Using(new PoiComparer()));
+        }
+
+        [Test]
+        public void POI_ShouldUpCast()
+        {
+            var poi = new POI(PoiType.Atmosphere)
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 0,
+                AddPlanetRadius = false,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            };
+
+            POI poi2 = new POI(PoiType.Custom, testBody)
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 1,
+                AddPlanetRadius = true,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            };
+
+            Assert.AreEqual(nameof(POI), poi.GetDerivedClassName());
+            Assert.AreEqual(nameof(POI), poi2.GetDerivedClassName());
+        }
+
+        [Test]
+        public void ResettablePoi_ShouldUpCast()
+        {
+            POI poi = ResettablePoi.From(new POI(PoiType.Atmosphere)
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 0,
+                AddPlanetRadius = false,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            });
+
+            POI poi2 = ResettablePoi.From(new POI(PoiType.Custom, testBody)
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 1,
+                AddPlanetRadius = true,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            });
+
+            Assert.AreEqual(nameof(ResettablePoi), poi.GetDerivedClassName());
+            Assert.AreEqual(nameof(ResettablePoi), poi2.GetDerivedClassName());
+        }
+
+        [Test]
+        public void ResettablePoi_Clone_ShouldNotUpCast()
+        {
+            POI poi = ResettablePoi.From(new POI(PoiType.Atmosphere)
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 0,
+                AddPlanetRadius = false,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            }, true);
+
+            POI poi2 = ResettablePoi.From(new ResettablePoi(PoiType.Custom, testBody, true)
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 1,
+                AddPlanetRadius = true,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            }, true);
+
+            Assert.AreNotEqual(nameof(ResettablePoi), poi.Clone().GetDerivedClassName());
+            Assert.AreNotEqual(nameof(ResettablePoi), poi2.Clone().GetDerivedClassName());
+            Assert.AreEqual(nameof(POI), poi.Clone().GetDerivedClassName());
+            Assert.AreEqual(nameof(CustomPOI), poi2.Clone().GetDerivedClassName());
+
+            var resettablePoi = (ResettablePoi)poi;
+            var resettablePoi2 = (ResettablePoi)poi2;
+            Assert.IsNotNull(resettablePoi);
+            Assert.IsNotNull(resettablePoi2);
+            Assert.AreEqual(nameof(POI), resettablePoi.SealedState.GetDerivedClassName());
+            Assert.AreEqual(nameof(CustomPOI), resettablePoi2.SealedState.GetDerivedClassName());
+        }
+
+        [Test]
+        public void CustomPoi_ShouldUpCast()
+        {
+            POI poi = new CustomPOI()
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 0,
+                AddPlanetRadius = false,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            };
+
+            POI poi2 = new CustomPOI(testBody)
+            {
+                Enabled = true,
+                Label = "label",
+                Radius = 1,
+                AddPlanetRadius = true,
+                Color = Color.blue,
+                Resolution = 10,
+                LineWidth = 2f,
+            };
+
+            Assert.AreEqual(nameof(CustomPOI), poi.GetDerivedClassName());
+            Assert.AreEqual(nameof(CustomPOI), poi2.GetDerivedClassName());
         }
     }
 #endif
