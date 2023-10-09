@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
 #if TEST
 using System.Linq;
@@ -77,12 +78,7 @@ namespace OrbitPOInts.Utils
 
         public static string GetPoiLogId(POI poi)
         {
-            var derivedTypeString = poi switch
-            {
-                ResettablePoi => nameof(ResettablePoi),
-                CustomPOI => nameof(CustomPOI),
-                _ => nameof(POI)
-            };
+            var derivedTypeString = poi.GetDerivedClassName();
             return $"{derivedTypeString}=({poi.Id}, {poi.Body.Serialize() ?? "[Global]"}, {poi.Type})";
         }
     }

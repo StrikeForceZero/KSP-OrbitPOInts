@@ -8,5 +8,15 @@ namespace OrbitPOInts.Extensions
         {
             return poi.Body == null;
         }
+
+        public static string GetDerivedClassName(this POI poi)
+        {
+            return poi switch
+            {
+                ResettablePoi => nameof(ResettablePoi),
+                CustomPOI => nameof(CustomPOI),
+                _ => nameof(POI)
+            };
+        }
     }
 }
