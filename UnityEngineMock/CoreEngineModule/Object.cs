@@ -1,18 +1,10 @@
+using System;
+
 namespace UnityEngineMock
 {
     public class Object
     {
         public string name;
-
-        public void Destroy()
-        {
-
-        }
-
-        public void DestroyImmediate()
-        {
-
-        }
 
         public static void Destroy(object obj)
         {
