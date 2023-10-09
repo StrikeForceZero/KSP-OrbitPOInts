@@ -164,26 +164,13 @@ namespace OrbitPOInts
         {
             LogDebug($"[ResetPoi] {Logger.GetPoiLogId(poi)}");
 
-            var patchedPois = GetPatchedPois(poi);
+            var patchedPois = PoiUtils.GetPatchedPois(poi);
             foreach (var patchedPoi in patchedPois)
             {
                 var renderReferences = PoiRenderReferenceManager.GetAllRenderReferencesRendererTuplesForPoi(patchedPoi);
 
                 UpdateRenderers(patchedPoi, renderReferences);
             }
-        }
-
-        private static IEnumerable<POI> GetPatchedPois(POI poi)
-        {
-            return poi.IsGlobal()
-                ? FlightGlobals.Bodies.Select(body => PatchGlobalPoi(poi, body))
-                : new List<POI> { poi };
-        }
-
-        private static POI PatchGlobalPoi(POI poi, CelestialBody body)
-        {
-            LogDebug($"[ResetPoi] patching global poi {Logger.GetPoiLogId(poi)} with body {body.Serialize()}");
-            return poi.CloneWith(body, true);
         }
 
         private static void UpdateRenderers(POI newPoi, IEnumerable<(PoiRenderReference, IRenderer)> renderReferences)

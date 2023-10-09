@@ -88,6 +88,7 @@
         <Compile Include="Data\POI\PoiRenderReference.cs" />
         <Compile Include="Data\POI\PoiSameTargetComparer.cs" />
         <Compile Include="Data\POI\PoiType.cs" />
+        <Compile Include="Data\POI\PoiUtils.cs" />
         <Compile Include="Data\POI\ResettablePoi.cs" />
         <Compile Include="Extensions\IDictionaryExtensions.cs" />
         <Compile Include="Extensions\FloatExtensions.cs" />
