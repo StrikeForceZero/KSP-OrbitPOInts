@@ -304,9 +304,8 @@ namespace OrbitPOInts
                     {
                         // we are calling from the previous frame
                         // since things could have been destroyed and that's ok
-                        if (renderer.GetTransform() == null) return;
-                        // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
-                        if (!renderer.enabled) return;
+                        // also we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
+                        if (renderer is not { enabled: true } || renderer.GetTransform() == null) return;
                         // reset rotation
                         renderer.GetTransform().localRotation = Quaternion.identity;
                     }));
@@ -322,7 +321,7 @@ namespace OrbitPOInts
         private void NextFrameAlignRendererTransformToNormal(IRenderer renderer, Vector3d normal)
         {
             // this shouldn't be null, just a sanity check for other logging points
-            if (renderer.GetTransform() == null)
+            if (renderer == null || renderer.GetTransform() == null)
             {
                 Logger.LogError($"[NextFrameAlignRendererTransformToNormal] transform null!");
                 return;
@@ -334,7 +333,7 @@ namespace OrbitPOInts
             Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
             {
                 // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
-                if (!renderer.enabled || renderer.GetTransform() == null) return;
+                if (renderer is not { enabled: true } || renderer.GetTransform() == null) return;
                 AlignTransformToNormal(renderer.GetTransform(), normal, true);
             }, 1));
         }
