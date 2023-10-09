@@ -285,37 +285,58 @@ namespace OrbitPOInts
             {
                 return;
             }
-            List<Transform> transformsNeedsUpdate = new();
+            List<IRenderer> renderersThatNeedTransformsAligned = new();
 
-            DoActionOnCircles(circle => transformsNeedsUpdate.Add(circle.transform));
+            DoActionOnCircles(circle => renderersThatNeedTransformsAligned.Add(circle));
 
             if (AlignSpheres)
             {
-                DoActionOnSpheres(sphere => transformsNeedsUpdate.Add(sphere.transform));
+                DoActionOnSpheres(sphere => renderersThatNeedTransformsAligned.Add(sphere));
             }
             else
             {
-                List<Transform> transformsToReset = new();
-                DoActionOnSpheres(sphere => transformsToReset.Add(sphere.transform));
-                foreach (var transform in transformsToReset)
+                List<IRenderer> rendererThatNeedTransformsReset = new();
+                DoActionOnSpheres(sphere => rendererThatNeedTransformsReset.Add(sphere));
+                foreach (var renderer in rendererThatNeedTransformsReset)
                 {
-                    // TODO: even this is bugged
                     // if we dont set transform.rotation = Quaternion.identity directly some alignments will be off
                     Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
                     {
                         // we are calling from the previous frame
                         // since things could have been destroyed and that's ok
-                        if (transform == null) return;
+                        if (renderer.GetTransform() == null) return;
+                        // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
+                        if (!renderer.enabled) return;
                         // reset rotation
-                        transform.rotation = Quaternion.identity;
+                        renderer.GetTransform().localRotation = Quaternion.identity;
                     }));
                 }
             }
 
-            foreach (var transform in transformsNeedsUpdate)
+            foreach (var renderer in renderersThatNeedTransformsAligned)
             {
-                NextFrameAlignTransformToNormal(transform, normal);
+                NextFrameAlignRendererTransformToNormal(renderer, normal);
             }
+        }
+
+        private void NextFrameAlignRendererTransformToNormal(IRenderer renderer, Vector3d normal)
+        {
+            // this shouldn't be null, just a sanity check for other logging points
+            if (renderer.GetTransform() == null)
+            {
+                Logger.LogError($"[NextFrameAlignRendererTransformToNormal] transform null!");
+                return;
+            }
+
+            // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
+            if (!renderer.enabled) return;
+
+            Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
+            {
+                // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
+                if (!renderer.enabled || renderer.GetTransform() == null) return;
+                AlignTransformToNormal(renderer.GetTransform(), normal, true);
+            }, 1));
         }
 
         private void NextFrameAlignTransformToNormal(Transform transform, Vector3d normal)
