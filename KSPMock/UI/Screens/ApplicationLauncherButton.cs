@@ -17,5 +17,7 @@ namespace KSPMock.UI.Screens
         }
 
         public static implicit operator bool(ApplicationLauncherButton exists) => exists != null;
+
+        public Callback onRightClick;
     }
 }
