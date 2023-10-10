@@ -8,6 +8,7 @@ using OrbitPOInts.Tests.Mocks;
 
 namespace OrbitPOInts.Tests
 {
+#if TEST
     [TestFixture]
     public class CelestialBodyCacheTests
     {
@@ -57,4 +58,5 @@ namespace OrbitPOInts.Tests
         }
 
     }
+#endif
 }
