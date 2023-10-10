@@ -255,8 +255,6 @@ namespace OrbitPOInts
             Refresh(PlanetariumCamera.fetch.target);
         }
 
-        // TODO: this method was supposed to be for optimization and reusing existing objects
-        // but for sanity sake we are just gonna purge everything until the state machine is rewritten
         internal void RemoveAll()
         {
             _poiRenderReferenceManager.Clear();
