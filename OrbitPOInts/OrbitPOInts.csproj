@@ -74,6 +74,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="CelestialBodyCache.cs" />
         <Compile Include="Data\ConfigNode\ConfigNodeDto.cs" />
         <Compile Include="Data\ConfigNode\ConfigNodeValueExtractor.cs" />
         <Compile Include="Data\ConfigNode\Extensions\ConfigNodeExtensions.cs" />
