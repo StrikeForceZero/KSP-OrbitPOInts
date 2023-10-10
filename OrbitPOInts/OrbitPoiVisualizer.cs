@@ -232,6 +232,7 @@ namespace OrbitPOInts
         }
 
         #region Refresh
+        // TODO: probably safe to remove
         public void Refresh(MapObject focusTarget)
         {
             if (!SafeToDraw("[Refresh]"))
@@ -250,6 +251,7 @@ namespace OrbitPOInts
             RefreshCurrentRenderers();
         }
 
+        // TODO: probably safe to remove
         public void CurrentTargetRefresh()
         {
             Refresh(PlanetariumCamera.fetch.target);
