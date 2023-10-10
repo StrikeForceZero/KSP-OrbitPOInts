@@ -20,7 +20,7 @@ See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issu
 - [x] [~~Submit to CKAN!~~](https://github.com/KSP-CKAN/NetKAN/blob/master/NetKAN/OrbitPOInts.netkan)
 - [x] ~~Custom colors~~
 - [x] ~~Custom POIs ("I want to visualize a 500km ring around a body")~~
-   - [x] ~~ Allow any number of custom POIs~~
+   - [x] ~~Allow any number of custom POIs~~
 - [ ] Rewrite the mess OrbitPoiVisualizer has become.
 - [ ] Cleanup the Settings code and move off some responsibility
 - [ ] Cleanup the UI code
@@ -32,8 +32,11 @@ See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issu
 - [ ] Maybe custom orbit shapes
 
 ## Screenshots
-![POI Mun SOI Screenshot](./Screenshots/Mun%20SOI.png)
-![Custom Colors Screenshot](./Screenshots/Custom%20Colors.png)
-![POI SOI and Escape Trajectory Screenshot](./Screenshots/SOI%20and%20Escape%20Trajectory.png)
-![POI Atmosphere Screenshot](./Screenshots/Atmosphere.png)
-![POI Max Alt Screenshot](./Screenshots/Max%20ALT.png)
+![Custom POI Circle.png](<Screenshots/Custom POI Circle.png>)
+![Custom POI Sphere.png](<Screenshots/Custom POI Sphere.png>)
+(older)
+![POI Mun SOI Screenshot](<Screenshots/Mun SOI.png>)
+![Custom Colors Screenshot](<Screenshots/Custom Colors.png>)
+![POI SOI and Escape Trajectory Screenshot](<Screenshots/SOI and Escape Trajectory.png>)
+![POI Atmosphere Screenshot](<Screenshots/Atmosphere.png>)
+![POI Max Alt Screenshot](<Screenshots/Max ALT.png>)
