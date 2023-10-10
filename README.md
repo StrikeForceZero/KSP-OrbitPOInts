@@ -27,6 +27,9 @@ See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issu
 - [ ] High resolution max altitude detection for current orbit to warn user if they are at risk of impact
 - [ ] Show POI for High/Low Orbit and potentially other science related altitudes
 - [x] ~~Persistent Settings~~
+- [ ] Custom LineWidths, sphere resolutions
+- [ ] Maybe custom inclinations for custom POIs. (e.g. if you wanted to show a polar orbit at 500km)
+- [ ] Maybe custom orbit shapes
 
 ## Screenshots
 ![POI Mun SOI Screenshot](./Screenshots/Mun%20SOI.png)
