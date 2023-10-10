@@ -408,6 +408,7 @@ namespace OrbitPOInts.UI
                 // TODO: make a dropdown
                 _selectedBodyIndex = GUILayout.SelectionGrid(_selectedBodyIndex, _selectableBodyNames.ToArray(), 6);
                 _selectedBodyName = _selectableBodyNames[_selectedBodyIndex];
+                var selectedBody = _selectedBodyIndex > 0 ? FlightGlobals.Bodies[_selectedBodyIndex - 1] : null;
 
                 GUILayout.Space(10);
 
@@ -415,13 +416,7 @@ namespace OrbitPOInts.UI
                 if (resetBodyPoiClicked)
                 {
                     LogDebug($"[GUI] Reset POIs for Body Clicked: {_selectedBodyName}");
-                    // TODO: it might be worth making a wrapper class for CelestialBodies
-                    // so we can make null treated like a body with its own name
-                    // this way we don't have to rely on all bodies having unique names
-                    // or looping through them each time as CelestialBodyExtensions.ResolveByName adds some overhead
-                    var targetBodyName = _selectedBodyIndex > 0 ? _selectedBodyName : null;
-                    var targetBody = CelestialBodyExtensions.ResolveByName(targetBodyName);
-                    var configuredPoisToRemove = Settings.Instance.ConfiguredPois.Where(poi => poi.Type != PoiType.Custom && poi.Body == targetBody);
+                    var configuredPoisToRemove = Settings.Instance.ConfiguredPois.Where(poi => poi.Type != PoiType.Custom && poi.Body == selectedBody);
 
                     foreach (var poi in configuredPoisToRemove)
                     {
@@ -431,16 +426,7 @@ namespace OrbitPOInts.UI
 
                 GUILayout.Space(10);
 
-                if (_selectedBodyIndex > 0)
-                {
-                    var selectedBody = FlightGlobals.Bodies[_selectedBodyIndex - 1];
-                    DrawPoiControls(selectedBody);
-                }
-                else
-                {
-                    // global
-                    DrawPoiControls(null);
-                }
+                DrawPoiControls(selectedBody);
 
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20);
