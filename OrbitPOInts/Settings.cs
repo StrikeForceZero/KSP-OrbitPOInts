@@ -469,6 +469,7 @@ namespace OrbitPOInts
             return GetGlobalDefault().Concat(DefaultBodyPoiTypeDictionary.Values.SelectMany(d => d.Values));
         }
 
+        // TODO: this method might be expensive for pois with bodies later in the list of FlightGlobals.Bodies
         public static IEnumerable<POI> GetNewDefaultPoisFor(CelestialBody body)
         {
             return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body, true));
@@ -547,9 +548,10 @@ namespace OrbitPOInts
                 .Enabled;
         }
 
+        // TODO: this method might be expensive for pois with bodies later in the list of FlightGlobals.Bodies
         public static bool IsDefaultPoi(POI poi)
         {
-            return GetNewDefaultPoisFor(poi.Body).Contains(poi, new PoiComparer());
+            return poi.Type.IsStandard() && GetNewDefaultPoisFor(poi.Body).Contains(poi, new PoiComparer());
         }
     }
 }
