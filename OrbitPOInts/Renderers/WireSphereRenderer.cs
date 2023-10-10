@@ -1,3 +1,5 @@
+using OrbitPOInts.Extensions.Unity;
+
 #if TEST
 using KSPMock;
 using UnityEngineMock;
@@ -12,6 +14,7 @@ using KSP_MapView = MapView;
 using KSP_HighLogic = HighLogic;
 using KSP_GameScenes = GameScenes;
 #endif
+using OrbitPOInts.Extensions.Unity;
 
 namespace OrbitPOInts
 {
@@ -20,15 +23,14 @@ namespace OrbitPOInts
     using GameScenes = KSP_GameScenes;
 
     [RequireComponent(typeof(LineRenderer))]
-    public class WireSphereRenderer : MonoBehaviour
+    public class WireSphereRenderer : MonoBehaviour, IRenderer
     {
-        public float radius = 1.0f;
+        public float radius { get; set; } = 1.0f;
         public int latitudeLines = 10;
         public int longitudeLines = 10;
         private GameObject[] lineObjects = { };
-        public Color wireframeColor = Color.green;
-        public float lineWidth = 0.1f;
-        public string uniqueGameObjectNamePrefix;
+        public Color wireframeColor { get; set; } = Color.green;
+        public float lineWidth { get; set; } = 0.1f;
         public bool IsDying { get; private set; }
 
         private void Awake()
@@ -83,20 +85,25 @@ namespace OrbitPOInts
             }
         }
 
+        private Material GetMaterial()
+        {
+            var mapViewReady = MapView.fetch != null;
+            return mapViewReady ? MapView.fetch.orbitLinesMaterial : new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
+        }
+
         void DrawLatitudeLine(int index, float height, float circleRadius)
         {
             var lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
-            line.material = MapView.fetch.orbitLinesMaterial;
+            line.material = GetMaterial();
             line.receiveShadows = false;
             // line.material = new Material(Shader.Find("Sprites/Default"));
             line.useWorldSpace = false;
             line.positionCount = longitudeLines + 1;
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
@@ -120,15 +127,14 @@ namespace OrbitPOInts
             var lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
             // line.material = new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
-            line.material = MapView.fetch.orbitLinesMaterial;
+            line.material = GetMaterial();
             line.receiveShadows = false;
             // line.material = new Material(Shader.Find("Sprites/Default"));
             line.useWorldSpace = false;
             line.positionCount = latitudeLines; // Making longitude lines conform to the curvature
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
@@ -159,6 +165,42 @@ namespace OrbitPOInts
         public void SetEnabled(bool state)
         {
             enabled = state;
+            foreach (var lineObject in lineObjects)
+            {
+                if (!lineObject.IsAlive()) continue;
+                lineObject.SetActive(state);
+            }
+        }
+
+        public void SetColor(Color color)
+        {
+            wireframeColor = color;
+            foreach (var lineObject in lineObjects)
+            {
+                if (!lineObject.IsAlive()) continue;
+                foreach (var line in lineObject.GetComponents<LineRenderer>())
+                {
+                    line.SetColor(color);
+                }
+            }
+        }
+
+        public void SetWidth(float width)
+        {
+            lineWidth = width;
+            foreach (var lineObject in lineObjects)
+            {
+                if (!lineObject.IsAlive()) continue;
+                foreach (var line in lineObject.GetComponents<LineRenderer>())
+                {
+                    line.SetWidth(width);
+                }
+            }
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
         }
 
         public static string NameKey => "WireSphereLine";
@@ -167,14 +209,14 @@ namespace OrbitPOInts
         {
             if (obj is WireSphereRenderer other)
             {
-                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+                return GetInstanceID() == other.GetInstanceID();
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
+            return GetInstanceID();
         }
     }
 }

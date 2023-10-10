@@ -1,3 +1,5 @@
+using OrbitPOInts.Extensions.Unity;
+
 #if TEST
 using KSPMock;
 using UnityEngineMock;
@@ -12,6 +14,7 @@ using KSP_MapView = MapView;
 using KSP_HighLogic = HighLogic;
 using KSP_GameScenes = GameScenes;
 #endif
+using OrbitPOInts.Extensions.Unity;
 
 namespace OrbitPOInts
 {
@@ -20,14 +23,13 @@ namespace OrbitPOInts
     using GameScenes = KSP_GameScenes;
 
     [RequireComponent(typeof(LineRenderer))]
-    public class CircleRenderer : MonoBehaviour
+    public class CircleRenderer : MonoBehaviour, IRenderer
     {
-        public float radius = 1.0f;
-        public Color wireframeColor = Color.green;
-        public float lineWidth = 0.1f;
-        public int segments = 50;
+        public float radius { get; set; } = 1.0f;
+        public Color wireframeColor { get; set; } = Color.green;
+        public float lineWidth { get; set; } = 0.1f;
+        public int segments { get; set; } = 50;
         private GameObject lineObject;
-        public string uniqueGameObjectNamePrefix;
         public bool IsDying { get; private set; }
 
         private void Awake()
@@ -44,18 +46,23 @@ namespace OrbitPOInts
             }
         }
 
+        private Material GetMaterial()
+        {
+            var mapViewReady = MapView.fetch != null;
+            return mapViewReady ? MapView.fetch.orbitLinesMaterial : new Material(Shader.Find("Legacy Shaders/Particles/Alpha Blended Premultiply"));
+        }
+
         void Start()
         {
             lineObject = new GameObject(NameKey);
             var line = lineObject.AddComponent<LineRenderer>();
-            line.material = MapView.fetch.orbitLinesMaterial;
+            line.material = GetMaterial();
             line.receiveShadows = false;
             line.useWorldSpace = false;
             line.positionCount = segments + 1; // +1 to close the circle
-            line.startColor = wireframeColor;
-            line.endColor = wireframeColor;
-            line.startWidth = lineWidth;
-            line.endWidth = lineWidth;
+            line
+                .SetColor(wireframeColor)
+                .SetWidth(lineWidth);
             lineObject.transform.SetParent(transform);
             lineObject.transform.localPosition = Vector3.zero;
 
@@ -89,6 +96,33 @@ namespace OrbitPOInts
         public void SetEnabled(bool state)
         {
             enabled = state;
+            if (!lineObject.IsAlive()) return;
+            lineObject.SetActive(state);
+        }
+
+        public void SetColor(Color color)
+        {
+            wireframeColor = color;
+            if (!lineObject.IsAlive()) return;
+            foreach (var line in lineObject.GetComponents<LineRenderer>())
+            {
+                line.SetColor(color);
+            }
+        }
+
+        public void SetWidth(float width)
+        {
+            lineWidth = width;
+            if (!lineObject.IsAlive()) return;
+            foreach (var line in lineObject.GetComponents<LineRenderer>())
+            {
+                line.SetWidth(width);
+            }
+        }
+
+        public Transform GetTransform()
+        {
+            return transform;
         }
 
         public static string NameKey => "CircleLine";
@@ -97,14 +131,14 @@ namespace OrbitPOInts
         {
             if (obj is CircleRenderer other)
             {
-                return uniqueGameObjectNamePrefix == other.uniqueGameObjectNamePrefix;
+                return GetInstanceID() == other.GetInstanceID();
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return uniqueGameObjectNamePrefix?.GetHashCode() ?? 0;
+            return GetInstanceID();
         }
     }
 }

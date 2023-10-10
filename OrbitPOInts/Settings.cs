@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using OrbitPOInts.Data;
 using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions;
 using OrbitPOInts.Extensions.KSP;
 using OrbitPOInts.Utils;
 using Logger = OrbitPOInts.Utils.Logger;
@@ -104,24 +105,40 @@ namespace OrbitPOInts
 
         protected virtual void NotifyCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            Logger.LogDebug($"[Settings][NotifyCollectionChanged] ConfiguredPois:{args.Action}");
+            var numberRemoved = args.OldItems?.Count ?? 0;
+            var numberAdded = args.NewItems?.Count ?? 0;
+            Logger.LogDebug($"[Settings][NotifyCollectionChanged] {nameof(ConfiguredPois)}:{args.Action} removed: {numberRemoved}, added: {numberAdded}");
             OnPropertyChanged(nameof(ConfiguredPois));
             ConfiguredPoisCollectionChanged?.Invoke(sender, args);
         }
 
         protected virtual void OnPropertyChanged(string propertyName)
         {
-            Logger.LogDebug($"[Settings][OnPropertyChanged] Settings.Instance.{propertyName}: {Reflection.AccessProp(_instance, propertyName)}");
+            var value = Reflection.GetMemberValue(_instance, propertyName);
+            var valueString = Logger.GetValueString(value);
+            Logger.LogDebug($"[Settings][OnPropertyChanged] Settings.Instance.{propertyName}={valueString}");
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected virtual void OnPoiPropChanged(object senderPoi, PropertyChangedEventArgs args)
         {
-            Logger.LogDebug($"[Settings][OnPoiPropChanged] POI.{args.PropertyName}: {(senderPoi is POI poi2 ? Reflection.AccessProp(poi2, args.PropertyName) : null)}");
+            var poiValueString = "?";
+            var poiId = "?";
+            {
+                if (senderPoi is POI poi)
+                {
+                    poiId = Logger.GetPoiLogId(poi);
+                    var value = Reflection.GetMemberValue(poi, args.PropertyName);
+                    poiValueString = Logger.GetValueString(value);
+                }
+            }
+            Logger.LogDebug($"[Settings][OnPoiPropChanged] {poiId} POI.{args.PropertyName}={poiValueString}");
             ConfiguredPoiPropChanged?.Invoke(this, senderPoi, args);
-            if (senderPoi is not POI poi) return;
-            if (!IsDefaultPoi(poi)) return;
-            RemoveConfiguredPoi(poi);
+            {
+                if (senderPoi is not POI poi) return;
+                if (!IsDefaultPoi(poi)) return;
+                RemoveConfiguredPoi(poi);
+            }
         }
 
         public static Settings Instance
@@ -246,7 +263,7 @@ namespace OrbitPOInts
             if (poi.IsResetting) return;
             // clone it so we can keep listening to when defaults change
             // configured ones should mask default in UI
-            AddConfiguredPoi(poi.Clone());
+            AddConfiguredPoi(poi.Clone(true));
             poi.Reset();
         }
         private void RegisterForDefaultPoiPropChanges()
@@ -310,7 +327,7 @@ namespace OrbitPOInts
         private static IDictionary<PoiType, POI> CreateBodyPoiTypeDictionary(CelestialBody body)
         {
             return GetNewDefaultPoisFor(body)
-                .ToDictionary(poi => poi.Type, poi => poi.CloneWith(body));
+                .ToDictionary(poi => poi.Type, poi => poi.CloneWith(body, true));
         }
 
 #if TEST
@@ -341,7 +358,7 @@ namespace OrbitPOInts
 
         internal void ClearConfiguredPois(IEnumerable<POI> pois = null)
         {
-            pois ??= Enumerable.Empty<POI>();
+            var newPois = (pois ?? Enumerable.Empty<POI>()).ToList();
             var oldItems = Enumerable.Empty<POI>();
 
             if(_configuredPois != null)
@@ -350,20 +367,20 @@ namespace OrbitPOInts
                 oldItems = _configuredPois.ToList();
             }
 
-            foreach (var oldPoi in _configuredPois)
+            foreach (var oldPoi in oldItems)
             {
                 UnRegisterPoi(oldPoi);
             }
 
-            foreach (var newPoi in pois)
+            foreach (var newPoi in newPois)
             {
                 RegisterPoi(newPoi);
             }
 
-            _configuredPois = new ObservableCollection<POI>(pois);
+            _configuredPois = new ObservableCollection<POI>(newPois);
             _configuredPois.CollectionChanged += NotifyCollectionChanged;
             // we are opting to combine Reset + Add into Replace to prevent multiple events for the same action overall
-            NotifyCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, pois, oldItems, 0));
+            NotifyCollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newPois, oldItems, 0));
         }
 
         internal void UpdateConfiguredPois(IEnumerable<POI> pois)
@@ -452,9 +469,10 @@ namespace OrbitPOInts
             return GetGlobalDefault().Concat(DefaultBodyPoiTypeDictionary.Values.SelectMany(d => d.Values));
         }
 
+        // TODO: this method might be expensive for pois with bodies later in the list of FlightGlobals.Bodies
         public static IEnumerable<POI> GetNewDefaultPoisFor(CelestialBody body)
         {
-            return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body));
+            return DefaultGlobalPoiDictionary.Values.Select(poi => poi.CloneWith(body, true));
         }
 
         public static IEnumerable<ResettablePoi> GetDefaultPoisFor(CelestialBody body)
@@ -481,6 +499,15 @@ namespace OrbitPOInts
             // priority: configured > default
         }
 
+        // TODO: test me
+        public POI GetConfiguredOrDefaultPoiFor(CelestialBody body, PoiType poiType)
+        {
+            return GetConfiguredPoisFor(body) // configured body
+                .Concat(GetConfiguredPoisFor(null)) // global
+                .Concat(GetDefaultPoisFor(body)) // defaults
+                .FirstOrDefault(poi => poi.Type == poiType); // priority: configured > global > default
+        }
+
         public POI GetStandardPoiFor(CelestialBody body, PoiType poiType)
         {
             return GetConfiguredPoisFor(body) // configured body
@@ -500,6 +527,8 @@ namespace OrbitPOInts
 
         public Color GetPoiColorFor(CelestialBody body, PoiType poiType)
         {
+            if (poiType.IsNoneOrCustom())
+                throw new ArgumentException($"{poiType} does not have an override");
             return GetConfiguredPoisFor(body) // configured body
                 .Concat(GetConfiguredPoisFor(null)) // configured globals
                 .Concat(GetDefaultPoisFor(body)) // defaults
@@ -509,6 +538,9 @@ namespace OrbitPOInts
         
         public bool GetGlobalEnableFor(CelestialBody body, PoiType poiType)
         {
+            // TODO: is returning true for this better than throwing?
+            if (poiType.IsNoneOrCustom())
+                throw new ArgumentException($"{poiType} does not have an override");
             return GetConfiguredPoisFor(null) // configured globals
                 .Concat(GetConfiguredPoisFor(body)) // configured body
                 .Concat(GetDefaultPoisFor(body)) // defaults
@@ -516,9 +548,10 @@ namespace OrbitPOInts
                 .Enabled;
         }
 
+        // TODO: this method might be expensive for pois with bodies later in the list of FlightGlobals.Bodies
         public static bool IsDefaultPoi(POI poi)
         {
-            return GetNewDefaultPoisFor(poi.Body).Contains(poi, new PoiComparer());
+            return poi.Type.IsStandard() && GetNewDefaultPoisFor(poi.Body).Contains(poi, new PoiComparer());
         }
     }
 }

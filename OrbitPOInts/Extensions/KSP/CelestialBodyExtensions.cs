@@ -41,17 +41,10 @@ namespace OrbitPOInts.Extensions.KSP
             return maxAltitude;
         }
 
-        // TODO: this probably belongs in a utils/helper class
-        [CanBeNull]
-        public static CelestialBody ResolveByName(string name)
-        {
-            return FlightGlobals.Bodies.FirstOrDefault( body => body.Serialize() == name);
-        }
-
         // TODO: technically this isn't an extension method and probably belongs in a utils/helper class
         public static bool TryDeserialize(string input, [CanBeNull] out CelestialBody result)
         {
-            result = ResolveByName(input);
+            result = CelestialBodyCache.Instance.ResolveByName(input);
             return result != null;
         }
 

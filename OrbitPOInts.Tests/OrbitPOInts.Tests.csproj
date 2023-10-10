@@ -92,6 +92,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="CelestialBodyCacheTests.cs" />
         <Compile Include="ConfigNodeExtensionsTests.cs" />
         <Compile Include="CustomAsserts\CollectionAssert.cs" />
         <Compile Include="Data\PoiCompareTests.cs" />
@@ -102,6 +103,8 @@
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="SettingsE2ETests.cs" />
         <Compile Include="SettingsTests.cs" />
+        <Compile Include="Utils\PropChangeMapperTests.cs" />
+        <Compile Include="Utils\RandomStringGenerator.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\KSPMock\KSPMock.csproj">

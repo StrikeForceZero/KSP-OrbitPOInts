@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -56,28 +57,28 @@ namespace OrbitPOInts
 
     using Logger = Utils.Logger;
 
-    [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
-    public class OrbitPoiVisualizer : MonoBehaviour
+    public class OrbitPoiVisualizer<TContext> where TContext : MonoBehaviour, IHasGameState
     {
-        public static OrbitPoiVisualizer Instance { get; private set; }
-
-        private Settings _settings;
-
-        private readonly Dictionary<string, GameObject> _bodyComponentHolders = new();
-        private readonly HashSet<WireSphereRenderer> _drawnSpheres = new();
-        private readonly HashSet<CircleRenderer> _drawnCircles = new();
+        private readonly PoiRenderReferenceManager<TContext> _poiRenderReferenceManager;
 
         public bool DrawSpheres;
         public bool DrawCircles;
         public bool AlignSpheres;
-
-        private bool _eventsRegistered;
-        private static bool _sceneLoading;
-
-        private Vessel _lastVessel;
-        private CelestialBody _lastOrbitingBody;
+        public bool FocusedBodyOnly;
+        public bool enabled = true;
 
         private static double _standardLineWidthDistance;
+
+        public OrbitPoiVisualizer(TContext context)
+        {
+            Context = context;
+            _standardLineWidthDistance = GetStandardLineWidthDistance();
+            _poiRenderReferenceManager = new PoiRenderReferenceManager<TContext>(context);
+        }
+
+        private readonly TContext Context;
+
+        public PoiRenderReferenceManager<TContext> PoiRenderReferenceManager => _poiRenderReferenceManager;
 
         private static void LogDebug(string message)
         {
@@ -94,495 +95,408 @@ namespace OrbitPOInts
             Logger.LogError($"[OrbitPoiVisualizer] {message}");
         }
 
-        public void SetEnabled(bool state)
+        private void DoActionOnSpheres(Action<WireSphereRenderer> action)
         {
-            foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
+            foreach (var sphere in _poiRenderReferenceManager.GetAllRenderReferenceRenderers<WireSphereRenderer>())
             {
                 if (!sphere.IsAlive() || sphere.IsDying)
                 {
-                    LogError($"[SetEnabled] sphere null or dying {index} / {_drawnSpheres.Count}");
+                    LogError($"[DoActionOnCircles] sphere null or dying");
                     continue;
                 }
-                sphere.SetEnabled(state);
+                action.Invoke(sphere);
             }
+        }
 
-            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
+        private void DoActionOnCircles(Action<CircleRenderer> action)
+        {
+            foreach (var circle in _poiRenderReferenceManager.GetAllRenderReferenceRenderers<CircleRenderer>())
             {
                 if (!circle.IsAlive() || circle.IsDying)
                 {
-                    LogError($"[SetEnabled] circle null or dying {index} / {_drawnCircles.Count}");
+                    LogError($"[DoActionOnCircles] circle null or dying");
                     continue;
                 }
-                circle.SetEnabled(state);
+                action.Invoke(circle);
             }
-
-            enabled = state;
         }
 
-        #region Lifecycle Methods
-
-        private void Awake()
+        public void RemovePoi(POI poi)
         {
-            LogDebug("Awake");
-            LoadStandardLineWidthDistance();
-            Instance = this;
-            CheckEnabled();
-        }
-
-        private void OnEnable()
-        {
-            LogDebug("OnEnable");
-            CheckEnabled();
-            if (enabled) CurrentTargetRefresh();
-        }
-
-        private void Start()
-        {
-            LogDebug("Start");
-            CheckEnabled();
-        }
-
-        private void OnDisable()
-        {
-            LogDebug("OnDisable");
-            // this prevents us from waking up again
-            // but instead of leaving a envent handler just for GlobalEnable
-            // we'll pass the responsibility to the UI
-            UnregisterSettings();
-            RegisterEvents(false);
-            PurgeAll();
-        }
-
-        private void OnDestroy()
-        {
-            LogDebug("OnDestroy");
-            UnregisterSettings();
-            RegisterEvents(false);
-            PurgeAll();
-        }
-
-        private void RegisterEvents(bool register = true)
-        {
-            if (register)
+            LogDebug($"[RemovePoi] {Logger.GetPoiLogId(poi)}");
+            if (poi.IsGlobal())
             {
-                if (_eventsRegistered) return;
-                LogDebug("RegisterEvents");
-                GameEvents.OnMapEntered.Add(OnMapEntered);
-                GameEvents.OnMapExited.Add(OnMapExited);
-                GameEvents.OnMapFocusChange.Add(OnMapFocusChange);
-                GameEvents.onVesselChange.Add(OnVesselChange);
-                GameEvents.onVesselSOIChanged.Add(OnVesselSOIChange);
-                GameEvents.onGameSceneLoadRequested.Add(OnGameSceneLoadRequested);
-                GameEvents.onLevelWasLoadedGUIReady.Add(OnGameSceneLoadedGUIReady);
-                _eventsRegistered = true;
-                return;
+                _poiRenderReferenceManager.RemovePoiRenderReference(poi);
             }
-
-            if (!_eventsRegistered) return;
-            LogDebug("UnRegisterEvents");
-            GameEvents.OnMapEntered.Remove(OnMapEntered);
-            GameEvents.OnMapExited.Remove(OnMapExited);
-            GameEvents.OnMapFocusChange.Remove(OnMapFocusChange);
-            GameEvents.onVesselChange.Remove(OnVesselChange);
-            GameEvents.onVesselSOIChanged.Remove(OnVesselSOIChange);
-            GameEvents.onGameSceneLoadRequested.Remove(OnGameSceneLoadRequested);
-            GameEvents.onLevelWasLoadedGUIReady.Remove(OnGameSceneLoadedGUIReady);
-            _eventsRegistered = false;
+            foreach (var patchedPoi in PoiUtils.GetPatchedPois(poi))
+            {
+                _poiRenderReferenceManager.RemovePoiRenderReference(patchedPoi);
+            }
         }
 
-        private void Update()
+        public void AddPoi(POI poi)
         {
+            LogDebug($"[AddPoi] {Logger.GetPoiLogId(poi)}");
+            foreach (var patchedPoi in PoiUtils.GetPatchedPois(poi))
+            {
+                CreateNewPoiRender(patchedPoi, (poi, enabled) =>
+                {
+                    CreateCircleFromPoi(poi, enabled);
+                    CreateWireSphereFromPoi(poi, enabled);
+                });
+            }
+        }
+
+        // TODO: this needs a unit test...
+        public void ResetPoi(POI poi)
+        {
+            LogDebug($"[ResetPoi] {Logger.GetPoiLogId(poi)}");
+
+            var patchedPois = PoiUtils.GetPatchedPois(poi);
+            foreach (var patchedPoi in patchedPois)
+            {
+                var renderReferences = PoiRenderReferenceManager.GetAllRenderReferencesRendererTuplesForPoi(patchedPoi);
+
+                UpdateRenderers(patchedPoi, renderReferences);
+            }
+        }
+
+        private static void UpdateRenderers(POI newPoi, IEnumerable<(PoiRenderReference, IRenderer)> renderReferences)
+        {
+            foreach (var (poiRenderReference, renderer) in renderReferences)
+            {
+                var poi = DeterminePoiForRendering(newPoi);
+
+                LogDebug($"[ResetPoi] updating PoiRenderReference.Poi with {Logger.GetPoiLogId(poi)}");
+                poiRenderReference.UpdatePoi(poi);
+
+                UpdateRenderer(renderer, poi);
+            }
+        }
+
+        private static POI DeterminePoiForRendering(POI poi)
+        {
+            // skip non standard pois
+            if (!poi.Type.IsStandard()) return poi;
+
+            var configuredOrDefaultPoi = Settings.Instance.GetConfiguredOrDefaultPoiFor(poi.Body, poi.Type);
+            // since we don't want to return global, attempt to use the one provided
+            return configuredOrDefaultPoi.IsGlobal() ? poi : configuredOrDefaultPoi;
+
+        }
+
+        private static void UpdateRenderer(IRenderer renderer, POI poi)
+        {
+            LogDebug($"[ResetPoi] resetting LineWidth for {Logger.GetPoiLogId(poi)}");
+            renderer.SetWidth(ScaleLineWidth(poi.RadiusForRendering(), poi.LineWidth));
+
+            LogDebug($"[ResetPoi] resetting Color for {Logger.GetPoiLogId(poi)}");
+            renderer.SetColor(poi.Color);
+        }
+
+        public void SetEnabled(bool state)
+        {
+            enabled = state;
+            RefreshCurrentRenderers();
+        }
+
+        private bool SafeToDraw(string tag = "")
+        {
+            if (!enabled)
+            {
+                LogError($"[SafeToDraw]{tag} called when not enabled!");
+                return false;
+            }
             if (!SceneHelper.ViewingMapOrTrackingStation)
             {
-                return;
+                LogError($"[SafeToDraw]{tag} called not ViewingMapOrTrackingStation!");
+                return false;
             }
-
-            var target = PlanetariumCamera.fetch.target;
-            var vessel = target.vessel;
-            var hasVessel = vessel != null;
-            var body = hasVessel ? vessel.mainBody : target.celestialBody;
-
-            if (_lastVessel != vessel || _lastOrbitingBody != body)
+            if (Context.GameState.IsSceneLoading)
             {
-                LogDebug(
-                    $"[UPDATE] lastVessel: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}, lastOrbitingBody: {MapObjectHelper.GetBodyName(_lastOrbitingBody)} -> {MapObjectHelper.GetBodyName(body)}");
-                Refresh(target);
-
-                _lastVessel = vessel;
-                _lastOrbitingBody = body;
+                LogError($"[SafeToDraw]{tag} called when scene loading!");
+                return false;
             }
 
-            UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
+            return true;
         }
 
-        private void UnregisterSettings()
+        public void Init()
         {
-            if (_settings == null) return;
-            Settings.InstanceDestroyed -= OnSettingsDestroyed;
-            Settings.InstanceCreated -= OnSettingsCreated;
-            _settings.PropertyChanged -= OnPropertyChanged;
-            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoiChanged;
-            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
-            _settings = null;
-        }
-
-        private void RegisterSettings()
-        {
-            if (_settings is { IsDisposed: false }) return;
-            Settings.InstanceDestroyed -= OnSettingsDestroyed;
-            Settings.InstanceCreated -= OnSettingsCreated;
-            _settings = Settings.Instance;
-            Settings.InstanceDestroyed += OnSettingsDestroyed;
-            Settings.InstanceCreated += OnSettingsCreated;
-            _settings.PropertyChanged += OnPropertyChanged;
-            // remove and reregister at the end because we want to make sure we at least got the event that the collection was reset
-            _settings.ConfiguredPoiPropChanged -= OnConfiguredPoiChanged;
-            _settings.ConfiguredPoiPropChanged += OnConfiguredPoiChanged;
-            _settings.ConfiguredPoisCollectionChanged -= OnConfiguredPoisCollectionChanged;
-            _settings.ConfiguredPoisCollectionChanged += OnConfiguredPoisCollectionChanged;
-        }
-
-        #endregion
-
-        #region EventHandlers
-
-
-        private void OnSettingsDestroyed(Settings settings)
-        {
-            LogDebug($"[OnSettingsDestroyed]");
-            UnregisterSettings();
-        }
-        private void OnSettingsCreated(Settings settings)
-        {
-            LogDebug($"[OnSettingsCreated]");
-            RegisterSettings();
-            UpdatePropsFromSettings();
-            // maybe
-            // CurrentTargetRefresh();
-        }
-
-        private void OnPropertyChanged(object senderSettings, PropertyChangedEventArgs args)
-        {
-
-            if (senderSettings is Settings settings)
+            LogDebug("[Init]");
+            foreach (var body in FlightGlobals.Bodies)
             {
-                LogDebug($"[OnPropertyChanged] Settings.{args.PropertyName}={Reflection.AccessProp(settings, args.PropertyName)}");
+                CreateBodyItems(body);
             }
-            else
-            {
-                LogDebug($"[OnPropertyChanged] Settings.{args.PropertyName}");
-            }
-
-            if (args.PropertyName == nameof(Settings.ConfiguredPois)) return;
-
-            UpdatePropsFromSettings();
-            CurrentTargetRefresh();
+            RefreshCurrentRenderers();
         }
-
-        private void OnConfiguredPoiChanged(object senderSettings, object senderPoi, PropertyChangedEventArgs args)
-        {
-            if (senderSettings is POI poi)
-            {
-                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}={Reflection.AccessProp(poi, args.PropertyName)}");
-            }
-            else
-            {
-                LogDebug($"[OnConfiguredPoiChanged] POI.${args.PropertyName}");
-            }
-            CurrentTargetRefresh();
-        }
-
-        private void OnConfiguredPoisCollectionChanged(object settings, NotifyCollectionChangedEventArgs args)
-        {
-            LogDebug($"[OnConfiguredPoisCollectionChanged] Settings.{nameof(Settings.ConfiguredPois)} - ${args.Action}");
-            CurrentTargetRefresh();
-        }
-
-        private void OnGameSceneLoadRequested(GameScenes scenes)
-        {
-            _sceneLoading = true;
-            LogDebug($"[OnGameSceneLoadRequested] {SceneHelper.GetSceneName(scenes)}");
-            RemoveAll();
-        }
-
-        private void OnGameSceneLoadedGUIReady(GameScenes scenes)
-        {
-            LogDebug($"[OnGameSceneLoadedGUIReady] {SceneHelper.GetSceneName(scenes)}");
-            // TOD: this might not be the same on all systems
-            StartCoroutine(DelayedAction.CreateCoroutine(() =>
-                {
-                    LogDebug($"[OnGameSceneLoadedGUIReady][DelayedAction] {SceneHelper.GetSceneName(scenes)}");
-                    _sceneLoading = false;
-                    if (PurgeIfNotInMapOrTracking())
-                    {
-                        LogDebug("[OnGameSceneLoadedGUIReady] purge complete");
-                        return;
-                    }
-
-                    CurrentTargetRefresh();
-                },
-                6 // appears it takes 6 frames on my system before OnMapExit is called
-            ));
-        }
-
-        private void OnMapEntered()
-        {
-            var target = PlanetariumCamera.fetch.target;
-            LogDebug($"[OnMapEntered] focus on {MapObjectHelper.GetTargetName(target)}");
-
-            Refresh(target);
-        }
-
-        private void OnMapExited()
-        {
-            LogDebug($"[OnMapExited]");
-            PurgeAll();
-        }
-
-        private void OnVesselSOIChange(GameEvents.HostedFromToAction<Vessel, CelestialBody> data)
-        {
-            LogDebug($"[OnVesselSOIChange] soi changed: {data.from.name} -> {data.to.name}");
-            if (PurgeIfNotInMapOrTracking())
-            {
-                // TODO: this might be ok if our SOI changes while flying
-                LogError("[OnVesselSOIChange] OnVesselSOIChange called when not in map or tracking!");
-                return;
-            }
-            UpdateBody(data.to);
-        }
-
-        private void OnVesselChange(Vessel vessel)
-        {
-            if (_sceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
-            LogDebug(
-                $"[OnVesselChange] vessel changed: {MapObjectHelper.GetVesselName(_lastVessel)} -> {MapObjectHelper.GetVesselName(vessel)}");
-
-            if (PurgeIfNotInMapOrTracking())
-            {
-                // TODO: this might be ok if we are flightview and switch ships
-                LogError("[OnVesselChange] OnVesselChange called when not in map or tracking!");
-                return;
-            }
-
-            if (vessel == null)
-            {
-                return;
-            }
-
-            UpdateBody(vessel.mainBody);
-            UpdateNormals(MapObjectHelper.GetVesselOrbitNormal(vessel));
-        }
-
-        private void OnMapFocusChange(MapObject focusTarget)
-        {
-            if (_sceneLoading || !SceneHelper.ViewingMapOrTrackingStation) return;
-            LogDebug($"[OnMapFocusChange] Changed focus to {focusTarget.name}");
-            // TODO: this gets called when loading a save and we dont want to generate anything unless in map
-            if (PurgeIfNotInMapOrTracking())
-            {
-                LogError("[OnMapFocusChange] OnMapFocusChange called when not in map or tracking!");
-                return;
-            }
-            Refresh(focusTarget);
-        }
-
-        #endregion
 
         #region Refresh
-
-        public void UpdateBody(CelestialBody body)
-        {
-            LogDebug($"[UpdateBody] body: {body.name}");
-            PurgeAll();
-            if (!enabled)
-            {
-                LogError("[UpdateBody] UpdateBody called when not enabled!");
-                return;
-            }
-            if (!SceneHelper.ViewingMapOrTrackingStation)
-            {
-                LogError("[UpdateBody] UpdateBody called not ViewingMapOrTrackingStation!");
-                return;
-            }
-            if (_sceneLoading)
-            {
-                LogError("[UpdateBody] UpdateBody called when scene loading!");
-                return;
-            }
-
-            if (_settings.FocusedBodyOnly)
-            {
-                DestroyAndRecreateBodySpheres(body);
-                DestroyAndRecreateBodyCircles(body);
-                return;
-            }
-
-            // TODO: this is more of a bad hack since we are still using purge methods
-            foreach (var curBody in FlightGlobals.Bodies)
-            {
-                CreateBodySphere(curBody);
-                CreateBodyCircle(curBody);
-            }
-        }
-
+        // TODO: probably safe to remove
         public void Refresh(MapObject focusTarget)
         {
-            if (!enabled)
+            if (!SafeToDraw("[Refresh]"))
             {
-                LogError("[Refresh] refresh called when not enabled!");
-                return;
-            }
-            if (PurgeIfNotInMapOrTracking())
-            {
-                LogError("[Refresh] refresh called when not in map or tracking!");
-                return;
-            }
-            if (_sceneLoading)
-            {
-                LogError("[Refresh] refresh called when scene loading!");
                 return;
             }
 
             if (focusTarget == null)
             {
                 LogError("[Refresh] target is null!");
-                PurgeAll();
                 return;
             }
 
             var body = MapObjectHelper.GetTargetBody(focusTarget);
             LogDebug($"[Refresh] target: {MapObjectHelper.GetTargetName(focusTarget)}, body: {body.name}");
-            UpdateBody(body);
+            RefreshCurrentRenderers();
         }
 
+        // TODO: probably safe to remove
         public void CurrentTargetRefresh()
         {
             Refresh(PlanetariumCamera.fetch.target);
         }
 
-        // TODO: this method was supposed to be for optimization and reusing existing objects
-        // but for sanity sake we are just gonna purge everything until the state machine is rewritten
         internal void RemoveAll()
         {
-            PurgeAll();
+            _poiRenderReferenceManager.Clear();
         }
 
         #endregion
 
         #region Normals
-        private void UpdateNormals(Vector3 normal)
+        public void UpdateNormals(Vector3 normal)
         {
-            if (!enabled || _sceneLoading || !SceneHelper.ViewingMapOrTrackingStation)
+            if (!enabled || Context.GameState.IsSceneLoading || !SceneHelper.ViewingMapOrTrackingStation)
             {
                 return;
             }
-            List<Transform> transformsNeedsUpdate = new();
-            foreach (var (circle, index) in _drawnCircles.Select((value, index) => (value, index)))
-            {
-                if (!circle.IsAlive() || circle.IsDying)
-                {
-                    LogError($"[UpdateNormals] circle null or dying {index} / {_drawnCircles.Count}");
-                    continue;
-                }
-                transformsNeedsUpdate.Add(circle.transform);
-            }
+            List<IRenderer> renderersThatNeedTransformsAligned = new();
+
+            DoActionOnCircles(circle => renderersThatNeedTransformsAligned.Add(circle));
 
             if (AlignSpheres)
             {
-                foreach (var (sphere, index) in _drawnSpheres.Select((value, index) => (value, index)))
+                DoActionOnSpheres(sphere => renderersThatNeedTransformsAligned.Add(sphere));
+            }
+            else
+            {
+                List<IRenderer> rendererThatNeedTransformsReset = new();
+                DoActionOnSpheres(sphere => rendererThatNeedTransformsReset.Add(sphere));
+                foreach (var renderer in rendererThatNeedTransformsReset)
                 {
-                    if (!sphere.IsAlive() || sphere.IsDying)
+                    if (!renderer.IsAliveAndActiveWithTransform()) continue;
+                    // if we dont set transform.rotation = Quaternion.identity directly some alignments will be off
+                    Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
                     {
-                        LogError($"[UpdateNormals] sphere null or dying {index} / {_drawnSpheres.Count}");
-                        continue;
-                    }
-                    transformsNeedsUpdate.Add(sphere.transform);
+                        // we are calling from the previous frame
+                        // since things could have been destroyed and that's ok
+                        // also we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
+                        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                        // ReSharper disable once MergeIntoNegatedPattern
+                        if (!renderer.IsAliveAndActiveWithTransform()) return;
+                        // reset rotation
+                        renderer.GetTransform().localRotation = Quaternion.identity;
+                    }));
                 }
             }
 
-            foreach (var transform in transformsNeedsUpdate)
+            foreach (var renderer in renderersThatNeedTransformsAligned)
             {
-                NextFrameAlignTransformToNormal(transform, normal);
+                if (!renderer.IsAliveAndActiveWithTransform()) continue;
+                NextFrameAlignRendererTransformToNormal(renderer, normal);
             }
+        }
+
+        private void NextFrameAlignRendererTransformToNormal(IRenderer renderer, Vector3d normal)
+        {
+            if (renderer == null)
+            {
+               throw new ArgumentNullException(nameof(renderer), "Renderer cannot be null");
+            }
+
+            // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
+            if (!renderer.IsAliveAndEnabled())
+            {
+                throw new InvalidOperationException("Renderer is not alive or enabled. Operation cannot proceed.");
+            }
+
+            if (renderer.GetTransform() == null)
+            {
+                throw new InvalidOperationException("Renderer's transform is null. Operation cannot proceed.");
+            }
+
+            Context.StartCoroutine(DelayedAction.CreateCoroutine(() =>
+            {
+                // we cant set the rotation if its not enabled otherwise it will end up bugged/flipped
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                // ReSharper disable once MergeIntoNegatedPattern
+                if (!renderer.IsAliveAndActiveWithTransform()) return;
+                AlignTransformToNormal(renderer.GetTransform(), normal, true);
+            }, 1));
         }
 
         private void NextFrameAlignTransformToNormal(Transform transform, Vector3d normal)
         {
+            // this shouldn't be null, just a sanity check for other logging points
             if (transform == null)
             {
                 Logger.LogError($"[NextFrameAlignTransformToNormal] transform null!");
                 return;
             }
 
-            StartCoroutine(DelayedAction.CreateCoroutine(() => AlignTransformToNormal(transform, normal), 1));
+            Context.StartCoroutine(DelayedAction.CreateCoroutine(() => AlignTransformToNormal(transform, normal, true), 1));
         }
 
-        private void AlignTransformToNormal(Transform transform, Vector3d normal)
+        private void AlignTransformToNormal(Transform transform, Vector3d normal, bool isCalledFromPreviousFrame = false)
         {
-            // TODO: sometimes the transform can be null
-            if (transform == null)
-            {
-                Logger.LogError($"[AlignTransformToNormal] transform null!");
-                return;
-            }
             if (!enabled)
             {
+                return;
+            }
+            // sometimes the transform can be null if called from a previous frame
+            if (transform == null)
+            {
+                // don't log if we are calling this from a previous frame
+                // since things could have been destroyed and that's ok
+                if (isCalledFromPreviousFrame) return;
+                // but just in case, if we arent from the previous frame we need to know
+                Logger.LogError($"[AlignTransformToNormal] transform null!");
                 return;
             }
             OrbitHelpers.AlignTransformToNormal(transform, normal);
         }
         #endregion
 
-        private void CreatePoisForBody(CelestialBody body, Action<POI> onCreatePoi)
+        // TODO: this needs a test case
+        private bool CalcPoiEnabled(POI poi)
+        {
+            if (poi.IsGlobal())
+            {
+                throw new InvalidOperationException("CalcPoiEnabled should not be used for globals");
+            }
+            // check to make sure its not disabled in the global config
+            // ignore if its not a standard poi to prevent NRE
+            var globallyDisabled = poi.Type.IsStandard() && !Settings.Instance.GetGlobalEnableFor(poi.Body, poi.Type);
+            var poiEnabled = poi.Enabled;
+
+            switch (poi.Type)
+            {
+                case PoiType.MaxTerrainAltitude when poi.Body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
+                case PoiType.Atmosphere when !poi.Body.atmosphere:
+                    poiEnabled = false;
+                    break;
+                default:
+                    break;
+            }
+
+            return !globallyDisabled && poiEnabled;
+        }
+
+        private void CreateNewPoiRender(POI poi, Action<POI, bool> onCreatePoi)
+        {
+            if (poi.Type.IsNone()) return;
+
+            // only if standard poi - otherwise GetPoiColorFor will throw
+            if (poi.Type.IsStandard())
+            {
+                var colorOverride = Settings.Instance.GetPoiColorFor(poi.Body, poi.Type);
+                // this is only triggered if we are trying to draw the poi for a global
+                // and the specific body poi color has been user configured
+                if (poi.Color != colorOverride)
+                {
+                    // TODO: there is probably a better way to enforce color
+                    // clone so we don't create property change events
+                    poi = poi.Clone(true);
+                    LogDebug($"[CreateNewPoiRender] overriding color for {Logger.GetPoiLogId(poi)} color: {poi.Color} -> {colorOverride}");
+                }
+                poi.Color = colorOverride;
+            }
+
+            onCreatePoi.Invoke(poi, CalcPoiEnabled(poi));
+        }
+
+        private void CreatePoisForBody(CelestialBody body, Action<POI, bool> onCreatePoi)
         {
             foreach (PoiType poiType in Enum.GetValues(typeof(PoiType)))
             {
-                if (poiType is PoiType.None or PoiType.Custom) continue;
-                // check to make sure its not disabled in the global config
-                if (!Settings.Instance.GetGlobalEnableFor(body, poiType))
-                {
-                    LogDebug($"[CreatePoisForBody] skipping - global disable for body:{body.Serialize()} type:{poiType}");
-                    continue;
-                }
+                if (poiType.IsNoneOrCustom()) continue;
                 var poi = Settings.Instance.GetStandardPoiFor(body, poiType);
-
-                // TODO: there is probably a better way to ensure the colors are respected in the correct order but this works for now
-                var poiColor = Settings.Instance.GetPoiColorFor(body, poiType);
-                // clone so we don't trigger a prop change event
-                poi = poi.Clone();
-                poi.Color = poiColor;
-
-                switch (poiType)
-                {
-                    case PoiType.MaxTerrainAltitude when body.atmosphere && !Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:
-                    case PoiType.Atmosphere when !body.atmosphere:
-                        LogDebug($"[CreatePoisForBody] skipping body:{body.Serialize()} type:{poiType} - atmosphere:{body.atmosphere} ShowPoiMaxTerrainAltitudeOnAtmosphericBodies:{Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies}");
-                        continue;
-                    default:
-                        LogDebug($"[CreatePoisForBody] body:{body.Serialize()} type:{poi.Type} renderRadius:{poi.RadiusForRendering()} color:{poi.Color.Serialize()}");
-                        onCreatePoi.Invoke(poi);
-                        break;
-                }
+                CreateNewPoiRender(poi, onCreatePoi);
             }
 
             var globalCustomPois = Settings.Instance
                 .GetCustomPoisFor(null)
-                .Select(poi => poi.CloneWith(body)); // populate them with a body
+                .Select(poi => poi.CloneWith(body, true)); // populate them with a body
 
             var customPois = Settings.Instance
                 .GetCustomPoisFor(body)
-                .Concat(globalCustomPois) // include global custom
-                .Where(poi => poi.Enabled && poi.RadiusForRendering() > 0); // only ones that are enabled and have a radius
+                .Concat(globalCustomPois); // include global custom
             foreach (var customPoi in customPois)
             {
-                LogDebug($"[CreatePoisForBody] body:{customPoi.Body.Serialize()} type:{customPoi.Type} renderRadius:{customPoi.RadiusForRendering()} color:{customPoi.Color.Serialize()}");
-                onCreatePoi.Invoke(customPoi);
+                onCreatePoi.Invoke(customPoi, customPoi.Enabled);
             }
+        }
+
+        private enum CreateMode
+        {
+            Spheres,
+            Circles,
+            All,
+        }
+        private void CreateBodyItems(CelestialBody body, CreateMode mode = CreateMode.All)
+        {
+            CreatePoisForBody(body, (poi, enabled) =>
+            {
+                if (mode is CreateMode.All or CreateMode.Circles)
+                {
+                    LogDebug($"[CreateBodyItems]: Generating circle around {body.name} {poi.Type} {poi.RadiusForRendering()}");
+                    CreateCircleFromPoi(poi, enabled);
+                }
+
+                if (mode is CreateMode.All or CreateMode.Spheres)
+                {
+                    LogDebug($"[CreateBodyItems]: Generating sphere around {body.name} {poi.Type} {poi.RadiusForRendering()}");
+                    CreateWireSphereFromPoi(poi, enabled);
+                }
+            });
+        }
+
+        public void SetEnabledRenderers<TRenderer>(bool state) where TRenderer : MonoBehaviour, IRenderer
+        {
+            foreach (var (poi, render) in _poiRenderReferenceManager.GetAllRenderPoiReferenceRenderersTuples<TRenderer>())
+            {
+                var originalEnabledState = render.enabled;
+                var newEnabledState = state && CalcPoiEnabled(poi);
+                if (FocusedBodyOnly)
+                {
+                    newEnabledState &= poi.Body == Context.GameState.FocusedOrActiveBody;
+                }
+
+                if (originalEnabledState != newEnabledState)
+                {
+                    LogDebug($"[SetEnabledRenderers] enabled state change for {Logger.GetPoiLogId(poi)} {originalEnabledState} -> {newEnabledState}");
+                }
+                render.SetEnabled(newEnabledState);
+            }
+        }
+
+        public void RefreshCurrentRenderers()
+        {
+            LogDebug("[RefreshCurrentRenderers]");
+            var safeToDraw = SafeToDraw("[RefreshCurrentRenderers]");
+            SetEnabledCircles(safeToDraw && DrawCircles);
+            SetEnabledSpheres(safeToDraw && DrawSpheres);
         }
 
         #region Spheres
 
-        private void DestroyAndRecreateBodySpheres(CelestialBody targetObject)
+        public void SetEnabledSpheres(bool state)
+        {
+            SetEnabledRenderers<WireSphereRenderer>(state);
+        }
+
+        public void DestroyAndRecreateBodySpheres(CelestialBody targetObject)
         {
             RemoveBodySpheres();
             CreateBodySphere(targetObject);
@@ -590,27 +504,33 @@ namespace OrbitPOInts
 
         private void RemoveBodySpheres()
         {
-            PurgeSpheres();
+            foreach (var poiRenderReference in _poiRenderReferenceManager.AllPoiRenderReferences)
+            {
+                poiRenderReference.DestroySphereReference();
+            }
         }
 
         private void CreateBodySphere(CelestialBody body)
         {
-            if (!DrawSpheres)
-            {
-                return;
-            }
-
-            LogDebug($"[CreateBodySphere]: Generating spheres around {body.name}");
-            CreatePoisForBody(body, poi => CreateWireSphereFromPoi(poi));
+            CreateBodyItems(body, CreateMode.Spheres);
         }
 
-        private WireSphereRenderer CreateWireSphereFromPoi(POI poi)
+        private PoiRenderReference CreateWireSphereFromPoi(POI poi, bool enabled = true)
         {
             LogDebug($"[CreateWireSphereFromPoi]: Generating spheres around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
-            return CreateWireSphere(poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth, poi.Resolution);
+            var poiRenderReference = _poiRenderReferenceManager.GetOrCreatePoiRenderReference(poi);
+            var sphereRenderReference = poiRenderReference.CreateAndReplaceSphere();
+            if (sphereRenderReference == null)
+            {
+                LogError("circleRenderReference null wtf");
+            }
+            SetWireSphere(sphereRenderReference, poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth, poi.Resolution);
+            sphereRenderReference.SetEnabled(enabled);
+            return poiRenderReference;
         }
 
-        private WireSphereRenderer CreateWireSphere(
+        private void SetWireSphere(
+            WireSphereRenderer sphere,
             CelestialBody body,
             Color color,
             float radius,
@@ -618,12 +538,10 @@ namespace OrbitPOInts
             int resolution = 50
         )
         {
-            var sphere = AddOrGetSphereComponent(body, GetComponentPrefixName(body, radius));
 
             sphere.wireframeColor = color;
             sphere.radius = radius * ScaledSpace.InverseScaleFactor;
-            sphere.lineWidth = width;
-            sphere.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
+            sphere.lineWidth = ScaleLineWidth(radius, width);
             sphere.latitudeLines = resolution;
             sphere.longitudeLines = resolution;
 
@@ -631,18 +549,18 @@ namespace OrbitPOInts
             sphere.transform.localRotation = Quaternion.identity;
             sphere.transform.localScale = Vector3.one;
             sphere.transform.localPosition = Vector3.zero;
-
-            sphere.SetEnabled(true);
-            _drawnSpheres.Add(sphere);
-
-            return sphere;
         }
 
         #endregion
 
         #region Circles
 
-        private void DestroyAndRecreateBodyCircles(CelestialBody targetObject)
+        public void SetEnabledCircles(bool state)
+        {
+            SetEnabledRenderers<CircleRenderer>(state);
+        }
+
+        public void DestroyAndRecreateBodyCircles(CelestialBody targetObject)
         {
             RemoveBodyCircles();
             CreateBodyCircle(targetObject);
@@ -650,325 +568,62 @@ namespace OrbitPOInts
 
         private void RemoveBodyCircles()
         {
-            PurgeCircles();
+            foreach (var poiRenderReference in _poiRenderReferenceManager.AllPoiRenderReferences)
+            {
+                poiRenderReference.DestroyCircleReference();
+            }
         }
 
         private void CreateBodyCircle(CelestialBody body)
         {
-            if (!DrawCircles)
-            {
-                return;
-            }
-
-            LogDebug($"[CreateBodyCircle]: Generating circles around {body.name}");
-            CreatePoisForBody(body, poi => CreateCircleFromPoi(poi));
+            CreateBodyItems(body, CreateMode.Circles);
         }
 
-        private CircleRenderer CreateCircleFromPoi(POI poi)
+        private PoiRenderReference CreateCircleFromPoi(POI poi, bool enabled = true)
         {
             LogDebug($"[CreateCircleFromPoi]: Generating circle around body: {poi.Body.Serialize()}, color:{poi.Color.Serialize()}, radius:{poi.RadiusForRendering()}, line:{poi.LineWidth}, res: {poi.Resolution}");
-            return CreateCircle(poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth);
+            var poiRenderReference = _poiRenderReferenceManager.GetOrCreatePoiRenderReference(poi);
+            var circleRenderReference = poiRenderReference.CreateAndReplaceCircle();
+            if (circleRenderReference == null)
+            {
+                LogError("circleRenderReference null wtf");
+            }
+            SetCircle(circleRenderReference, poi.Body, poi.Color, (float)poi.RadiusForRendering(), poi.LineWidth);
+            circleRenderReference.SetEnabled(enabled);
+            return poiRenderReference;
         }
 
-        private CircleRenderer CreateCircle(CelestialBody body, Color color, float radius, float width = 1f,
+        private void SetCircle(
+            CircleRenderer circle,
+            CelestialBody body,
+            Color color,
+            float radius,
+            float width = 1f,
             int segments = 360)
         {
-            var circle = AddOrGetCircleComponent(body, GetComponentPrefixName(body, radius));
-
             circle.wireframeColor = color;
             circle.radius = radius * ScaledSpace.InverseScaleFactor;
-            circle.lineWidth = (float)(radius / _standardLineWidthDistance) * width;
+            circle.lineWidth = ScaleLineWidth(radius, width);
             circle.segments = segments;
 
             circle.transform.SetParent(body.MapObject.trf);
             circle.transform.localRotation = Quaternion.identity;
             circle.transform.localScale = Vector3.one;
             circle.transform.localPosition = Vector3.zero;
-
-            circle.SetEnabled(true);
-            _drawnCircles.Add(circle);
-
-            return circle;
         }
 
         #endregion
 
         #region MISC
 
-        private void UpdatePropsFromSettings()
+        private static float ScaleLineWidth(double radius, float width)
         {
-            enabled = Settings.Instance.GlobalEnable;
-            DrawCircles = Settings.Instance.EnableCircles;
-            DrawSpheres = Settings.Instance.EnableSpheres;
-            AlignSpheres = Settings.Instance.AlignSpheres;
+            return (float)(radius / _standardLineWidthDistance) * width;
         }
 
-        private void CheckEnabled()
+        private static double GetStandardLineWidthDistance()
         {
-            RegisterSettings();
-            UpdatePropsFromSettings();
-            LogDebug($"[CheckEnabled] enable: {Settings.Instance.GlobalEnable}, circles: {DrawCircles}, spheres: {DrawSpheres}, align spheres: {AlignSpheres}");
-            // check to make sure we still enabled after loading settings
-            if (!enabled)
-            {
-                PurgeAll();
-                return;
-            }
-
-            PurgeIfNotInMapOrTracking();
-            RegisterEvents();
-        }
-
-        private bool PurgeIfNotInMapOrTracking()
-        {
-            // if for some reason we end up here and we arent in the mapview or tracking station we should purge
-            if (!SceneHelper.ViewingMapOrTrackingStation)
-            {
-                LogDebug("[PurgeIfNotInMapOrTracking] Purging");
-                PurgeAll();
-                return true;
-            }
-
-            return false;
-        }
-
-        private static void LoadStandardLineWidthDistance()
-        {
-            foreach (var body in FlightGlobals.Bodies.Where(body => body.isHomeWorld))
-            {
-                _standardLineWidthDistance = body.minOrbitalDistance;
-                break;
-            }
-        }
-        #endregion
-
-        #region Components
-        private string GetComponentPrefixName(CelestialBody body, double radius)
-        {
-            return $"{body.name}_{radius}";
-        }
-
-        private CircleRenderer AddOrGetCircleComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
-        {
-            var target = GetOrCreateBodyComponentHolder(body, ComponentHolderType.Circle);
-            var components = target.GetComponents<CircleRenderer>();
-            foreach (var component in components)
-            {
-                if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
-                {
-                    LogDebug($"[AddOrGetCircleComponent] Reusing: {uniqueGameObjectNamePrefix}");
-                    return component;
-                }
-
-                if(component.IsAlive() && component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
-                {
-                    LogDebug($"[AddOrGetCircleComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
-                    continue;
-                }
-
-                LogDebug("[AddOrGetCircleComponent] Skipping unknown dead component");
-            }
-
-            LogDebug($"[AddOrGetCircleComponent] Creating new component {uniqueGameObjectNamePrefix}");
-            var circle = target.AddComponent<CircleRenderer>();
-            circle.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
-            return circle;
-        }
-
-        private WireSphereRenderer AddOrGetSphereComponent(CelestialBody body, string uniqueGameObjectNamePrefix)
-        {
-            var target = GetOrCreateBodyComponentHolder(body, ComponentHolderType.Sphere);
-            var components = target.GetComponents<WireSphereRenderer>();
-            foreach (var component in components)
-            {
-                if (component.IsAlive() && !component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
-                {
-                    LogDebug($"[AddOrGetSphereComponent] Reusing: {uniqueGameObjectNamePrefix}");
-                    return component;
-                }
-
-                if(component.IsAlive() && component.IsDying && component.uniqueGameObjectNamePrefix == uniqueGameObjectNamePrefix)
-                {
-                    LogDebug($"[AddOrGetSphereComponent] Skipping dying component: {uniqueGameObjectNamePrefix}");
-                    continue;
-                }
-
-                LogDebug("[AddOrGetSphereComponent] Skipping unknown dead component");
-            }
-
-            LogDebug($"[AddOrGetSphereComponent] Creating new component {uniqueGameObjectNamePrefix}");
-            var sphere = target.AddComponent<WireSphereRenderer>();
-            sphere.uniqueGameObjectNamePrefix = uniqueGameObjectNamePrefix;
-            return sphere;
-        }
-
-        #region Component Holder
-        private enum ComponentHolderType
-        {
-            Sphere,
-            Circle,
-        }
-        private string GetComponentHolderName(CelestialBody body, ComponentHolderType type)
-        {
-            return $"component_holder_{GetComponentHolderKey(body, type)}";
-        }
-
-        private string GetComponentHolderKey(CelestialBody body, ComponentHolderType type)
-        {
-            return $"{body.name}_{type}";
-        }
-
-        private GameObject GetOrCreateBodyComponentHolder(CelestialBody body, ComponentHolderType type)
-        {
-            var componentHolder = _bodyComponentHolders.TryGet(GetComponentHolderKey(body, type));
-            if (componentHolder.IsSome && componentHolder.Value.IsAlive())
-            {
-                LogDebug($"[GetOrCreateBodyComponentHolder] Reusing component holder {type} for {body.name}");
-                return componentHolder.Value;
-            }
-            if (componentHolder.IsSome && !componentHolder.Value.IsAlive())
-            {
-                LogDebug($"[GetOrCreateBodyComponentHolder] Skipping dead component holder for {body.name}");
-            }
-            LogDebug($"[GetOrCreateBodyComponentHolder] Creating component holder for {body.name}");
-            var primitive = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            primitive.name = GetComponentHolderName(body, type);
-            _bodyComponentHolders.Add(GetComponentHolderKey(body, type), primitive);
-            return primitive;
-        }
-        #endregion
-        #endregion
-
-        #region PurgeMethods
-        private void PurgeAllByNamePrefix(string namePrefix)
-        {
-            PurgeAllCirclesByNamePrefix(namePrefix);
-            PurgeAllSpheresByNamePrefix(namePrefix);
-        }
-
-        private void PurgeAllCirclesByNamePrefix(string namePrefix)
-        {
-            foreach (var bodyComponentHolder in _bodyComponentHolders)
-            {
-                var components = bodyComponentHolder.Value.GetComponents<CircleRenderer>().Where(c => c.uniqueGameObjectNamePrefix == namePrefix);;
-                LogDebug($"[PurgeAllCirclesByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
-                foreach (var component in components)
-                {
-                    DestroyImmediate(component);
-                }
-            }
-        }
-
-        private void PurgeAllSpheresByNamePrefix(string namePrefix)
-        {
-            foreach (var bodyComponentHolder in _bodyComponentHolders)
-            {
-                var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>().Where(c => c.uniqueGameObjectNamePrefix == namePrefix);
-                LogDebug($"[PurgeAllSpheresByNamePrefix] {bodyComponentHolder.Key} {namePrefix} - {components.Count()}");
-                foreach (var component in components)
-                {
-                    DestroyImmediate(component);
-                }
-            }
-        }
-
-        private void PurgeAllByBody(CelestialBody body)
-        {
-            PurgeAllCirclesByBody(body);
-            PurgeAllSpheresByBody(body);
-        }
-
-        private void PurgeAllCirclesByBody(CelestialBody body)
-        {
-            var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
-            if (bodyComponentHolder.IsNone) return;
-            var components = bodyComponentHolder.Value.GetComponents<CircleRenderer>();
-            LogDebug($"[PurgeAllCirclesByBody] {body.name} - {components.Length}");
-            foreach (var component in components)
-            {
-                DestroyImmediate(component);
-            }
-        }
-
-        private void PurgeAllSpheresByBody(CelestialBody body)
-        {
-            var bodyComponentHolder = _bodyComponentHolders.TryGet(body.name);
-            if (bodyComponentHolder.IsNone) return;
-            var components = bodyComponentHolder.Value.GetComponents<WireSphereRenderer>();
-            LogDebug($"[PurgeAllSpheresByBody] {body.name} - {components.Length}");
-            foreach (var component in components)
-            {
-                DestroyImmediate(component);
-            }
-        }
-
-        // TODO: desperate times call for desperate measures
-        internal void PurgeAll()
-        {
-            LogDebug("=== PURGING ALL ===");
-
-            PurgeSpheres();
-            PurgeCircles();
-            PurgeBodyHolders();
-        }
-
-        private void PurgeBodyHolders()
-        {
-            LogDebug("=== PURGING BODY HOLDERS ===");
-            _bodyComponentHolders.Clear();
-            foreach (var body in FlightGlobals.Bodies)
-            {
-                foreach (ComponentHolderType type in Enum.GetValues(typeof(ComponentHolderType)))
-                {
-                    DestroyIfAliveGO(GameObject.Find(GetComponentHolderName(body, type)));
-                }
-            }
-        }
-
-        internal void PurgeSpheres()
-        {
-            LogDebug("=== PURGING SPHERES ===");
-            _drawnSpheres.Clear();
-            foreach (var component in GameObject.FindObjectsOfType<WireSphereRenderer>())
-            {
-                DestroyIfAliveMB(component);
-            }
-            foreach (var lineRenderer in GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == WireSphereRenderer.NameKey))
-            {
-                DestroyIfAliveGO(lineRenderer);
-            }
-        }
-
-        internal void PurgeCircles()
-        {
-            LogDebug("=== PURGING CIRCLES ===");
-            _drawnCircles.Clear();
-            foreach (var component in GameObject.FindObjectsOfType<CircleRenderer>())
-            {
-                DestroyIfAliveMB(component);
-            }
-            foreach (var lineRenderer in GameObject.FindObjectsOfType<GameObject>().Where(go => go.name == CircleRenderer.NameKey))
-            {
-                DestroyIfAliveGO(lineRenderer);
-            }
-        }
-        #endregion
-
-        #region DestroyHelpers
-        private void DestroyIfAliveMB(MonoBehaviour target)
-        {
-            if (target.IsAlive())
-            {
-                DestroyImmediate(target);
-            }
-        }
-
-        private void DestroyIfAliveGO(GameObject target)
-        {
-            if (target.IsAlive())
-            {
-                DestroyImmediate(target);
-            }
+            return FlightGlobals.Bodies.Where(body => body.isHomeWorld).Select(body => body.minOrbitalDistance).FirstOrDefault();
         }
         #endregion
     }

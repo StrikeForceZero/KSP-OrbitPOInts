@@ -1,6 +1,6 @@
 #if TEST
 using UnityEngineMock;
-
+using System.Linq;
 #else
 using UniLinq;
 using UnityEngine;
@@ -26,6 +26,14 @@ namespace OrbitPOInts.Extensions.Unity
         public static bool IsAlive(this GameObject gameObject)
         {
             return gameObject;
+        }
+
+        public static void DestroyImmediateIfAlive(this GameObject gameObject)
+        {
+            if (gameObject.IsAlive())
+            {
+                Object.DestroyImmediate(gameObject);
+            }
         }
     }
 }

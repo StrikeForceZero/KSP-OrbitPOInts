@@ -1,6 +1,13 @@
-#if TEST
-using UnityEngineMock;
 
+using System;
+using System.Collections;
+using System.ComponentModel;
+using OrbitPOInts.Data.POI;
+using OrbitPOInts.Extensions;
+using OrbitPOInts.Extensions.KSP;
+#if TEST
+using System.Linq;
+using UnityEngineMock;
 #else
 using UniLinq;
 using UnityEngine;
@@ -26,6 +33,53 @@ namespace OrbitPOInts.Utils
         public static void LogError(string str)
         {
             Debug.LogError($"{TAG}[{Time.frameCount}][ERROR] {str}");
+        }
+
+        public static void LogPropertyChange<T>(object sender, PropertyChangedEventArgs args, string tag = "[PropertyChange]")
+        {
+            var typeName = typeof(T).Name;
+
+            if (sender is T castedSender)
+            {
+                var value = Reflection.GetMemberValue(castedSender, args.PropertyName);
+                var valueString = GetValueString(value);
+                LogDebug($"{tag} {typeName}.{args.PropertyName}={valueString}");
+            }
+            else
+            {
+                LogDebug($"{tag} {typeName}.{args.PropertyName} (sender was not of type {typeName})");
+            }
+        }
+
+        public static string GetValueString<T>(T value)
+        {
+            string HandleEnumerable(IEnumerable enumerable)
+            {
+                var countString = "?";
+                // dont iterate unless LogDebugEnabled
+                if (Settings.Instance.LogDebugEnabled)
+                {
+                    var count = enumerable.Cast<object>().Count();
+                    countString = count.ToString();
+                }
+
+                return $"{enumerable.GetType()}[{countString}]";
+            }
+
+            return value switch
+            {
+                null => "null",
+                IDictionary dictionary => $"{value.GetType()}[{dictionary.Count}]",
+                ICollection collection => $"{value.GetType()}[{collection.Count}]",
+                IEnumerable enumerable => HandleEnumerable(enumerable),
+                _ => value.ToString()
+            };
+        }
+
+        public static string GetPoiLogId(POI poi)
+        {
+            var derivedTypeString = poi.GetDerivedClassName();
+            return $"{derivedTypeString}=({poi.Id}, {poi.Body.Serialize() ?? "[Global]"}, {poi.Type})";
         }
     }
 }

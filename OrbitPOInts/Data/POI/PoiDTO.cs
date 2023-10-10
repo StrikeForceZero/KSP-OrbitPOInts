@@ -52,7 +52,10 @@ namespace OrbitPOInts.Data.POI
             AddValue(node, () => Radius);
             AddValue(node, () => Color, color => color.Serialize());
             AddValue(node, () => Type);
-            AddValue(node, () => Body, body => body.Serialize());
+            // don't bother adding the body if its null, it will log an error from ConfigNode.AddValue() and set it to ""
+            // while very unlikely that a body will be named "", it might be better to skip it all together
+            // TODO: should the responsibility be somewhere else?
+            if (Body != null) AddValue(node, () => Body, body => body.Serialize());
             AddValue(node, () => AddPlanetRadius);
             AddValue(node, () => LineWidth);
             AddValue(node, () => Resolution);

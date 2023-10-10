@@ -47,6 +47,7 @@ namespace OrbitPOInts.UI
     using MapView = KSP_MapView;
 
     using Logger = Utils.Logger;
+    using CWIL = ControlWrapperInteractionLogger;
 
     [KSPAddon(KSPAddon.Startup.AllGameScenes, false)]
     public class ToolbarUI : MonoBehaviour
@@ -60,6 +61,7 @@ namespace OrbitPOInts.UI
         private const string GlobalConfigKey = "Global";
         private IList<string> _selectableBodyNames = new List<string> { GlobalConfigKey };
         private int _selectedBodyIndex = 0;
+        private string _selectedBodyName;
 
         private SimpleColorPicker _colorPicker = new SimpleColorPicker();
         private OptionsPopup _optionsPopup = new OptionsPopup();
@@ -233,6 +235,16 @@ namespace OrbitPOInts.UI
             }
         }
 
+        private static GUILayoutOption[] MergeOptions(GUILayoutOption[] optionsA, params GUILayoutOption[] optionsB) => optionsA.Concat(optionsB).ToArray();
+        private static CWIL.RenderButton StandardButtonNoExpand(params GUILayoutOption[] options) => CWIL.StandardButton(MergeOptions(options, GUILayout.ExpandWidth(false)));
+        private static CWIL.RenderToggle StandardToggleNoExpand(params GUILayoutOption[] options) => CWIL.StandardToggle(MergeOptions(options, GUILayout.ExpandWidth(false)));
+        private static CWIL.RenderTextField StandardTextFieldNoExpand(params GUILayoutOption[] options) => CWIL.StandardTextField(MergeOptions(options, GUILayout.ExpandWidth(false)));
+
+        private void LogContext()
+        {
+            LogDebug($"[Context:SelectedBodyName]{_selectedBodyName}");
+        }
+
         // TODO: needs moar abstraction!
         private void CustomPoiHandler(POI poi)
         {
@@ -248,10 +260,10 @@ namespace OrbitPOInts.UI
             poi.Enabled = newPoiRadius > 0 && (poiChanged || customPoiRadiusInput.Enabled);
             customPoiRadiusInput.Text = newPoiRadius.ToString("N", CultureInfo.CurrentCulture);
 
-            poi.AddPlanetRadius = GUILayout.Toggle(poi.AddPlanetRadius, "+ PR", GUILayout.ExpandWidth(false));
+            poi.AddPlanetRadius = CWIL.WrapToggle(poi.AddPlanetRadius, "+ PR", StandardToggleNoExpand(), _ => LogContext());
             GUILayout.Space(50);
 
-            if (GUILayout.Button("Remove", GUILayout.ExpandWidth(false)))
+            if (CWIL.WrapButton("Remove", StandardButtonNoExpand(), LogContext))
             {
                 LogDebug($"[GUI] Remove poi clicked: {poi.Label}");
                 Settings.Instance.RemoveConfiguredPoi(poi, true);
@@ -273,7 +285,7 @@ namespace OrbitPOInts.UI
         {
             GUILayout.BeginHorizontal();
             GUILayout.Label(label);
-            var result = GUILayout.TextField(text);
+            var result = CWIL.WrapTextField(text, label);
             GUILayout.EndHorizontal();
             return result;
         }
@@ -282,9 +294,9 @@ namespace OrbitPOInts.UI
         {
             var result = ToggleTextFieldResult.Default;
             GUILayout.BeginHorizontal();
-            result.Enabled = GUILayout.Toggle(toggled, label, GUILayout.ExpandWidth(false));
+            result.Enabled = CWIL.WrapToggle(toggled, label, StandardToggleNoExpand(), _ => LogContext());
             GUILayout.Space(75);
-            result.Text = GUILayout.TextField(text, GUILayout.ExpandWidth(false), GUILayout.Width(100));
+            result.Text = CWIL.WrapTextField(text, label, StandardTextFieldNoExpand(GUILayout.Width(100)), _ => LogContext());
             GUILayout.EndHorizontal();
             return result;
         }
@@ -292,18 +304,23 @@ namespace OrbitPOInts.UI
         private delegate void OnColorChangedAction(Color color);
         private void CustomColorButton(string name, Color initialColor, Color defaultColor, OnColorChangedAction onColorChangedAction)
         {
-            var customColorButtonClicked = GUILayout.Button("Color", GUILayout.ExpandWidth(false));
-            if (customColorButtonClicked)
-            {
-                LogDebug($"customColorButtonClicked {initialColor}");
-                _colorPicker.OpenColorPicker(initialColor, defaultColor, $"Edit {name} color");
-                _colorPicker.OnColorPickerClosed += color =>
+            CWIL.WrapButton(
+                "Color",
+                StandardButtonNoExpand(),
+                () =>
                 {
-                    LogDebug($"color picker closed {initialColor} -> {color}");
-                    if (color == initialColor) return;
-                    onColorChangedAction.Invoke(color);
-                };
-            }
+                    LogContext();
+                    LogDebug($"customColorButtonClicked {initialColor}");
+                    _colorPicker.OpenColorPicker(initialColor, defaultColor, $"Edit {name} color");
+                    _colorPicker.OnColorPickerClosed += color =>
+                    {
+                        LogContext();
+                        LogDebug($"color picker closed {initialColor} -> {color}");
+                        if (color == initialColor) return;
+                        onColorChangedAction.Invoke(color);
+                    };
+                }
+            );
         }
 
         private delegate void Children();
@@ -332,7 +349,7 @@ namespace OrbitPOInts.UI
             {
                 PoiContainer(poi, () =>
                     {
-                        poi.Enabled = GUILayout.Toggle(poi.Enabled, poi.Label, GUILayout.ExpandWidth(false));
+                        poi.Enabled = CWIL.WrapToggle(poi.Enabled, poi.Label, StandardToggleNoExpand(), _ => LogContext());
                         GUILayout.FlexibleSpace();
                     }
                 );
@@ -350,7 +367,7 @@ namespace OrbitPOInts.UI
                 CustomPoiGUI(poi);
             }
 
-            if (GUILayout.Button("Add Custom POI"))
+            if (CWIL.WrapButton("Add Custom POI", null, LogContext))
             {
                 Settings.Instance.AddConfiguredPoi(POI.DefaultFrom(body, PoiType.Custom));
             }
@@ -362,51 +379,36 @@ namespace OrbitPOInts.UI
 
                 Controls.StandardCloseButton(CloseWindow, !Settings.Instance.UseTopRightCloseButton);
 
-                Settings.Instance.GlobalEnable = GUILayout.Toggle(Settings.Instance.GlobalEnable, "Enabled");
-                if (Settings.Instance.GlobalEnable)
-                {
-                    if (!OrbitPoiVisualizer.Instance.enabled)
-                    {
-                        LogDebug("[GUI] enabling OrbitPoiVisualizer");
-                        OrbitPoiVisualizer.Instance.enabled = true;
-                    }
-                }
+                Settings.Instance.GlobalEnable = CWIL.WrapToggle(Settings.Instance.GlobalEnable,"Enabled");
 
                 GUILayout.Space(10);
 
                 GUILayout.BeginVertical();
-                    Settings.Instance.FocusedBodyOnly = GUILayout.Toggle(Settings.Instance.FocusedBodyOnly, "Focused Body Only");
-                    GUILayout.Label("(turning this off can have major performance impacts)");
+                    Settings.Instance.FocusedBodyOnly = CWIL.WrapToggle(Settings.Instance.FocusedBodyOnly, "Focused Body Only");
                 GUILayout.EndVertical();
 
                 GUILayout.Space(10);
 
-                Settings.Instance.EnableSpheres = GUILayout.Toggle(Settings.Instance.EnableSpheres, "Draw Spheres");
-                Settings.Instance.AlignSpheres = GUILayout.Toggle(Settings.Instance.AlignSpheres, "Align Spheres");
-                Settings.Instance.EnableCircles = GUILayout.Toggle(Settings.Instance.EnableCircles, "Draw Circles");
+                Settings.Instance.EnableSpheres = CWIL.WrapToggle(Settings.Instance.EnableSpheres, "Draw Spheres");
+                Settings.Instance.AlignSpheres = CWIL.WrapToggle(Settings.Instance.AlignSpheres, "Align Spheres");
+                Settings.Instance.EnableCircles = CWIL.WrapToggle(Settings.Instance.EnableCircles, "Draw Circles");
 
-                Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = GUILayout.Toggle(Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, "Show POI Max Terrain Altitude On Atmospheric Bodies");
+                Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies = CWIL.WrapToggle(Settings.Instance.ShowPoiMaxTerrainAltitudeOnAtmosphericBodies, "Show POI Max Terrain Altitude On Atmospheric Bodies");
                 
                 GUILayout.Space(10);
 
                 // TODO: make a dropdown
                 _selectedBodyIndex = GUILayout.SelectionGrid(_selectedBodyIndex, _selectableBodyNames.ToArray(), 6);
-
-                var selectedBodyName = _selectableBodyNames[_selectedBodyIndex];
+                _selectedBodyName = _selectableBodyNames[_selectedBodyIndex];
+                var selectedBody = _selectedBodyIndex > 0 ? FlightGlobals.Bodies[_selectedBodyIndex - 1] : null;
 
                 GUILayout.Space(10);
 
-                var resetBodyPoiClicked = GUILayout.Button($"Reset POIs for {selectedBodyName} to defaults");
+                var resetBodyPoiClicked = CWIL.WrapButton($"Reset POIs for {_selectedBodyName} to defaults");
                 if (resetBodyPoiClicked)
                 {
-                    LogDebug($"[GUI] Reset POIs for Body Clicked: {selectedBodyName}");
-                    // TODO: it might be worth making a wrapper class for CelestialBodies
-                    // so we can make null treated like a body with its own name
-                    // this way we don't have to rely on all bodies having unique names
-                    // or looping through them each time as CelestialBodyExtensions.ResolveByName adds some overhead
-                    var targetBodyName = _selectedBodyIndex > 0 ? selectedBodyName : null;
-                    var targetBody = CelestialBodyExtensions.ResolveByName(targetBodyName);
-                    var configuredPoisToRemove = Settings.Instance.ConfiguredPois.Where(poi => poi.Type != PoiType.Custom && poi.Body == targetBody);
+                    LogDebug($"[GUI] Reset POIs for Body Clicked: {_selectedBodyName}");
+                    var configuredPoisToRemove = Settings.Instance.ConfiguredPois.Where(poi => poi.Type != PoiType.Custom && poi.Body == selectedBody);
 
                     foreach (var poi in configuredPoisToRemove)
                     {
@@ -416,26 +418,12 @@ namespace OrbitPOInts.UI
 
                 GUILayout.Space(10);
 
-                if (_selectedBodyIndex > 0)
-                {
-                    foreach (var body in FlightGlobals.Bodies)
-                    {
-                        if (selectedBodyName != body.name) continue;
-
-                        DrawPoiControls(body);
-
-                    }
-                }
-                else
-                {
-                    // global
-                    DrawPoiControls(null);
-                }
+                DrawPoiControls(selectedBody);
 
                 GUILayout.FlexibleSpace();
                 GUILayout.Space(20);
 
-                var showOptionsButtonClicked = GUILayout.Button("Show Options");
+                var showOptionsButtonClicked = CWIL.WrapButton("Show Options");
                 if (showOptionsButtonClicked)
                 {
                     LogDebug($"[GUI] Show Options Button clicked");

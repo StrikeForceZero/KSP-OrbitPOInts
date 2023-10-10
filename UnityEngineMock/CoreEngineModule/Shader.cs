@@ -2,9 +2,9 @@ using System;
 
 namespace UnityEngineMock
 {
-    public class Material
+    public class Shader
     {
-        public Material(Shader shader)
+        public static Shader Find(string path)
         {
             throw new NotImplementedException();
         }

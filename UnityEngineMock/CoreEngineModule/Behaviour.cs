@@ -2,6 +2,6 @@ namespace UnityEngineMock
 {
     public class Behaviour : Component
     {
-        public bool enabled;
+        public bool enabled { get; set; }
     }
 }
