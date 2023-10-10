@@ -32,8 +32,8 @@ See https://github.com/StrikeForceZero/KSP-OrbitPOInts/labels/bug for known issu
 - [ ] Maybe custom orbit shapes
 
 ## Screenshots
-![Custom POI Circle.png](<Screenshots/Custom POI Circle.png>)
-![Custom POI Sphere.png](<Screenshots/Custom POI Sphere.png>)
+![Custom POI Circle](<Screenshots/Custom POI Circle.png>)
+![Custom POI Sphere](<Screenshots/Custom POI Sphere.png>)
 (older)
 ![POI Mun SOI Screenshot](<Screenshots/Mun SOI.png>)
 ![Custom Colors Screenshot](<Screenshots/Custom Colors.png>)
