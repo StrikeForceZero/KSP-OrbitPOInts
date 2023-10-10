@@ -37,8 +37,12 @@ namespace OrbitPOInts
         }
 
         [CanBeNull]
-        public CelestialBody ResolveByName(string name)
+        public CelestialBody ResolveByName([CanBeNull] string name)
         {
+            if (name == null)
+            {
+                return null;
+            }
             NameToBodyDictionary.TryGetValue(name, out var result);
             return result;
         }
