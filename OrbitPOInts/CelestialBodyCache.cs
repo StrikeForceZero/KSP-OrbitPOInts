@@ -42,5 +42,10 @@ namespace OrbitPOInts
             NameToBodyDictionary.TryGetValue(name, out var result);
             return result;
         }
+
+        public static void ClearCache()
+        {
+            _instance = null;
+        }
     }
 }
