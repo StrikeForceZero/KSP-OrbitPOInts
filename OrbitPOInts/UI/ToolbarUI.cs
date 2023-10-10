@@ -415,6 +415,13 @@ namespace OrbitPOInts.UI
 
                 GUILayout.Space(10);
 
+                CWIL.WrapButton("Force Refresh", StandardButtonNoExpand(), () =>
+                {
+                    GameStateManager.Instance.Visualizer.Rebuild();
+                });
+
+                GUILayout.Space(10);
+
                 GUILayout.BeginVertical();
                     Settings.Instance.FocusedBodyOnly = CWIL.WrapToggle(Settings.Instance.FocusedBodyOnly, "Focused Body Only");
                 GUILayout.EndVertical();
