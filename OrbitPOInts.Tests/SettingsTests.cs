@@ -32,6 +32,7 @@ namespace OrbitPOInts.Tests
                 Radius = 1,
             };
             FlightGlobals.Bodies = new List<CelestialBody> { testBody };
+            CelestialBodyCache.ClearCache();
         }
 
         [SetUp]
