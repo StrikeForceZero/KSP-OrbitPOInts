@@ -92,6 +92,7 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="CelestialBodyCacheTests.cs" />
         <Compile Include="ConfigNodeExtensionsTests.cs" />
         <Compile Include="CustomAsserts\CollectionAssert.cs" />
         <Compile Include="Data\PoiCompareTests.cs" />
