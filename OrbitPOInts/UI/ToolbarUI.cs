@@ -160,8 +160,8 @@ namespace OrbitPOInts.UI
         {
             if (toolbarButton) return false;
             toolbarButton = ApplicationLauncher.Instance.AddModApplication(
-                OnToolbarButtonClick,
-                OnToolbarButtonClick,
+                OnShowOrEnable,
+                OnShowOrDisable,
                 null,
                 null,
                 null,
@@ -169,6 +169,7 @@ namespace OrbitPOInts.UI
                 ApplicationLauncher.AppScenes.MAPVIEW | ApplicationLauncher.AppScenes.TRACKSTATION,
                 GameDatabase.Instance.GetTexture("OrbitPOInts/UI/toolbar_icon", false)
             );
+            toolbarButton.onRightClick += OnRightClick;
             return true;
         }
 
@@ -180,10 +181,41 @@ namespace OrbitPOInts.UI
             return true;
         }
 
-        private void OnToolbarButtonClick()
+        private void ToggleWindow()
         {
             showUI = !showUI;
             CenterWindowPos();
+            if (!showUI)
+            {
+                CloseWindow();
+            }
+        }
+
+        private void OnShowOrEnable()
+        {
+            if (Settings.Instance.UseQuickEnableToggle)
+            {
+                Settings.Instance.GlobalEnable = true;
+                return;
+            }
+
+            ToggleWindow();
+        }
+
+        private void OnShowOrDisable()
+        {
+            if (Settings.Instance.UseQuickEnableToggle)
+            {
+                Settings.Instance.GlobalEnable = false;
+                return;
+            }
+
+            ToggleWindow();
+        }
+
+        private void OnRightClick()
+        {
+            ToggleWindow();
         }
 
         private void OnMapEntered()
@@ -441,7 +473,10 @@ namespace OrbitPOInts.UI
         private void CloseWindow()
         {
             LogDebug("CloseWindow");
-            toolbarButton.SetFalse();
+            if (!Settings.Instance.UseQuickEnableToggle)
+            {
+                toolbarButton.SetFalse();
+            }
             showUI = false;
             _colorPicker.DisplayGUI(false);
             _optionsPopup.DisplayGUI(false);

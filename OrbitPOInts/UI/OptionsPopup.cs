@@ -69,6 +69,7 @@ namespace OrbitPOInts.UI
                 Settings.Instance.UseSkin = CWIL.WrapToggle(Settings.Instance.UseSkin, "Use Skin");
                 Settings.Instance.UseOpaqueBackgroundOverride = CWIL.WrapToggle(Settings.Instance.UseOpaqueBackgroundOverride, "Use Opaque Background Override");
                 Settings.Instance.UseTopRightCloseButton = CWIL.WrapToggle(Settings.Instance.UseTopRightCloseButton, "Use Top Right Close Button");
+                Settings.Instance.UseQuickEnableToggle = CWIL.WrapToggle(Settings.Instance.UseQuickEnableToggle, "Use LeftClick to toggle / RightClick for settings");
 
                 if (Settings.Instance.UseOpaqueBackgroundOverride)
                 {

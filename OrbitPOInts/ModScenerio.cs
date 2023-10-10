@@ -51,6 +51,7 @@ namespace OrbitPOInts
             UseSkin,
             UseTopRightCloseButton,
             UseOpaqueBackgroundOverride,
+            UseQuickEnableToggle,
         }
 
         private static string GetKey<TEnum>(TEnum key) where TEnum : Enum
@@ -86,6 +87,7 @@ namespace OrbitPOInts
             Settings.Instance.UseSkin = node.GetBool(GetKey(SettingsBool.UseSkin), false);
             Settings.Instance.UseTopRightCloseButton = node.GetBool(GetKey(SettingsBool.UseTopRightCloseButton), true);
             Settings.Instance.UseOpaqueBackgroundOverride = node.GetBool(GetKey(SettingsBool.UseOpaqueBackgroundOverride), false);
+            Settings.Instance.UseQuickEnableToggle = node.GetBool(GetKey(SettingsBool.UseQuickEnableToggle), false);
 
             Settings.Instance.UpdateConfiguredPois(LoadConfiguredPois(node));
 
@@ -107,6 +109,7 @@ namespace OrbitPOInts
             node.AddValue(GetKey(SettingsBool.UseSkin), Settings.Instance.UseSkin);
             node.AddValue(GetKey(SettingsBool.UseTopRightCloseButton), Settings.Instance.UseTopRightCloseButton);
             node.AddValue(GetKey(SettingsBool.UseOpaqueBackgroundOverride), Settings.Instance.UseOpaqueBackgroundOverride);
+            node.AddValue(GetKey(SettingsBool.UseQuickEnableToggle), Settings.Instance.UseQuickEnableToggle);
 
             SaveConfiguredPois(node, Settings.Instance.ConfiguredPois);
 

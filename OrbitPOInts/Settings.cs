@@ -256,6 +256,8 @@ namespace OrbitPOInts
 
         public bool UseTopRightCloseButton { get; set; } = true;
 
+        public bool UseQuickEnableToggle { get; set; }
+
         private void OnDefaultPoiPropChange(object senderPoi, PropertyChangedEventArgs args)
         {
             if (senderPoi is not ResettablePoi poi) return;
