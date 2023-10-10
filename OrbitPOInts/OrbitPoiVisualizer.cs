@@ -124,16 +124,14 @@ namespace OrbitPOInts
         public void RemovePoi(POI poi)
         {
             LogDebug($"[RemovePoi] {Logger.GetPoiLogId(poi)}");
-            if (poi.Body == null)
+            if (poi.IsGlobal())
             {
-                foreach (var body in FlightGlobals.Bodies)
-                {
-                    poi = poi.CloneWith(body, true);
-                    _poiRenderReferenceManager.RemovePoiRenderReference(poi);
-                }
-                return;
+                _poiRenderReferenceManager.RemovePoiRenderReference(poi);
             }
-            _poiRenderReferenceManager.RemovePoiRenderReference(poi);
+            foreach (var patchedPoi in PoiUtils.GetPatchedPois(poi))
+            {
+                _poiRenderReferenceManager.RemovePoiRenderReference(patchedPoi);
+            }
         }
 
         public void AddPoi(POI poi)
