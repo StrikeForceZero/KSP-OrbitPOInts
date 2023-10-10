@@ -384,7 +384,7 @@ namespace OrbitPOInts
                     Visualizer.AddPoi(poi);
                 }
             }
-            Visualizer.CurrentTargetRefresh();
+            Visualizer.RefreshCurrentRenderers();
         }
 
         private void OnGameSceneLoadRequested(GameScenes scenes)
