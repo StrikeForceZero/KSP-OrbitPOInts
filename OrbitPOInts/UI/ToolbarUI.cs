@@ -380,14 +380,6 @@ namespace OrbitPOInts.UI
                 Controls.StandardCloseButton(CloseWindow, !Settings.Instance.UseTopRightCloseButton);
 
                 Settings.Instance.GlobalEnable = CWIL.WrapToggle(Settings.Instance.GlobalEnable,"Enabled");
-                if (Settings.Instance.GlobalEnable)
-                {
-                    if (!GameStateManager.Instance.enabled)
-                    {
-                        LogDebug("[GUI] enabling OrbitPoiVisualizer");
-                        GameStateManager.Instance.enabled = true;
-                    }
-                }
 
                 GUILayout.Space(10);
 

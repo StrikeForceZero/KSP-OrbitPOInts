@@ -179,10 +179,14 @@ namespace OrbitPOInts
         private void OnDisable()
         {
             LogDebug("OnDisable");
-            // this prevents us from waking up again
-            // but instead of leaving a envent handler just for GlobalEnable
-            // we'll pass the responsibility to the UI
-            UnregisterSettings();
+            // TODO: we need to keep listening in case poi modifications are made while we are disabled
+            // - previously we had the responsibility of the GUI enabling us after being disabled but leaving subscribers
+            // on the settings lets the user continue to configure the POIs without rendering anything
+            // - if we decide to disable / hide the gui controls, or make the manager destroy and redraw everything on enable
+            // then we can revert back to the previous behavior
+            // - this also allows us to eventually add a responsive left click from the toolbar to toggle enable
+            // - alternative to all this is adding an option for the user that disables everything but the GUI
+            // UnregisterSettings();
             RegisterEvents(false);
             Visualizer.SetEnabled(false);
         }
