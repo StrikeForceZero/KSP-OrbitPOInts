@@ -231,6 +231,13 @@ namespace OrbitPOInts
             RefreshCurrentRenderers();
         }
 
+        public void Rebuild()
+        {
+            LogDebug("[Rebuild]");
+            RemoveAll();
+            Init();
+        }
+
         #region Refresh
         // TODO: probably safe to remove
         public void Refresh(MapObject focusTarget)
@@ -259,6 +266,7 @@ namespace OrbitPOInts
 
         internal void RemoveAll()
         {
+            LogDebug("[RemoveAll]");
             _poiRenderReferenceManager.Clear();
         }
 
