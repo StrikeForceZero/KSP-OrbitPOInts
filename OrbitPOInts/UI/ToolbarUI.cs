@@ -433,13 +433,8 @@ namespace OrbitPOInts.UI
 
                 if (_selectedBodyIndex > 0)
                 {
-                    foreach (var body in FlightGlobals.Bodies)
-                    {
-                        if (_selectedBodyName != body.name) continue;
-
-                        DrawPoiControls(body);
-
-                    }
+                    var selectedBody = FlightGlobals.Bodies[_selectedBodyIndex - 1];
+                    DrawPoiControls(selectedBody);
                 }
                 else
                 {
