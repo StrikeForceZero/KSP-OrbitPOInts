@@ -1,5 +1,15 @@
 # Changelog
 
+## 2023-10-10 v0.6
+- Added:
+    - Option to Use LeftClick to toggle / RightClick for settings
+    - Button for force redraw visual components on the map
+- Fixed:
+    - Any known performance issues when interacting with the GUI (resolves #9)
+    - Various undocumented bugs
+- Under the Hood:
+    - Rewrote the Manager and state machine
+
 ## 2023-10-02 v0.5
 - Added:
     - Persistence
