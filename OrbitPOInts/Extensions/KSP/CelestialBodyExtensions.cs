@@ -23,7 +23,7 @@ namespace OrbitPOInts.Extensions.KSP
     public static class CelestialBodyExtensions
     {
         public static bool IsPqsUsable(this CelestialBody body) =>
-            body?.pqsController && body.pqsController.isActiveAndEnabled;
+            body && body.pqsController && body.pqsController.isActiveAndEnabled;
         
         // TODO: scale sampleRes based on body.Radius
         public static double GetApproxTerrainMaxHeight(this CelestialBody body, int sampleResolution = 100)
