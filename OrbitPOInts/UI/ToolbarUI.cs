@@ -413,6 +413,9 @@ namespace OrbitPOInts.UI
             GUILayout.BeginVertical();
 
                 Controls.StandardCloseButton(CloseWindow, !Settings.Instance.UseTopRightCloseButton);
+                
+                // Prevent button from overlapping `Enabled` toggle
+                GUILayout.Space(5);
 
                 Settings.Instance.GlobalEnable = CWIL.WrapToggle(Settings.Instance.GlobalEnable,"Enabled");
 
