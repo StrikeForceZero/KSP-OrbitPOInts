@@ -5,12 +5,16 @@ using System.Linq;
 using UnityEngineMock;
 using KSP_CelestialBody = KSPMock.CelestialBody;
 using KSP_FlightGlobals = KSPMock.FlightGlobals;
+using KSP_GameScenes = KSPMock.GameScenes;
+using KSP_HighLogic = KSPMock.HighLogic;
 using JB_Annotations = UnityEngineMock.JetBrains.Annotations;
 #else
 using UnityEngine;
 using UniLinq;
 using KSP_CelestialBody = CelestialBody;
 using KSP_FlightGlobals = FlightGlobals;
+using KSP_GameScenes = GameScenes;
+using KSP_HighLogic = HighLogic;
 using JB_Annotations = JetBrains.Annotations;
 #endif
 
@@ -19,11 +23,24 @@ namespace OrbitPOInts.Extensions.KSP
     using CelestialBody = KSP_CelestialBody;
     using FlightGlobals = KSP_FlightGlobals;
     using CanBeNull = JB_Annotations.CanBeNullAttribute;
+    using GameScenes = KSP_GameScenes;
+    using HighLogic = KSP_HighLogic;
 
     public static class CelestialBodyExtensions
     {
-        public static bool IsPqsUsable(this CelestialBody body) =>
-            body && body.pqsController && body.pqsController.isActiveAndEnabled;
+
+        public static bool IsPqsUsable(this CelestialBody body)
+        {
+            if (!body || !body.pqsController || !body.pqsController.isActiveAndEnabled) return false;
+
+            return HighLogic.LoadedScene switch
+            {
+                GameScenes.FLIGHT => FlightGlobals.ready,
+                GameScenes.TRACKSTATION => true,
+                GameScenes.SPACECENTER => true,
+                _ => false
+            };
+        }
         
         // TODO: scale sampleRes based on body.Radius
         public static double GetApproxTerrainMaxHeight(this CelestialBody body, int sampleResolution = 100)
