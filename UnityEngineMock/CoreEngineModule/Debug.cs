@@ -13,5 +13,10 @@ namespace UnityEngineMock
         {
             Console.WriteLine(message);
         }
+        
+        public static void LogWarning(string message)
+        {
+            Console.WriteLine(message);
+        }
     }
 }

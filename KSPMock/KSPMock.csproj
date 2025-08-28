@@ -66,6 +66,7 @@
         <Compile Include="Orbit.cs" />
         <Compile Include="Part.cs" />
         <Compile Include="PlanetariumCamera.cs" />
+        <Compile Include="PQS.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <Compile Include="ScaledSpace.cs" />
         <Compile Include="ScenarioCreationOptions.cs" />
