@@ -44,6 +44,8 @@ namespace OrbitPOInts
 
                 foreach (var body in bodies.Where(body => body))
                 {
+                    var value = body.Radius; // fallback
+                    
                     try
                     {
                         // Skip bodies without usable PQS (e.g., Sun, some gas giants or not ready)
@@ -53,17 +55,20 @@ namespace OrbitPOInts
                             continue;
                         }
 
-                        var max = body.GetApproxTerrainMaxHeight();
-                        var maxAlt = body.Radius + max;
-                        dict[body] = maxAlt;
+                        var max = body.GetApproxTerrainMaxHeight(/*res*/ 32);
+                        // store absolute surface radius at max terrain
+                        value = body.Radius + Math.Max(0, max);
                         
-                        Debug.Log($"[OrbitPOInts] Cached {body.bodyName}: max terrain alt {maxAlt:N0} m");
+                        Debug.Log($"[OrbitPOInts] Cached {body.bodyName}: max terrain alt {value:N0} m");
                     }
                     catch (Exception ex)
                     {
                         // Skip bad body instead of failing the whole map
                         Debug.LogError($"[OrbitPOInts] Failed sampling {body?.bodyName ?? "<null>"}: {ex}");
                     }
+                    
+                    // IMPORTANT: always add the body, even if PQS was not used
+                    dict[body] = value;
                 }
 
                 _bodyToMaxAltitudeDictionary = new ReadOnlyDictionary<CelestialBody,double>(dict);
