@@ -480,7 +480,9 @@ namespace OrbitPOInts.UI
         private void CloseWindow()
         {
             LogDebug("CloseWindow");
-            if (!Settings.Instance.UseQuickEnableToggle)
+            // prevent re-initializing Settings
+            var shouldQuickToggle = Settings.TryGetInstance(out var s) && s.UseQuickEnableToggle;
+            if (!shouldQuickToggle)
             {
                 toolbarButton.SetFalse();
             }

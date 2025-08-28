@@ -63,6 +63,15 @@ namespace OrbitPOInts
         {
             Dispose(false);
         }
+        
+        public static bool HasInstance => _instance is { IsDisposed: false };
+
+        public static bool TryGetInstance(out Settings settings)
+        {
+            settings = _instance;
+            return settings != null;
+        }
+
 
         private bool _disposed = false;
 
@@ -145,7 +154,7 @@ namespace OrbitPOInts
         {
             get
             {
-                if (_instance != null) return _instance;
+                if (HasInstance) return _instance;
                 lock (Padlock)
                 {
                     _instance ??= new Settings();
