@@ -5,44 +5,44 @@ on:
         branches: [ main, master ]
     pull_request:
         branches: [ main, master ]
+    workflow_dispatch:
 
 jobs:
     build:
         runs-on: ubuntu-latest
+        container:
+            image: mono:6.12.0.182   # includes msbuild; don't apt-get inside
         
         steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
 
-            - name: Install Mono (msbuild, mono runtime)
+            - name: Show tool versions
               run: |
-                  sudo apt-get update
-                  sudo apt-get install -y mono-complete
                   mono --version
                   msbuild /version
-
-            - name: Cache NuGet artifacts
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      packages
-                      ~/.nuget/packages
-                  key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config', '**/*.csproj', '**/*.sln') }}
-                  restore-keys: |
-                      ${{ runner.os }}-nuget-
 
             - name: Download nuget.exe
               run: |
                   mkdir -p tools
-                  curl -L https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -o tools/nuget.exe
+                  curl -sSL https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -o tools/nuget.exe
                   mono tools/nuget.exe help | head -n 1
 
-            - name: Restore NuGet packages
-              run: mono tools/nuget.exe restore OrbitPOInts.sln
+            - name: Cache NuGet
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages
+                      /root/.nuget/packages
+                  key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config', '**/*.csproj', '**/*.sln') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nuget-
 
-            - name: Ensure NUnit console runner
+            - name: Restore packages
+              run: mono tools/nuget.exe restore OrbitPOInts.sln -NonInteractive
+
+            - name: Ensure NUnit console
               run: mono tools/nuget.exe install NUnit.ConsoleRunner -Version 3.16.3 -OutputDirectory packages
-            
+
             - name: Build
               env:
                   CONFIG: Test
@@ -51,6 +51,12 @@ jobs:
             - name: Test
               env:
                   CONFIG: Test
-              run: |
-                  mono ./packages/NUnit.ConsoleRunner.3.16.3/tools/nunit3-console.exe \
-                    ./OrbitPOInts.Tests/bin/${CONFIG}/OrbitPOInts.Tests.dll
+              run: mono ./packages/NUnit.ConsoleRunner.3.16.3/tools/nunit3-console.exe --result="TestResult.xml;format=nunit3" "./OrbitPOInts.Tests/bin/${CONFIG}/OrbitPOInts.Tests.dll"
+
+    
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: nunit-results
+                  path: TestResult.xml
