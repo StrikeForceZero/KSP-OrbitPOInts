@@ -30,6 +30,7 @@ namespace OrbitPOInts
         private IReadOnlyDictionary<string, CelestialBody> _nameToBodyDictionary;
         private Dictionary<CelestialBody,double> _bodyToMaxAltitudeDictionary;
         private ReadOnlyDictionary<CelestialBody, double> _bodyToMaxAltitudeDictionaryRO;
+        private static HashSet<CelestialBody> _bodyLoggedNoPQS = new ();
 
         public static CelestialBodyCache Instance => _instance ??= new CelestialBodyCache();
         public IReadOnlyDictionary<string, CelestialBody> NameToBodyDictionary => _nameToBodyDictionary ??= new ReadOnlyDictionary<string, CelestialBody>(FlightGlobals.Bodies.ToDictionary(body => body.name));
@@ -76,7 +77,13 @@ namespace OrbitPOInts
                 // Skip bodies without usable PQS (e.g., Sun, some gas giants or not ready)
                 if (!body.IsPqsUsable())
                 {
-                    Debug.LogWarning($"[OrbitPOInts] Skipping {body.bodyName} (no usable PQS).");
+                    // Log once per body
+                    // Prevents log spam for Sun / Jool
+                    if (_bodyLoggedNoPQS.Add(body))
+                    {
+                        Debug.LogWarning($"[OrbitPOInts] Skipping {body.bodyName} (no usable PQS).");
+                    }
+
                     return false;
                 }
 
