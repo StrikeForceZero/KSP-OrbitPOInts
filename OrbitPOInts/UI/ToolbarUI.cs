@@ -255,16 +255,19 @@ namespace OrbitPOInts.UI
             }
         }
 
+        public static void UpdateSkin()
+        {
+            GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
+        }
+
 
         private void OnGUI()
         {
-            if (showUI)
-            {
-                GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
-                windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts", WindowStyle.GetSharedDarkWindowStyle());
-                _colorPicker.OnGUI();
-                _optionsPopup.OnGUI();
-            }
+            if (!showUI) return;
+            UpdateSkin();
+            windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts", WindowStyle.GetSharedDarkWindowStyle());
+            _colorPicker.OnGUI();
+            _optionsPopup.OnGUI();
         }
 
         private static GUILayoutOption[] MergeOptions(GUILayoutOption[] optionsA, params GUILayoutOption[] optionsB) => optionsA.Concat(optionsB).ToArray();

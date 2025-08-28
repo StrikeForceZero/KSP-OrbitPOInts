@@ -53,7 +53,7 @@ namespace OrbitPOInts.UI
         internal void OnGUI()
         {
             if (!_showGUI) return;
-            GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
+            ToolbarUI.UpdateSkin();
             _windowRect = GUILayout.Window(1234567, _windowRect, DrawUI, "OrbitPOInts Options", WindowStyle.GetSharedDarkWindowStyle());
         }
 
