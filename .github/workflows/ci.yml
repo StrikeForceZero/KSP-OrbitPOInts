@@ -1,29 +1,56 @@
 name: Mono CI
 
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    push:
+        branches: [ main, master ]
+    pull_request:
+        branches: [ main, master ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    container:
-      image: mono:latest
+    build:
+        runs-on: ubuntu-latest
+        
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+            - name: Install Mono (msbuild, mono runtime)
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y mono-complete
+                  mono --version
+                  msbuild /version
 
-    - name: Setup NuGet
-      run: apt-get update && apt-get install -y nuget
+            - name: Cache NuGet artifacts
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages
+                      ~/.nuget/packages
+                  key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.config', '**/*.csproj', '**/*.sln') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nuget-
 
-    - name: Restore NuGet packages
-      run: nuget restore
+            - name: Download nuget.exe
+              run: |
+                  mkdir -p tools
+                  curl -L https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -o tools/nuget.exe
+                  mono tools/nuget.exe help | head -n 1
 
-    - name: Build
-      run: msbuild /p:Configuration=Test
+            - name: Restore NuGet packages
+              run: mono tools/nuget.exe restore OrbitPOInts.sln
 
-    - name: Test
-      run: mono ./packages/NUnit.ConsoleRunner.3.16.3/tools/nunit3-console.exe ./OrbitPOInts.Tests/bin/Test/OrbitPOInts.Tests.dll
+            - name: Ensure NUnit console runner
+              run: mono tools/nuget.exe install NUnit.ConsoleRunner -Version 3.16.3 -OutputDirectory packages
+            
+            - name: Build
+              env:
+                  CONFIG: Test
+              run: msbuild OrbitPOInts.sln /p:Configuration=${CONFIG} /verbosity:minimal
+
+            - name: Test
+              env:
+                  CONFIG: Test
+              run: |
+                  mono ./packages/NUnit.ConsoleRunner.3.16.3/tools/nunit3-console.exe \
+                    ./OrbitPOInts.Tests/bin/${CONFIG}/OrbitPOInts.Tests.dll
