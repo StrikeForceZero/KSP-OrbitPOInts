@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-08-29 v0.6.1
+- Fixed:
+    - Add spacing around Close button to stop click-through to Enabled toggle.
+    - Defer max-terrain sampling to first use; add per-body retry and body radius fallback when PQS is unavailable, preventing scene-transition errors/Tracking Station lockups.
+
 ## 2023-10-10 v0.6
 - Added:
     - Option to Use LeftClick to toggle / RightClick for settings
