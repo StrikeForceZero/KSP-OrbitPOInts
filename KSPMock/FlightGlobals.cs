@@ -7,5 +7,6 @@ namespace KSPMock
         public static List<CelestialBody> Bodies;
 
         public static FlightGlobals fetch;
+        public static bool ready;
     }
 }

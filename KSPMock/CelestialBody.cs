@@ -19,6 +19,8 @@ namespace KSPMock
         public Orbit orbit;
         // TODO: OrbitDriver not stubbed
         // public OrbitDriver orbitDriver;
+        // required initialized for tests
+        public PQS pqsController = new();
 
         public MapObject MapObject;
 
@@ -111,6 +113,11 @@ namespace KSPMock
         public static bool operator false(CelestialBody body)
         {
             return body == null;
+        }
+        
+        public double GetRelSurfaceNVector(double lat, double lon)
+        {
+            return 0;
         }
     }
 }

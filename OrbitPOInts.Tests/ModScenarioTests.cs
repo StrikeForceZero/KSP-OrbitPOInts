@@ -28,6 +28,7 @@ namespace OrbitPOInts.Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+            HighLogic.LoadedScene = GameScenes.TRACKSTATION;
             _serializerOptions = new JsonSerializerOptions
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,

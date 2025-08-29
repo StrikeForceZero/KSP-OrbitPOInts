@@ -255,16 +255,19 @@ namespace OrbitPOInts.UI
             }
         }
 
+        public static void UpdateSkin()
+        {
+            GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
+        }
+
 
         private void OnGUI()
         {
-            if (showUI)
-            {
-                GUI.skin = Settings.Instance.UseSkin ? HighLogic.Skin : null;
-                windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts", WindowStyle.GetSharedDarkWindowStyle());
-                _colorPicker.OnGUI();
-                _optionsPopup.OnGUI();
-            }
+            if (!showUI) return;
+            UpdateSkin();
+            windowRect = GUILayout.Window(12345, windowRect, DrawUI, "OrbitPOInts", WindowStyle.GetSharedDarkWindowStyle());
+            _colorPicker.OnGUI();
+            _optionsPopup.OnGUI();
         }
 
         private static GUILayoutOption[] MergeOptions(GUILayoutOption[] optionsA, params GUILayoutOption[] optionsB) => optionsA.Concat(optionsB).ToArray();
@@ -410,6 +413,9 @@ namespace OrbitPOInts.UI
             GUILayout.BeginVertical();
 
                 Controls.StandardCloseButton(CloseWindow, !Settings.Instance.UseTopRightCloseButton);
+                
+                // Prevent button from overlapping `Enabled` toggle
+                GUILayout.Space(5);
 
                 Settings.Instance.GlobalEnable = CWIL.WrapToggle(Settings.Instance.GlobalEnable,"Enabled");
 
@@ -480,7 +486,9 @@ namespace OrbitPOInts.UI
         private void CloseWindow()
         {
             LogDebug("CloseWindow");
-            if (!Settings.Instance.UseQuickEnableToggle)
+            // prevent re-initializing Settings
+            var shouldQuickToggle = Settings.TryGetInstance(out var s) && s.UseQuickEnableToggle;
+            if (!shouldQuickToggle)
             {
                 toolbarButton.SetFalse();
             }

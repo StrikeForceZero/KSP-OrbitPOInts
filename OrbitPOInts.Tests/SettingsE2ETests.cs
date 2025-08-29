@@ -56,6 +56,7 @@ namespace OrbitPOInts.Tests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
+            HighLogic.LoadedScene = GameScenes.TRACKSTATION;
             var mockTerrainService = new Mock<ITerrainService>();
             mockTerrainService.Setup(c => c.TerrainAltitude(It.IsAny<double>(), It.IsAny<double>(), It.IsAny<bool>())).Returns(1);
             testBody = new MockCelestialBody(mockTerrainService.Object)
